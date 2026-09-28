@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>OMNIH - Iniciar Sesión</title>
+  <style>
+    :root {
+      --bg-canvas: #edf2f7;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --accent-gold: #c5a059;
+      --border-color: #e2e8f0;
+      --active-blue: #3182ce;
+      --error-red: #e53e3e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-canvas);
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 1rem;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      width: 100%;
+      max-width: 480px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+      position: relative;
+      padding: 1.5rem 1.25rem;
+    }
+
+    .top-navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .brand-logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .dna-box {
+      width: 32px;
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .dna-icon {
+      width: 32px;
+      height: 44px;
+      transform: rotate(45deg);
+      display: block;
+    }
+
+    .text-omnih {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .btn-top-register {
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-top-register:hover {
+      border-color: var(--active-blue);
+      color: var(--active-blue);
+      background-color: #f8fafc;
+    }
+
+    .protocol-subbar {
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+
+    .header-protocol-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 0.3px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      outline: none;
+      background: #ffffff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: #63b3ed;
+      box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
+    }
+
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #90cdf4 0%, #bee3f8 50%, #ffffff 100%);
+      color: #1a365d;
+      border: 1px solid #90cdf4;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(144, 205, 244, 0.35);
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #bee3f8 0%, #ebf8ff 60%, #ffffff 100%);
+      color: var(--active-blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .quote-box {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--accent-gold);
+      padding: 12px 14px;
+      margin-top: 24px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .quote-text {
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    .quote-source {
+      display: block;
+      margin-top: 6px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header class="top-navbar">
+    <a href="/" class="brand-logo-link" title="Ir a la Raíz">
+      <div class="dna-box">
+        <svg viewBox="0 0 120 240" width="32" height="44" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#b03a8a" />
+              <stop offset="35%" stop-color="#704fa0" />
+              <stop offset="70%" stop-color="#3b7cb3" />
+              <stop offset="100%" stop-color="#4aa47a" />
+            </linearGradient>
+            <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d95438" />
+              <stop offset="100%" stop-color="#eab308" />
+            </linearGradient>
+          </defs>
+          <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+          <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+        </svg>
+      </div>
+      <span class="text-omnih">OMNIH</span>
+    </a>
+    <a href="/registro" class="btn-top-register">REGISTRARSE</a>
+  </header>
+
+  <div class="protocol-subbar">
+    <span class="header-protocol-text">PROTOCOLO DE INICIO DE SESIÓN</span>
+  </div>
+
+  <main class="form-body">
+    <form id="formLogin" novalidate>
+      <div class="form-group">
+        <label for="loginEmail">Correo Electrónico</label>
+        <input type="email" id="loginEmail" name="email" placeholder="correo@ejemplo.com" autocomplete="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Contraseña</label>
+        <div class="input-wrapper">
+          <input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" id="btnTogglePassword" class="btn-toggle-pwd" aria-label="Mostrar u ocultar contraseña">Ver</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btnLoginSubmit">INICIAR SESIÓN</button>
+    </form>
+  </main>
+
+  <aside class="quote-box">
+    <p class="quote-text">"Bienvenido, sumando para compilar la historia del futuro."</p>
+    <span class="quote-source">— Comunidad de la Omnihistoria</span>
+  </aside>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('formLogin');
+    const emailInput = document.getElementById('loginEmail');
+    const pwdInput = document.getElementById('loginPassword');
+    const btnSubmit = document.getElementById('btnLoginSubmit');
+    const togglePwdBtn = document.getElementById('btnTogglePassword');
+
+    togglePwdBtn.addEventListener('click', () => {
+      const isPwd = pwdInput.type === 'password';
+      pwdInput.type = isPwd ? 'text' : 'password';
+      togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
+    });
+
+    async function generateHash(input) {
+      const msgUint8 = new TextEncoder().encode(input.toLowerCase().trim());
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'AUTENTICANDO...';
+
+      try {
+        const email = emailInput.value.trim();
+        const userHash = await generateHash(`${email}_OMNIH_SALT_2026`);
+
+        sessionStorage.setItem('omnih_active_user', userHash);
+        sessionStorage.setItem('omnih_user_email', email);
+        sessionStorage.setItem('omnih_auth_time', Date.now().toString());
+
+        window.location.href = '/central';
+      } catch (error) {
+        console.error('Error en autenticación:', error);
+        alert('Ocurrió un error al procesar el inicio de sesión.');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'INICIAR SESIÓN';
+      }
+    });
+  });
+</script>
+</body>
+</html>
