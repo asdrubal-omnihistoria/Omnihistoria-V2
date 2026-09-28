@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OMNIH | Taller Operativo del Preservador</title>
+  <style>
+    :root {
+      --bg-light: #ffffff;
+      --panel-bg: #f8fafc;
+      --accent-gold: #c5a059;
+      --accent-blue: #0284c7;
+      --accent-blue-light: #e0f2fe;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --btn-gray: #f1f5f9;
+      --btn-gray-text: #334155;
+      --alert-red: #b91c1c;
+      --success-green: #15803d;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: system-ui, -apple-system, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body { 
+      background-color: var(--bg-light); 
+      color: var(--text-main); 
+      min-height: 100dvh; 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    /* HEADER SUPERIOR */
+    header { background: #ffffff; border-bottom: 1px solid var(--border-color); padding: 10px 20px; position: sticky; top: 0; z-index: 20; }
+    .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 850px; margin: 0 auto; width: 100%; }
+    
+    .brand-logo-link { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .dna-box { width: 28px; height: 38px; display: flex; justify-content: center; align-items: center; }
+    .dna-icon { width: 28px; height: 38px; transform: rotate(45deg); display: block; }
+    .text-omnih { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .hamburger-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-main); padding: 6px; }
+
+    /* CONTENEDOR PRINCIPAL */
+    main { flex: 1; max-width: 850px; width: 100%; margin: 0 auto; padding: 20px 20px 100px 20px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* PERFIL DEL PRESERVADOR */
+    .profile-hero { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    
+    /* CARRUSEL DE ANEXOS */
+    .carousel-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .carousel-container { 
+      display: flex; 
+      gap: 12px; 
+      overflow-x: auto; 
+      scroll-behavior: smooth; 
+      padding: 4px; 
+      scrollbar-width: none; 
+      width: 100%; 
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+    }
+    .carousel-container::-webkit-scrollbar { display: none; }
+    
+    .carousel-item { 
+      width: 84px; 
+      height: 84px; 
+      border-radius: 8px; 
+      border: 1px dashed var(--border-color); 
+      flex-shrink: 0; 
+      background: #ffffff; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 0.72rem; 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      scroll-snap-align: start;
+      overflow: hidden;
+      position: relative;
+    }
+    .carousel-item.btn-add { border-style: dashed; border-color: var(--accent-blue); color: var(--accent-blue); font-weight: 700; }
+    .carousel-item img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .carousel-nav-btn { 
+      background: rgba(255, 255, 255, 0.95); 
+      border: 1px solid var(--border-color); 
+      border-radius: 50%; 
+      width: 32px; 
+      height: 32px; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      position: absolute; 
+      z-index: 5; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    .carousel-nav-btn.prev { left: -8px; }
+    .carousel-nav-btn.next { right: -8px; }
+
+    .user-info { display: flex; align-items: center; gap: 14px; }
+    .user-avatar-badge { width: 50px; height: 50px; border-radius: 10px; background: #e2e8f0; border: 2px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .user-details { display: flex; flex-direction: column; gap: 4px; }
+    .user-name { font-weight: 700; font-size: 1.05rem; color: var(--text-main); }
+    
+    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .rank-tag { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: var(--accent-blue-light); color: var(--accent-blue); border: 1px solid #bae6fd; }
+    .vinculo-tag { display: flex; align-items: center; gap: 4px; background: #ffffff; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
+    .vinculo-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+    .vinculo-select { background: transparent; border: none; font-size: 0.72rem; font-weight: 700; color: var(--accent-blue); outline: none; cursor: pointer; }
+
+    /* ÁREA DE REDACCIÓN */
+    .editor-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .editor-title { font-size: 0.82rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.5px; text-transform: uppercase; }
+    
+    textarea { 
+      width: 100%; 
+      min-height: 240px; 
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; 
+      padding: 14px; 
+      font-size: 1rem; 
+      line-height: 1.6; 
+      outline: none; 
+      resize: vertical; 
+      background: #fafafa; 
+    }
+    textarea:focus { background: #ffffff; border-color: var(--accent-blue); }
+
+    .attachment-bar { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; }
+    .action-btns { display: flex; gap: 8px; }
+    
+    .btn-action { 
+      padding: 10px 16px; 
+      font-size: 0.8rem; 
+      font-weight: 700; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      border: none; 
+      transition: all 0.2s ease;
+    }
+    .btn-capsule { background: var(--panel-bg); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+    .btn-capsule:hover { background: #fef9c3; }
+
+    /* GUÍA DE IA ASISTENTE */
+    .ai-guidance-floating { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 810px; background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid var(--accent-blue); border-radius: 8px; font-size: 0.78rem; color: #0369a1; box-shadow: 0 4px 12px rgba(0,0,0,0.06); z-index: 15; }
+    .ai-guidance-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #e0f2fe; cursor: pointer; font-weight: 700; user-select: none; }
+    .ai-guidance-content { padding: 12px 14px; display: none; line-height: 1.5; background: #f0f9ff; border-top: 1px solid #bae6fd; }
+    .ai-guidance-floating.open .ai-guidance-content { display: block; }
+
+    /* DRAWER OVERLAY & PANEL */
+    .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.4); z-index: 25; }
+    .drawer-overlay.active { display: block; }
+    .drawer-panel { position: fixed; top: 0; right: -100%; width: 280px; height: 100dvh; background: #ffffff; border-left: 1px solid var(--border-color); transition: right 0.3s ease; z-index: 30; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+    .drawer-panel.active { right: 0; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 14px; }
+    .drawer-title { font-size: 1.1rem; font-weight: 800; color: var(--accent-gold); }
+    .btn-close-drawer { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+    .drawer-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .drawer-menu li a { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; display: block; padding: 8px 10px; border-radius: 6px; }
+    .drawer-menu li a:hover { background-color: var(--accent-blue-light); color: var(--accent-blue); }
+    .btn-logout { display: block; width: 100%; padding: 10px; text-align: center; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px; color: var(--alert-red); font-size: 0.85rem; font-weight: 700; text-decoration: none; }
+
+    /* FOOTER */
+    footer { padding: 14px 20px; background: #ffffff; border-top: 1px solid var(--border-color); text-align: center; }
+    .hash-badge { font-family: ui-monospace, monospace; background: var(--panel-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+    .human-cert { color: var(--success-green); font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
+    .hash-title { font-size: 0.72rem; color: var(--text-muted); }
+    .hash-value { font-weight: 700; color: var(--text-main); font-size: 0.76rem; }
+  </style>
+</head>
+<body>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <aside class="drawer-panel" id="drawer-menu">
+    <div>
+      <div class="drawer-header">
+        <span class="drawer-title">OMNIH TALLER</span>
+        <button type="button" class="btn-close-drawer" id="btnCloseDrawer" aria-label="Cerrar menú">&times;</button>
+      </div>
+      
+      <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Módulos del Sistema</div>
+      <ul class="drawer-menu">
+        <li><a href="/">1. Portal y Blog (Raíz)</a></li>
+        <li><a href="/capsula">2. Cápsula del Tiempo (Resguardo)</a></li>
+        <li><a href="/carga">3. Módulo Corporativo (Convenios)</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <a href="/login" class="btn-logout" id="btnLogout">Cerrar Sesión Soberana</a>
+    </div>
+  </aside>
+
+  <header>
+    <div class="header-content">
+      <a href="/" class="brand-logo-link" title="Ir a la Raíz">
+        <div class="dna-box">
+          <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b03a8a" />
+                <stop offset="35%" stop-color="#704fa0" />
+                <stop offset="70%" stop-color="#3b7cb3" />
+                <stop offset="100%" stop-color="#4aa47a" />
+              </linearGradient>
+              <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d95438" />
+                <stop offset="100%" stop-color="#eab308" />
+              </linearGradient>
+            </defs>
+            <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+            <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span class="text-omnih">OMNIH</span>
+      </a>
+
+      <div class="header-right">
+        <button class="hamburger-btn" id="btnOpenDrawer" type="button" aria-label="Abrir menú">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="profile-hero">
+      <div class="carousel-wrapper">
+        <button class="carousel-nav-btn prev" id="btnPrevCarousel" type="button">&#10094;</button>
+        <div class="carousel-container" id="photo-carousel">
+          <div class="carousel-item btn-add" id="btnTriggerUpload">
+            <span>+ Tesela</span>
+          </div>
+        </div>
+        <button class="carousel-nav-btn next" id="btnNextCarousel" type="button">&#10095;</button>
+        <input type="file" id="carousel-upload" accept="image/*" style="display: none;">
+      </div>
+
+      <div class="user-info">
+        <div class="user-avatar-badge">🏛️</div>
+        <div class="user-details">
+          <div class="user-name">Preservador: <span id="user-display-name">Activo</span></div>
+          <div class="tags-container">
+            <div class="rank-tag">Genehistoriador V2</div>
+            <div class="vinculo-tag">
+              <span class="vinculo-label">Vínculo:</span>
+              <select class="vinculo-select" id="vinculo-select">
+                <option value="Soberano / Testimonio Propio">Soberano / Propio</option>
+                <option value="Familiar Directo">Familiar Directo</option>
+                <option value="Institucional">Institucional</option>
+                <option value="Comunitario">Comunitario</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="editor-card">
+      <div class="editor-title">Taller de Formalización de Teselas</div>
+      <textarea 
+        id="relato-text"
+        placeholder="Escribe el testimonio, concepto u ontología histórica para someter a resguardo duradero..."
+      ></textarea>
+
+      <div class="attachment-bar">
+        <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Borrador local disponible</span>
+        <div class="action-btns">
+          <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="ai-guidance-floating" id="ai-guidance-box">
+    <div class="ai-guidance-header" id="btnToggleAi">
+      <span>🤖 Asistente Ontológico IA (Protocolo de Registro)</span>
+      <span id="ai-toggle-icon">▲</span>
+    </div>
+    <div class="ai-guidance-content">
+      <p><strong>Criterios Historiográficos de Validación:</strong></p>
+      <ol style="margin-left: 18px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+        <li>Sitúa temporalmente el acontecimiento o concepto.</li>
+        <li>Indica las entidades o individuos copartícipes.</li>
+        <li>Asocia los anexos visuales antes de transferir el registro a la Cápsula.</li>
+      </ol>
+    </div>
+  </aside>
+
+  <footer>
+    <div class="hash-badge">
+      <div class="human-cert">✓ Certificación de Presencia Humana Digital</div>
+      <div class="hash-title">
+        <strong>Hash de Sesión Tesela:</strong> <span class="hash-value" id="user-hash-display">Calculando...</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Control de Seguridad de Sesión
+      const activeUser = sessionStorage.getItem('omnih_active_user');
+      const userEmail = sessionStorage.getItem('omnih_user_email');
+      const userSessionRaw = localStorage.getItem('omnih_user_session');
+
+      if (!activeUser && !userEmail) {
+        window.location.href = '/login';
+        return;
+      }
+
+      // 2. Hidratación de UI con datos de sesión
+      let displayName = 'Preservador Soberano';
+      if (userSessionRaw) {
+        try {
+          const parsed = JSON.parse(userSessionRaw);
+          if (parsed.username) displayName = parsed.username;
+        } catch (e) {
+          console.warn('Error parseando sesión de usuario');
+        }
+      } else if (userEmail) {
+        displayName = userEmail.split('@')[0];
+      }
+      document.getElementById('user-display-name').textContent = displayName;
+      document.getElementById('user-hash-display').textContent = activeUser || '0xAUTORIZADO_V2';
+
+      // 3. Menú Lateral (Drawer)
+      const drawer = document.getElementById('drawer-menu');
+      const overlay = document.getElementById('drawer-overlay');
+      const openDrawer = () => { drawer.classList.add('active'); overlay.classList.add('active'); };
+      const closeDrawer = () => { drawer.classList.remove('active'); overlay.classList.remove('active'); };
+
+      document.getElementById('btnOpenDrawer').addEventListener('click', openDrawer);
+      document.getElementById('btnCloseDrawer').addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+
+      document.getElementById('btnLogout').addEventListener('click', () => {
+        sessionStorage.clear();
+      });
+
+      // 4. Guía de IA Desplegable
+      const aiBox = document.getElementById('ai-guidance-box');
+      const aiToggleIcon = document.getElementById('ai-toggle-icon');
+      document.getElementById('btnToggleAi').addEventListener('click', () => {
+        const isOpen = aiBox.classList.toggle('open');
+        aiToggleIcon.textContent = isOpen ? '▼' : '▲';
+      });
+
+      // 5. Carrusel de Teselas
+      const carousel = document.getElementById('photo-carousel');
+      document.getElementById('btnPrevCarousel').addEventListener('click', () => {
+        carousel.scrollBy({ left: -100, behavior: 'smooth' });
+      });
+      document.getElementById('btnNextCarousel').addEventListener('click', () => {
+        carousel.scrollBy({ left: 100, behavior: 'smooth' });
+      });
+
+      const uploadTrigger = document.getElementById('btnTriggerUpload');
+      const fileInput = document.getElementById('carousel-upload');
+      const uploadedImages = [];
+
+      uploadTrigger.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            uploadedImages.push(dataUrl);
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'carousel-item';
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.alt = 'Tesela cargada';
+            itemDiv.appendChild(img);
+            carousel.appendChild(itemDiv);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // 6. Puente Activo hacia la Cápsula del Tiempo (Rama 1)
+      const relatoText = document.getElementById('relato-text');
+      const vinculoSelect = document.getElementById('vinculo-select');
+      const btnSendToCapsule = document.getElementById('btnSendToCapsule');
+
+      btnSendToCapsule.addEventListener('click', () => {
+        const texto = relatoText.value.trim();
+        if (!texto) {
+          alert('Por favor escribe tu testimonio antes de enviarlo a la Cápsula.');
+          relatoText.focus();
+          return;
+        }
+
+        const payloadCapsula = {
+          autor: displayName,
+          hash: activeUser,
+          vinculo: vinculoSelect.value,
+          testimonio: texto,
+          fecha_sellado: new Date().toISOString(),
+          imagenes_count: uploadedImages.length
+        };
+
+        sessionStorage.setItem('omnih_capsula_activa', JSON.stringify(payloadCapsula));
+        window.location.href = '/capsula';
+      });
+    });
+  </script>
+</body>
+</html>
