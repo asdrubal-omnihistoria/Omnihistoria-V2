@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OMNIH | Repositorio de Legado - Servicio Público</title>
   
   <!-- Dependencias Cartográficas Oficiales D3.js v7 y TopoJSON -->
@@ -11,12 +11,14 @@
 
   <style>
     :root {
-      --bg-canvas: #edf2f7;
+      --bg-canvas: #0f172a;
       --card-bg: #ffffff;
       --text-dark: #0f172a;
       --text-muted: #64748b;
       --accent-gold: #c5a059;
+      --accent-gold-dark: #997a15;
       --accent-green: #10b981;
+      --accent-green-dark: #047857;
       --border-color: #e2e8f0;
       --active-blue: #0284c7;
       --active-blue-light: #e0f2fe;
@@ -26,30 +28,35 @@
       box-sizing: border-box; 
       margin: 0; 
       padding: 0; 
-      font-family: system-ui, -apple-system, sans-serif; 
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
       -webkit-tap-highlight-color: transparent;
     }
 
     body { 
-      background: var(--bg-canvas); 
+      background: #f1f5f9; 
       color: var(--text-dark); 
       min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 1rem 0.5rem; 
+      padding: 1.5rem 1rem;
     }
-    
+
+    /* CONTENEDOR FLUIDO Y RESPONSIVO */
     .app-frame {
-      max-width: 500px;
+      max-width: 940px;
       width: 100%;
       background: var(--card-bg);
-      border-radius: 24px;
+      border-radius: 20px;
       border: 1px solid var(--border-color);
-      padding: 1.25rem 1rem;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
       position: relative;
-      overflow: hidden;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 0; background: #ffffff; }
+      .app-frame { border-radius: 0; border: none; box-shadow: none; padding: 1rem 0.85rem; }
     }
 
     /* BARRA SUPERIOR E IDENTIDAD */
@@ -57,20 +64,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .brand-logo-link {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
       touch-action: manipulation;
     }
 
     .dna-box {
-      width: 28px;
-      height: 38px;
+      width: 32px;
+      height: 42px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -78,14 +87,14 @@
     }
 
     .dna-icon {
-      width: 28px;
-      height: 38px;
+      width: 32px;
+      height: 42px;
       transform: rotate(45deg);
       display: block;
     }
 
     .text-omnih {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 800;
       letter-spacing: 0.04em;
       background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%);
@@ -97,29 +106,28 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .btn-top {
       border: 1.5px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 0.35rem 0.75rem; 
+      color: var(--text-dark);
+      padding: 0.45rem 0.9rem; 
       border-radius: 8px; 
       font-weight: 700; 
-      font-size: 0.75rem; 
+      font-size: 0.8rem; 
       text-decoration: none;
       transition: all 0.2s ease;
       touch-action: manipulation;
-      user-select: none;
     }
 
     .btn-top.gold {
       border-color: var(--accent-gold);
-      color: var(--accent-gold);
-      background: #ffffff;
+      color: var(--accent-gold-dark);
+      background: #fffdf5;
     }
 
-    .btn-top:hover, .btn-top:active {
+    .btn-top:hover {
       border-color: var(--active-blue);
       color: var(--active-blue);
     }
@@ -129,30 +137,33 @@
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 0.5rem; 
+      margin-bottom: 0.75rem; 
+      flex-wrap: wrap;
+      gap: 6px;
     }
     
     .hud-badge { 
-      background: #f1f5f9; 
+      background: #f8fafc; 
       border: 1px solid var(--border-color); 
       color: var(--text-muted); 
-      font-size: 0.65rem; 
+      font-size: 0.7rem; 
       font-weight: 700; 
-      padding: 0.25rem 0.5rem; 
-      border-radius: 12px; 
+      padding: 0.3rem 0.6rem; 
+      border-radius: 8px; 
       font-family: ui-monospace, monospace;
     }
-    .status-ok { color: var(--accent-green); }
+    .status-ok { color: var(--accent-green-dark); font-weight: 800; }
 
+    /* TITULARES HEMISFERIOS */
     .hemisphere-titles { 
       display: flex; 
-      justify-content: space-between; 
-      font-size: 0.65rem; 
+      justify-content: space-around; 
+      font-size: 0.75rem; 
       font-weight: 800; 
       color: var(--text-muted); 
-      margin: 0.6rem 0 0.2rem; 
-      padding: 0 0.5rem; 
-      user-select: none; 
+      margin: 1rem 0 0.4rem; 
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     /* MAPAMUNDI: LOS DOS HEMISFERIOS D3 */
@@ -160,54 +171,98 @@
       display: flex; 
       justify-content: center; 
       align-items: center; 
-      gap: 0;
+      gap: 1rem;
       width: 100%;
       position: relative;
       z-index: 1;
-      min-height: 210px;
+      margin: 0.5rem 0;
+      flex-wrap: wrap;
     }
     
+    .map-globe-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1 1 240px;
+      max-width: 320px;
+    }
+
     .map-globe {
-      width: 210px;
-      height: 210px;
-      flex-shrink: 0;
-      margin: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 260px;
+      max-height: 260px;
+      margin: 0 auto;
       touch-action: manipulation;
+    }
+
+    .map-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ESTILOS SVG CARTOGRÁFICO */
+    .sphere {
+      fill: #f8fafc;
+      stroke: #94a3b8;
+      stroke-width: 1.2px;
+    }
+
+    .graticule {
+      fill: none;
+      stroke: #e2e8f0;
+      stroke-width: 0.5px;
+      stroke-dasharray: 2,2;
+      pointer-events: none;
     }
 
     .land {
       fill: #cbd5e1;
       stroke: #94a3b8;
       stroke-width: 0.4px;
-      transition: fill 0.4s ease;
+      transition: all 0.3s ease;
       cursor: pointer;
     }
-    .land:hover { fill: #94a3b8; }
-
-    .graticule {
-      fill: none;
-      stroke: #cbd5e1;
-      stroke-width: 0.5px;
-      stroke-dasharray: 2,2;
-      pointer-events: none;
+    .land:hover { 
+      fill: #94a3b8; 
     }
 
-    .sphere {
-      fill: #f8fafc;
-      stroke: #94a3b8;
-      stroke-width: 1.2px;
-      pointer-events: none;
-    }
-
+    /* PAÍS PARTICIPANTE ACTIVO */
     .country-active {
       fill: var(--accent-green) !important;
-      stroke: #065f46 !important;
+      stroke: var(--accent-green-dark) !important;
+      stroke-width: 0.8px;
+    }
+
+    /* PAÍS / NODO DEL VISITANTE */
+    .country-user {
+      fill: var(--accent-gold) !important;
+      stroke: #78350f !important;
+      stroke-width: 1.2px;
+      filter: drop-shadow(0 0 4px rgba(197, 160, 89, 0.8));
+    }
+
+    /* VISOR DINÁMICO DE TERRITORIO SELECCIONADO */
+    .geo-live-tag {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-gold-dark);
+      background: #fffdf5;
+      border: 1px solid #fef08a;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      margin: 0.5rem auto;
+      display: inline-block;
+      max-width: 100%;
     }
 
     /* ROSA DE LOS VIENTOS */
     .compass-wrapper { 
       text-align: center; 
-      margin-top: -22px; 
+      margin-top: -15px; 
       position: relative; 
       z-index: 2; 
       display: flex;
@@ -217,88 +272,115 @@
 
     #miRosa {
       cursor: pointer;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     #miRosa:hover {
-      transform: scale(1.08) rotate(15deg);
+      transform: scale(1.1) rotate(15deg);
     }
 
     /* FICHA Y MANIFIESTO */
     .info-card { 
       border: 1px solid var(--border-color); 
       border-radius: 16px; 
-      padding: 1.1rem; 
-      margin-top: 0.6rem; 
+      padding: 1.25rem; 
+      margin-top: 1rem; 
       background: #ffffff;
     }
     
-    .card-title { font-size: 0.95rem; font-weight: 900; line-height: 1.3; }
+    .card-title { 
+      font-size: 1.05rem; 
+      font-weight: 900; 
+      line-height: 1.3; 
+      color: var(--text-dark);
+    }
     
     .counter-number {
-      font-size: 1.1rem;
+      font-size: 1.3rem;
       font-weight: 900;
-      color: var(--accent-gold);
+      color: var(--accent-gold-dark);
       display: inline-block;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-    .counter-pulse {
-      transform: scale(1.3);
-      color: var(--accent-gold);
     }
 
-    .card-sub { font-size: 0.78rem; color: var(--text-muted); margin: 0.3rem 0 0.8rem; }
-    .manifesto { font-size: 0.8rem; color: #334155; line-height: 1.45; margin-bottom: 0.8rem; }
+    .card-sub { 
+      font-size: 0.8rem; 
+      color: var(--text-muted); 
+      margin: 0.4rem 0 0.9rem; 
+      font-weight: 600;
+    }
+
+    .manifesto { 
+      font-size: 0.82rem; 
+      color: #334155; 
+      line-height: 1.5; 
+      margin-bottom: 1rem; 
+      background: #f8fafc;
+      padding: 0.85rem;
+      border-radius: 10px;
+      border-left: 3px solid var(--accent-gold);
+    }
     
-    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; }
+    .metrics-grid { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 0.75rem; 
+      text-align: center; 
+    }
+
     .metric-unit { 
-      background: #f8fafc; 
+      background: #ffffff; 
       border: 1px solid var(--border-color); 
       border-radius: 10px; 
-      padding: 0.6rem 0.2rem; 
-      user-select: none;
+      padding: 0.75rem 0.4rem; 
     }
-    .metric-val { font-size: 0.88rem; font-weight: 900; display: block; color: var(--text-dark); }
-    .metric-lbl { font-size: 0.62rem; color: var(--text-muted); display: block; }
+    .metric-val { font-size: 1rem; font-weight: 900; display: block; color: var(--text-dark); }
+    .metric-lbl { font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 2px; }
 
     /* SECCIÓN DE BLOG DINÁMICO */
     .blog-section {
-      margin-top: 1.2rem;
+      margin-top: 1.5rem;
       border-top: 1px dashed var(--border-color);
-      padding-top: 1rem;
+      padding-top: 1.25rem;
     }
     .blog-title {
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       font-weight: 800;
-      color: var(--accent-gold);
-      margin-bottom: 0.8rem;
+      color: var(--accent-gold-dark);
+      margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .blog-feed {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 640px) {
+      .blog-feed { grid-template-columns: 1fr 1fr; }
     }
     .blog-card {
       background: #f8fafc;
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 12px;
+      padding: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .blog-card:hover {
       border-color: var(--active-blue);
       background: #ffffff;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
     .blog-meta-row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .blog-badge-cat {
       font-weight: 700;
@@ -306,68 +388,81 @@
       text-transform: uppercase;
     }
     .blog-card-h3 {
-      font-size: 0.88rem;
+      font-size: 0.92rem;
       font-weight: 700;
       color: var(--text-dark);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      line-height: 1.35;
     }
     .blog-card-p {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     /* MODAL DE LECTURA DE ARTÍCULOS */
     .modal-reader {
       display: none;
-      position: absolute;
+      position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.98);
-      border-radius: 24px;
-      padding: 24px;
-      z-index: 10;
-      flex-direction: column;
-      overflow-y: auto;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
     }
     .modal-reader.active { display: flex; }
+    .modal-content-card {
+      background: #ffffff;
+      border-radius: 20px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
     .reader-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
-      margin-bottom: 14px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
     }
     .btn-close-reader {
       background: none;
       border: none;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       cursor: pointer;
       color: var(--text-muted);
+      line-height: 1;
     }
 
     .bottom-cta {
       text-align: center;
-      margin-top: 1.2rem;
+      margin-top: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
       align-items: center;
     }
     .btn-cta-main {
-      padding: 12px 24px;
+      padding: 14px 32px;
       background: linear-gradient(135deg, #c5a059 0%, #eab308 100%);
-      color: #000;
+      color: #0f172a;
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       text-decoration: none;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.25);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
       touch-action: manipulation;
-      user-select: none;
+      transition: transform 0.2s ease;
     }
+    .btn-cta-main:hover { transform: scale(1.02); }
     .corporate-link {
-      font-size: 0.72rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       text-decoration: none;
       font-weight: 600;
@@ -375,21 +470,21 @@
     .corporate-link:hover { color: var(--active-blue); }
 
     footer {
-      margin-top: 1.5rem;
-      padding-top: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
       border-top: 1px solid var(--border-color);
       text-align: center;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
     }
     .footer-links {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-top: 6px;
+      gap: 16px;
+      margin-top: 8px;
     }
     .footer-links a {
-      color: var(--accent-gold);
+      color: var(--accent-gold-dark);
       text-decoration: none;
       font-weight: 700;
     }
@@ -403,7 +498,7 @@
     <header class="top-navbar">
       <a href="/" class="brand-logo-link" title="Portal Omnihistoria">
         <div class="dna-box">
-          <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <svg viewBox="0 0 120 240" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
               <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#b03a8a" />
@@ -430,54 +525,60 @@
     </header>
 
     <div class="hud-header">
-      <span class="hud-badge">RED: <span class="status-ok">ÓPTIMA</span></span>
+      <span class="hud-badge">RED OMNIH: <span class="status-ok">SISTEMA ACTIVO</span></span>
       <span class="hud-badge" id="utc-clock">TIEMPO UTC: --:--:-- UTC</span>
     </div>
 
-    <div class="hemisphere-titles">
-      <span>HEMISFERIO OCCIDENTAL</span>
-      <span>HEMISFERIO ORIENTAL</span>
+    <!-- VISOR EN VIVO DE GEOLOCALIZACIÓN Y ESTADO -->
+    <div style="text-align: center;">
+      <span class="geo-live-tag" id="geoLiveStatus">Sincronizando coordenadas globales...</span>
     </div>
 
     <!-- DOS HEMISFERIOS D3.JS REALES (TIERRA Y MAPAMUNDI) -->
     <div class="maps-container">
-      <div id="map-west" class="map-globe"></div>
-      <div id="map-east" class="map-globe"></div>
+      <div class="map-globe-wrapper">
+        <div id="map-west" class="map-globe"></div>
+        <span class="map-label">HEMISFERIO OCCIDENTAL (-85°)</span>
+      </div>
+      <div class="map-globe-wrapper">
+        <div id="map-east" class="map-globe"></div>
+        <span class="map-label">HEMISFERIO ORIENTAL (+30°)</span>
+      </div>
     </div>
 
     <!-- ROSA DE LOS VIENTOS VECTORIAL EN CANVAS -->
     <div class="compass-wrapper">
-      <canvas id="miRosa" width="84" height="84" title="Rosa de los Vientos - Clic para alinear"></canvas>
+      <canvas id="miRosa" width="84" height="84" title="Rosa de los Vientos - Clic para calibrar orientación"></canvas>
     </div>
 
     <!-- FICHA Y MANIFIESTO -->
     <section class="info-card">
       <h2 class="card-title">
         COBERTURA GLOBAL OMNIHISTORIA:<br>
-        <span id="num-paises" class="counter-number">0</span> PAÍSES INCORPORADOS
+        <span id="num-paises" class="counter-number">--</span> PAÍSES CUSTODIOS PARTICIPANDO
       </h2>
-      <p class="card-sub" id="lista-paises">Esperando señales de registro...</p>
+      <p class="card-sub" id="lista-paises">Cargando topología de nodos soberanos...</p>
 
       <div class="manifesto">
-        <strong>MANIFIESTO PROVISIONAL</strong><br>
-        OMNIH es un protocolo para el resguardo de la memoria digital y de interés Omnihistórico de forma inmutable, conectando teselas georreferenciadas y garantizando sus procesos de preservación integral con migración tecnológica continua.
+        <strong>MANIFIESTO DEL PROTOCOLO</strong><br>
+        OMNIH es un protocolo público diseñado para el resguardo de la memoria ontologica y la huella digital de interés Omnihistorico y universal, de forma inmutable. Conecta personas y grupos (teselas) georreferenciadas a través de ambos hemisferios de la Tierra, garantizando soberanía de la data, teniendo como objetivo la preservación a 1000 años del repositorio OMNIH y generando garantias de migración tecnológica continua.
       </div>
 
       <div class="metrics-grid">
         <div class="metric-unit">
           <span class="metric-lbl">Almacenamiento</span>
-          <span class="metric-val" id="val-storage">0.00 GB</span>
-          <span class="metric-lbl">(Resguardados)</span>
+          <span class="metric-val" id="val-storage">-- GB</span>
+          <span class="metric-lbl">En Bóveda Segura</span>
         </div>
         <div class="metric-unit">
           <span class="metric-lbl">Inmutabilidad</span>
           <span class="metric-val">100%</span>
-          <span class="metric-lbl">(SHA-256)</span>
+          <span class="metric-lbl">Criptografía SHA-256</span>
         </div>
         <div class="metric-unit">
           <span class="metric-lbl">Interacciones</span>
-          <span class="metric-val" id="val-interact">0</span>
-          <span class="metric-lbl">(Mes)</span>
+          <span class="metric-val" id="val-interact">--</span>
+          <span class="metric-lbl">Nodos Activos</span>
         </div>
       </div>
     </section>
@@ -486,7 +587,7 @@
     <section class="blog-section">
       <div class="blog-title" id="blog-section-title">Aportes Filosóficos y Ontológicos</div>
       <div class="blog-feed" id="blogFeed">
-        <!-- Renderizado dinámico desde contenido.json -->
+        <div style="font-size: 0.8rem; color: var(--text-muted); padding: 1rem;">Cargando aportes canónicos...</div>
       </div>
     </section>
 
@@ -502,26 +603,28 @@
       <div class="footer-links">
         <a href="https://omnihistoria.org" target="_blank" rel="noopener">Portal Principal (.ORG)</a>
         <a href="https://omnihistoria.io" target="_blank" rel="noopener">Recursos (.IO)</a>
+        <a href="/administrador" style="opacity: 0.7;">Consola</a>
       </div>
     </footer>
 
     <!-- MODAL DE LECTURA DE ARTÍCULOS -->
     <div class="modal-reader" id="modalReader" role="dialog" aria-modal="true">
-      <div class="reader-header">
-        <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-gold);" id="readerCategory">Categoría</span>
-        <button type="button" class="btn-close-reader" id="btnCloseReader">&times;</button>
+      <div class="modal-content-card">
+        <div class="reader-header">
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold-dark);" id="readerCategory">CATEGORÍA</span>
+          <button type="button" class="btn-close-reader" id="btnCloseReader">&times;</button>
+        </div>
+        <h3 style="font-size: 1.25rem; color: var(--text-dark); margin-bottom: 8px; line-height: 1.3;" id="readerTitle">Título</h3>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px;" id="readerDate">Fecha</div>
+        <div style="font-size: 0.92rem; line-height: 1.65; color: #334155; white-space: pre-wrap;" id="readerBody">Cuerpo del artículo...</div>
       </div>
-      <h3 style="font-size: 1.1rem; color: var(--text-dark); margin-bottom: 8px;" id="readerTitle">Título</h3>
-      <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px;" id="readerDate">Fecha</div>
-      <p style="font-size: 0.9rem; line-height: 1.6; color: #334155; white-space: pre-wrap;" id="readerBody">Cuerpo del artículo...</p>
     </div>
 
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let paisesRegistrados = [];
-
+      
       // 1. Reloj UTC Oficial
       function actualizarRelojUTC() {
         const ahora = new Date();
@@ -534,7 +637,7 @@
       setInterval(actualizarRelojUTC, 1000);
       actualizarRelojUTC();
 
-      // 2. DIBUJO Y ROTACIÓN DE LA ROSA DE LOS VIENTOS EN CANVAS
+      // 2. Rosa de los Vientos en Canvas
       function dibujarRosa(anguloOffset = 0) {
         const canvas = document.getElementById('miRosa');
         if (!canvas) return;
@@ -552,13 +655,6 @@
         ctx.lineWidth = 1.8;
         ctx.stroke();
 
-        // Anillo interior sutil
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(anguloOffset);
@@ -574,7 +670,7 @@
 
         // Letras cardinales
         ctx.font = 'bold 8px sans-serif';
-        ctx.fillStyle = '#1e293b';
+        ctx.fillStyle = '#0f172a';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('N', 0, -r * 0.73);
@@ -582,83 +678,6 @@
         ctx.fillText('E', r * 0.73, 0);
         ctx.fillText('O', -r * 0.73, 0);
 
-        // Centro
         ctx.beginPath();
         ctx.arc(0, 0, 3, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-        ctx.strokeStyle = '#d4af37';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      function dibujarPuntas(ctx, cant, rInt, rExt, cClaro, cOscuro) {
-        const paso = (Math.PI * 2) / cant;
-        for (let i = 0; i < cant; i++) {
-          const a = i * paso - Math.PI / 2;
-          const aMitad = a + paso / 2;
-          const aSig = a + paso;
-
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(Math.cos(a) * rExt, Math.sin(a) * rExt);
-          ctx.lineTo(Math.cos(aMitad) * rInt, Math.sin(aMitad) * rInt);
-          ctx.closePath();
-          ctx.fillStyle = cClaro;
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(Math.cos(aSig) * rExt, Math.sin(aSig) * rExt);
-          ctx.lineTo(Math.cos(aMitad) * rInt, Math.sin(aMitad) * rInt);
-          ctx.closePath();
-          ctx.fillStyle = cOscuro;
-          ctx.fill();
-        }
-      }
-
-      let anguloRosa = 0;
-      dibujarRosa(0);
-      const canvasRosaElem = document.getElementById('miRosa');
-      if (canvasRosaElem) {
-        canvasRosaElem.addEventListener('click', () => {
-          anguloRosa += Math.PI / 2;
-          dibujarRosa(anguloRosa);
-        });
-      }
-
-      // 3. RENDERIZADO CARTOGRÁFICO D3.JS Y TOPOJSON (MAPAMUNDI REAL)
-      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-        .then(res => res.json())
-        .then(world => {
-          const countries = topojson.feature(world, world.objects.countries);
-
-          function renderGlobe(containerId, centerLon) {
-            const width = 210, height = 210;
-            const radius = 100;
-            const projection = d3.geoOrthographic()
-              .scale(radius)
-              .translate([width / 2, height / 2])
-              .rotate([-centerLon, 0, 0]);
-
-            const path = d3.geoPath().projection(projection);
-            const svg = d3.select(containerId).append("svg")
-              .attr("viewBox", `0 0 ${width} ${height}`)
-              .attr("width", "100%")
-              .attr("height", "100%");
-
-            svg.append("circle")
-              .attr("cx", width/2).attr("cy", height/2).attr("r", radius)
-              .attr("class", "sphere");
-
-            svg.append("path")
-              .datum(d3.geoGraticule()())
-              .attr("class", "graticule")
-              .attr("d", path);
-
-            svg.selectAll("path.land")
-              .data(countries.features)
-              .enter().append("path")
-          
+        ctx.fillStyle = '#fff
