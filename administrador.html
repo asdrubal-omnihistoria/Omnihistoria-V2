@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OMNIH | Centro de Control y cPanel Global</title>
+  <style>
+    :root {
+      --bg-canvas: #0f172a;
+      --card-bg: #1e293b;
+      --card-inner: #0f172a;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-gold: #c5a059;
+      --accent-gold-hover: #dfb76c;
+      --border-color: #334155;
+      --active-blue: #38bdf8;
+      --success-green: #22c55e;
+      --alert-red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-light);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* BARRA SUPERIOR */
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-identity {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .dna-box {
+      width: 28px;
+      height: 38px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dna-icon {
+      width: 28px;
+      height: 38px;
+      transform: rotate(45deg);
+      display: block;
+    }
+
+    .brand-title-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .text-omnih {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      background: linear-gradient(180deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .cpanel-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-action-sm {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-sm:hover {
+      border-color: var(--text-light);
+      color: var(--text-light);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    main {
+      flex: 1;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* BÚNKER DE ACCESO (GATEKEEPER) */
+    .gate-overlay {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 440px;
+      margin: 40px auto;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .gate-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .gate-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .input-token {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--card-inner);
+      color: var(--text-light);
+      font-size: 0.95rem;
+      outline: none;
+      font-family: ui-monospace, monospace;
+      text-align: center;
+    }
+
+    .input-token:focus {
+      border-color: var(--accent-gold);
+    }
+
+    .btn-unlock {
+      padding: 12px;
+      background: linear-gradient(135deg, #c5a059 0%, #ca8a04 100%);
+      color: #000;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-unlock:hover {
+      background: linear-gradient(135deg, #dfb76c 0%, #eab308 100%);
+    }
+
+    /* PANEL PRINCIPAL (OCULTO HASTA DESBLOQUEAR) */
+    .admin-dashboard {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .admin-dashboard.unlocked {
+      display: flex;
+    }
+
+    /* GRID DE ESTADO DEL SISTEMA */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .status-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .status-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot-live {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--success-green);
+      box-shadow: 0 0 8px var(--success-green);
+    }
+
+    /* CONSOLA DE INSTRUCCIÓN IA */
+    .ai-console-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-btn {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--active-blue);
+      color: var(--active-blue);
+    }
+
+    textarea.prompt-input {
+      width: 100%;
+      min-height: 100px;
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.92rem;
+      color: var(--text-light);
+      outline: none;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    textarea.prompt-input:focus {
+      border-color: var(--active-blue);
+    }
+
+    .btn-generate-ai {
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-generate-ai:hover:not(:disabled) {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: #000;
+    }
+
+    .btn-generate-ai:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ÁREA DE AUDITORÍA Y APROBACIÓN PREVIA (STAGING) */
+    .staging-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .json-preview {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.78rem;
+      color: #a5f3fc;
+      max-height: 260px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .deploy-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn-deploy {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color: #000;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-deploy:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    }
+
+    .btn-deploy:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* FEEDBACK BANNER */
+    .feedback-banner {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .feedback-banner.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success-green);
+      color: #86efac;
+    }
+    .feedback-banner.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--alert-red);
+      color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <a href="/" class="brand-identity" title="Ir a la Raíz">
+        <div class="dna-box">
+          <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b03a8a" />
+                <stop offset="35%" stop-color="#704fa0" />
+                <stop offset="70%" stop-color="#3b7cb3" />
+                <stop offset="100%" stop-color="#4aa47a" />
+              </linearGradient>
+              <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d95438" />
+                <stop offset="100%" stop-color="#eab308" />
+              </linearGradient>
+            </defs>
+            <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+            <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="brand-title-group">
+          <span class="text-omnih">OMNIH</span>
+          <span class="cpanel-tag">cPanel de Control Global</span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <a href="/" class="btn-action-sm">Ver Raíz Pública ↗</a>
+        <button type="button" class="btn-action-sm" id="btnLockSession" style="display: none;">Bloquear</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. BÚNKER DE AUTENTICACIÓN -->
+    <section class="gate-overlay" id="gateOverlay">
+      <div class="gate-title">Acceso Restringido</div>
+      <p class="gate-desc">Ingresa la firma maestra de administración (ADMIN_SECRET_TOKEN) para activar la consola de mutación.</p>
+      <input type="password" class="input-token" id="tokenInput" placeholder="••••••••••••••••" autocomplete="current-password">
+      <button type="button" class="btn-unlock" id="btnUnlock">Desbloquear cPanel</button>
+      <div class="feedback-banner" id="gateError">Firma no autorizada. Verificación fallida.</div>
+    </section>
+
+    <!-- 2. TABLERO DE CONTROL (UNLOCKED) -->
+    <div class="admin-dashboard" id="adminDashboard">
+      
+      <!-- ESTADO DE LA PLATAFORMA -->
+      <section class="status-grid">
+        <div class="status-card">
+          <span class="status-label">Fuente de Verdad</span>
+          <span class="status-value"><span class="dot-live"></span> Conectado</span>
+        </div>
+        <div class="status-card">
+          <span class="status-label">Artículos de Blog</span>
+          <span class="status-value" id="countArticulos">2 Activos</span>
+        </div>
+        <div class="status-card">
+          <span class="status-label">Aduana Serverless</span>
+          <span class="status-value">GitOps / GitHub</span>
+        </div>
+      </section>
+
+      <!-- FEEDBACK DE ACCIONES -->
+      <div class="feedback-banner" id="globalFeedback"></div>
+
+      <!-- CONSOLA DE ASISTENCIA IA -->
+      <section class="ai-console-card">
+        <div class="card-header-row">
+          <span class="card-title">🤖 Consola de Instrucción Algorítmica</span>
+          <span style="font-size: 0.72rem; color: var(--accent-gold);">Gemini Architecture</span>
+        </div>
+        <div class="quick-chips">
+          <button type="button" class="chip-btn" data-preset="blog">＋ Nuevo Artículo de Blog</button>
+          <button type="button" class="chip-btn" data-preset="hemisferios">🌐 Calibrar Leyendas de Hemisferios</button>
+          <button type="button" class="chip-btn" data-preset="ficha">⚙ Actualizar Ficha Técnica</button>
+        </div>
+        <textarea 
+          class="prompt-input" 
+          id="aiPromptInput" 
+          placeholder="Escribe la orden en lenguaje natural. Ej: 'Agrega un artículo filosófico sobre el Resguardo Histórico para Octubre 2026'..."
+        ></textarea>
+        <button type="button" class="btn-generate-ai" id="btnGenerateAi">
+          <span>Procesar y Generar Mutación JSON →</span>
+        </button>
+      </section>
+
+      <!-- MONITOR DE APROBACIÓN Y DESPLIEGUE -->
+      <section class="staging-card">
+        <div class="card-header-row">
+          <span class="card-title">Auditoría Previa de Contenido (Staging)</span>
+          <span style="font-size: 0.72rem; color: var(--text-muted);" id="stagingStatus">Esperando instrucción...</span>
+        </div>
+        <div class="json-preview" id="jsonPreview">// El JSON mutado aparecerá aquí para tu aprobación antes de desplegar.</div>
+        <div class="deploy-actions">
+          <button type="button" class="btn-action-sm" id="btnCancelStaging" disabled>Descartar</button>
+          <button type="button" class="btn-deploy" id="btnDeploy" disabled>
+            🚀 Aprobar y Desplegar a Producción
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let canonicalData = null;
+      let stagedData = null;
+
+      const gateOverlay = document.getElementById('gateOverlay');
+      const adminDashboard = document.getElementById('adminDashboard');
+      const tokenInput = document.getElementById('tokenInput');
+      const btnUnlock = document.getElementById('btnUnlock');
+      const gateError = document.getElementById('gateError');
+      const btnLockSession = document.getElementById('btnLockSession');
+
+      const countArticulos = document.getElementById('countArticulos');
+      const aiPromptInput = document.getElementById('aiPromptInput');
+      const btnGenerateAi = document.getElementById('btnGenerateAi');
+      const jsonPreview = document.getElementById('jsonPreview');
+      const stagingStatus = document.getElementById('stagingStatus');
+      const btnDeploy = document.getElementById('btnDeploy');
+      const btnCancelStaging = document.getElementById('btnCancelStaging');
+      const globalFeedback = document.getElementById('globalFeedback');
+
+      // 1. Cargar Fuente Canónica de Datos
+      async function loadCanonicalData() {
+        try {
+          const res = await fetch('/json/contenido.json');
+          if (!res.ok) throw new Error('Error al conectar con la fuente canónica');
+          canonicalData = await res.json();
+          const totalArt = canonicalData?.index_page?.blog_informativo?.articulos?.length || 0;
+          countArticulos.textContent = `${totalArt} Activos`;
+          jsonPreview.textContent = JSON.stringify(canonicalData, null, 2);
+        } catch (err) {
+          showFeedback('No se pudo cargar la fuente de contenido.', 'error');
+        }
+      }
+
+      function showFeedback(msg, type = 'success') {
+        globalFeedback.className = `feedback-banner ${type}`;
+        globalFeedback.textContent = msg;
+        setTimeout(() => { globalFeedback.className = 'feedback-banner'; }, 6000);
+      }
+
+      // 2. Control de Acceso Criptográfico
+      function unlockDashboard() {
+        const token = sessionStorage.getItem('omnih_admin_token');
+        if (token) {
+          gateOverlay.style.display = 'none';
+          adminDashboard.classList.add('unlocked');
+          btnLockSession.style.display = 'inline-block';
+          loadCanonicalData();
+        }
+      }
+
+      btnUnlock.addEventListener('click', () => {
+        const entered = tokenInput.value.trim();
+        if (entered.length < 8) {
+          gateError.style.display = 'block';
+          return;
+        }
+        sessionStorage.setItem('omnih_admin_token', entered);
+        gateError.style.display = 'none';
+        unlockDashboard();
+      });
+
+      btnLockSession.addEventListener('click', () => {
+        sessionStorage.removeItem('omnih_admin_token');
+        location.reload();
+      });
+
+      // 3. Botones Rápidos (Chips)
+      document.querySelectorAll('.chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const preset = btn.getAttribute('data-preset');
+          if (preset === 'blog') {
+            aiPromptInput.value = 'Añade un nuevo artículo al blog sobre la ontología del resguardo existencial, fechado en Octubre 2026.';
+          } else if (preset === 'hemisferios') {
+            aiPromptInput.value = 'Actualiza las leyendas de los hemisferios este y oeste para reflejar el estado de preservación global.';
+          } else if (preset === 'ficha') {
+            aiPromptInput.value = 'Añade una nueva clave a la ficha técnica: "Integridad": "Validada mediante SHA-256".';
+          }
+          aiPromptInput.focus();
+        });
+      });
+
+      // 4. Interacción con Endpoint Backend de IA (api/ia.js)
+      btnGenerateAi.addEventListener('click', async () => {
+        const prompt = aiPromptInput.value.trim();
+        if (!prompt) {
+          alert('Ingresa una instrucción para la IA.');
+          return;
+        }
+
+        btnGenerateAi.disabled = true;
+        btnGenerateAi.textContent = 'Consultando a la IA...';
+        stagingStatus.textContent = 'Procesando mutación...';
+
+        try {
+          const token = sessionStorage.getItem('omnih_admin_token');
+          const response = await fetch('/api/ia', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              prompt: prompt,
+              currentData: canonicalData
+            })
+          });
+
+          if (!response.ok) {
+            const errJson = await response.json();
+            throw new Error(errJson.error || 'Fallo en la inferencia de IA');
+          }
+
+          stagedData = await response.json();
+          jsonPreview.textContent = JSON.stringify(stagedData, null, 2);
+          stagingStatus.textContent = '✓ Mutación lista para aprobación';
+          btnDeploy.disabled = false;
+          btnCancelStaging.disabled = false;
+          showFeedback('Mutación generada exitosamente. Revisa el resultado antes de desplegar.', 'success');
+        } catch (err) {
+          showFeedback(`Error: ${err.message}`, 'error');
+          stagingStatus.textContent = 'Fallo en la mutación';
+        } finally {
+          btnGenerateAi.disabled = false;
+          btnGenerateAi.textContent = 'Procesar y Generar Mutación JSON →';
+        }
+      });
+
+      btnCancelStaging.addEventListener('click', () => {
+        stagedData = null;
+        jsonPreview.tex
