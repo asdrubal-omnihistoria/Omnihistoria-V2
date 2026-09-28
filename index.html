@@ -628,13 +628,12 @@
           }
         }
 
-        // Si no hay datos aún, cargamos los nodos fundacionales
-        if (paisesRegistrados.length === 0) {
-          paisesRegistrados = [
-            { id: "840" }, { id: "724" }, { id: "484" }, { id: "170" }, 
-            { id: "032" }, { id: "152" }, { id: "076" }, { id: "862" }, { id: "604" }
-          ];
-        }
+        // Verdad estricta: solo países reales desde contenido.json
+        if (data && data.metricas && Array.isArray(data.metricas.paisesParticipantes)) {
+          paisesRegistrados = data.metricas.paisesParticipantes.map(p => {
+            return typeof p === 'object' ? p : { id: String(p) };
+          });
+    } 
 
         // Incorporar país del usuario si está registrado localmente
         const userRes = localStorage.getItem('omnih_user_residence');
