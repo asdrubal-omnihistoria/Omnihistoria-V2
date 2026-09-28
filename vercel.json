@@ -28,7 +28,7 @@
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/API/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -48,17 +48,17 @@
   ],
   "redirects": [
     {
-      "source": "/cápsula",
+      "source": "/capsula",
       "destination": "/capsula",
       "permanent": true
     },
     {
-      "source": "/índice",
+      "source": "/index",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/indice",
+      "source": "/index",
       "destination": "/",
       "permanent": true
     }
@@ -66,7 +66,7 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/indice.html"
+      "destination": "/index.html"
     }
   ]
 }
