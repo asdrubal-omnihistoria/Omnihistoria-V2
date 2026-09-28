@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OMNIH - Cápsula del Tiempo</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-gold: #c5a059;
+      --accent-blue: #0284c7;
+      --accent-blue-light: #e0f2fe;
+      --border-color: #e2e8f0;
+      --success-green: #15803d;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    .app-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand-identity {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .dna-box {
+      width: 28px;
+      height: 38px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dna-icon {
+      width: 28px;
+      height: 38px;
+      transform: rotate(45deg);
+      display: block;
+    }
+
+    .text-omnih {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav-taller {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--accent-blue);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav-taller:hover {
+      background: var(--accent-blue-light);
+    }
+
+    .main-container {
+      flex: 1;
+      max-width: 850px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge-status {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 700;
+    }
+    .badge-status.sealed {
+      background: #dcfce7;
+      color: var(--success-green);
+    }
+
+    .screen-viewport {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .viewport-meta {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .viewport-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      white-space: pre-wrap;
+    }
+
+    .parameters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .param-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .param-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .param-input {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .param-input:focus {
+      border-color: var(--accent-blue);
+      background: #ffffff;
+    }
+
+    .btn-seal-capsule {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #c5a059 0%, #eab308 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
+      transition: all 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .btn-seal-capsule:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(197, 160, 89, 0.45);
+    }
+
+    .btn-seal-capsule:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    footer {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      padding: 16px 20px;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .cert-badge {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      max-width: 850px;
+      margin: 0 auto;
+      font-family: ui-monospace, monospace;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-left">
+      <a href="/" class="brand-identity" title="Ir a la Raíz">
+        <div class="dna-box">
+          <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b03a8a" />
+                <stop offset="35%" stop-color="#704fa0" />
+                <stop offset="70%" stop-color="#3b7cb3" />
+                <stop offset="100%" stop-color="#4aa47a" />
+              </linearGradient>
+              <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d95438" />
+                <stop offset="100%" stop-color="#eab308" />
+              </linearGradient>
+            </defs>
+            <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+            <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span class="text-omnih">OMNIH</span>
+      </a>
+    </div>
+
+    <div class="header-right">
+      <a href="/central" class="btn-nav-taller">← Volver al Taller</a>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <section class="section-card">
+      <div class="section-title">
+        <span>Contenido Testimonial Activo</span>
+        <span class="badge-status" id="badge-estado">Listo para Sellado</span>
+      </div>
+      <div class="screen-viewport" id="screen-viewport">
+        <div class="viewport-meta">
+          <span><strong>Preservador:</strong> <span id="meta-autor">No detectado</span></span>
+          <span><strong>Vínculo:</strong> <span id="meta-vinculo">Soberano</span></span>
+          <span><strong>Anexos:</strong> <span id="meta-anexos">0</span></span>
+        </div>
+        <div class="viewport-content" id="meta-cuerpo">
+          Esperando transferencia de testimonio desde el Taller Operativo (/central)...
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <div class="section-title">Parámetros de Depósito y Preservación Histórica</div>
+      <div class="parameters-grid">
+        <div class="param-group">
+          <label class="param-label" for="param-date">Fecha de Depósito (UTC)</label>
+          <input type="date" class="param-input" id="param-date" readonly>
+        </div>
+        <div class="param-group">
+          <label class="param-label" for="param-time">Hora de Sellado (UTC)</label>
+          <input type="text" class="param-input" id="param-time" readonly>
+        </div>
+        <div class="param-group">
+          <label class="param-label" for="param-hibernation">Hibernación (Meses)</label>
+          <input type="number" class="param-input" id="param-hibernation" value="12" min="1" max="1200">
+        </div>
+        <div class="param-group">
+          <label class="param-label" for="param-release">Fecha de Apertura Estimada</label>
+          <input type="date" class="param-input" id="param-release" readonly>
+        </div>
+      </div>
+
+      <button type="button" class="btn-seal-capsule" id="btnSealCapsule">SELLAR CÁPSULA INMUTABLE</button>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="cert-badge">
+      <div style="color: var(--success-green); font-weight: 800; margin-bottom: 4px;">✓ CERTIFICACIÓN DE PRESENCIA HUMANA DIGITAL</div>
+      <div>Hash de Identidad Histórica: <strong id="user-hash-label">Calculando...</strong></div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Hidratación del Hash Real de Sesión
+      const activeHash = sessionStorage.getItem('omnih_active_user');
+      const hashLabel = document.getElementById('user-hash-label');
+      hashLabel.textContent = activeHash || '0xANONIMO_REGISTRADO';
+
+      // 2. Hidratación del Contrato de Datos desde central.html
+      const capsulaRaw = sessionStorage.getItem('omnih_capsula_activa');
+      const metaAutor = document.getElementById('meta-autor');
+      const metaVinculo = document.getElementById('meta-vinculo');
+      const metaAnexos = document.getElementById('meta-anexos');
+      const metaCuerpo = document.getElementById('meta-cuerpo');
+      const btnSeal = document.getElementById('btnSealCapsule');
+      const badgeEstado = document.getElementById('badge-estado');
+
+      let payload = null;
+      if (capsulaRaw) {
+        try {
+          payload = JSON.parse(capsulaRaw);
+          metaAutor.textContent = payload.autor || 'Preservador Soberano';
+          metaVinculo.textContent = payload.vinculo || 'Soberano';
+          metaAnexos.textContent = `${payload.imagenes_count || 0} Tesela(s)`;
+          metaCuerpo.textContent = payload.testimonio;
+        } catch (e) {
+          console.error('Error deserializando testimonio de la Cápsula');
+        }
+      }
+
+      // 3. Calibración Reactiva de Fechas UTC
+      const now = new Date();
+      const dateInput = document.getElementById('param-date');
+      const timeInput = document.getElementById('param-time');
+      const hibernationInput = document.getElementById('param-hibernation');
+      const releaseInput = document.getElementById('param-release');
+
+      dateInput.value = now.toISOString().split('T')[0];
+      timeInput.value = now.toTimeString().split(' ')[0] + ' UTC';
+
+      function updateReleaseDate() {
+        const months = parseInt(hibernationInput.value, 10) || 12;
+        const releaseDate = new Date(now.getTime());
+        releaseDate.setMonth(releaseDate.getMonth() + months);
+        releaseInput.value = releaseDate.toISOString().split('T')[0];
+      }
+      updateReleaseDate();
+      hibernationInput.addEventListener('input', updateReleaseDate);
+
+      // 4. Sellado Inmutable del Registro
+      btnSeal.addEventListener('click', () => {
+        if (!payload) {
+          alert('No hay un testimonio cargado desde el Taller para sellar.');
+          return;
+        }
+
+        btnSeal.disabled = true;
+        btnSeal.textContent = 'CÁPSULA SELLADA HISTÓRICAMENTE';
+        badgeEstado.textContent = 'Inmutable';
+        badgeEstado.classList.add('sealed');
+        hibernationInput.disabled = true;
+
+        const registroSellado = {
+          ...payload,
+          hibernacion_meses: hibernationInput.value,
+          fecha_apertura: releaseInput.value,
+          hash_final: activeHash,
+          estado: 'Inmutable'
+        };
+
+        localStorage.setItem(`omnih_capsula_sellada_${Date.now()}`, JSON.stringify(registroSellado));
+        alert('Tu testimonio ha sido sellado con éxito en la Cápsula del Tiempo.');
+      });
+    });
+  </script>
+</body>
+      </html>
