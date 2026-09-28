@@ -1,0 +1,94 @@
+{
+  "$schema_version": "2.0.0",
+  "index_page": {
+    "rosa_vientos": {
+      "orientacion_base": 0,
+      "etiqueta_ancla": "Norte Ontológico Activo"
+    },
+    "hemisferios": {
+      "modo_predeterminado": "geolocalizado",
+      "leyenda_oriental": "Hemisferio Este - Registro Global",
+      "leyenda_occidental": "Hemisferio Oeste - Resguardo Activo",
+      "estado_inicial": "Sincronizando con red universal..."
+    },
+    "blog_informativo": {
+      "subtitulo": "Aportes Filosóficos y Ontológicos de la Omnihistoria",
+      "articulos": [
+        {
+          "id": "art_01",
+          "categoria": "Ontología",
+          "fecha_iso": "2026-09-15",
+          "fecha_legible": "Septiembre 2026",
+          "titulo": "El Tiempo Existencial y el Valor Absoluto",
+          "resumen": "Un análisis profundo sobre el intelecto humano frente a la automatización ciega de los algoritmos modernos.",
+          "cuerpo": "El rescate de la historia humana como un valor indivisible exige que cada registro preserve su contexto existencial. La técnica no debe suplantar la memoria, sino consagrarla en estructuras inalterables."
+        },
+        {
+          "id": "art_02",
+          "categoria": "Epistemología",
+          "fecha_iso": "2026-09-20",
+          "fecha_legible": "Septiembre 2026",
+          "titulo": "La Estructura de la Raíz y las Dos Ramas",
+          "resumen": "Cómo la simetría y el orden metodológico de la ingeniería de software preservan el legado histórico universal.",
+          "cuerpo": "Separar el flujo vivencial del usuario respecto a la gestión institucional garantiza que ninguna interferencia técnica profane el núcleo ontológico del legado resguardado en la cápsula."
+        }
+      ]
+    },
+    "ficha_tecnica": {
+      "subtitulo": "Especificaciones Técnicas del Repositorio",
+      "metadatos": [
+        { "clave": "Plataforma", "valor": "WebApp de Servicio Público V2" },
+        { "clave": "Motor Lógico", "valor": "Gemini 3.8 Architecture & GitHub" },
+        { "clave": "Estándar", "valor": "Módulos Reactivos Nativos sin Dependencias" }
+      ]
+    }
+  },
+  "registro_page": {
+    "identidad_visual": {
+      "subtitulo": "Recursos de Identidad Universal",
+      "grafico_svg": "/assets/identity/registro-visual.svg",
+      "descripcion": "Infografía conceptual del Legado Omnihistórico"
+    },
+    "geolocalizacion_aviso": "La ubicación se utiliza estrictamente para sintonizar los hemisferios del conocimiento con tu región territorial."
+  },
+  "login_page": {
+    "titulo": "Acceso al Búnker Conceptual",
+    "indicacion": "Ingresa tus credenciales soberanas para acceder al Taller Operativo."
+  },
+  "central_page": {
+    "taller_conceptos": {
+      "subtitulo": "Consola de Procesamiento Ontológico",
+      "bienvenida": "Bienvenido al Taller de la Omnihistoria. Aquí se instrumentalizan las ideas antes de su resguardo.",
+      "herramientas": [
+        { "id": "tool_01", "nombre": "Módulo de Legado", "estado": "Activo" },
+        { "id": "tool_02", "nombre": "Ancla Visual", "estado": "Sincronizado" }
+      ]
+    }
+  },
+  "capsula_page": {
+    "resguardo": {
+      "subtitulo": "Cápsula del Tiempo Digital",
+      "descripcion": "Repositorio definitivo de datos e ideas consolidadas para las generaciones futuras.",
+      "estado_sellado": "Inmutable"
+    }
+  },
+  "carga_page": {
+    "convenios": {
+      "subtitulo": "Gestión Institucional de Convenios Paralelos",
+      "instrucciones": "Módulo estanco exclusivo para la subida y procesamiento técnico de convenios públicos."
+    }
+  },
+  "admin_page": {
+    "control_ia": {
+      "titulo": "Consola de Mutación Algorítmica",
+      "descripcion": "Módulo para instrumentar actualizaciones canónicas sobre el contenido mediante IA asistida."
+    }
+  },
+  "footer_global": {
+    "derechos": "© 2026 Repositorio de Legado de la OMNIHISTORIA. Servicio Público Global.",
+    "enlaces": [
+      { "url": "https://omnihistoria.org", "texto": "Portal Principal (.ORG)" },
+      { "url": "https://omnihistoria.io", "texto": "Repositorio de Recursos (.IO)" }
+    ]
+  }
+}
