@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OMNIH - Registro de Soberanía</title>
+  <style>
+    :root {
+      --bg-canvas: #edf2f7;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --accent-gold: #c5a059;
+      --border-color: #e2e8f0;
+      --active-blue: #3182ce;
+      --error-red: #e53e3e;
+      --success-green: #38a169;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-canvas);
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 1rem;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      width: 100%;
+      max-width: 480px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+      position: relative;
+      padding: 1.5rem 1.25rem;
+    }
+
+    .top-navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .brand-logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .dna-box {
+      width: 32px;
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .dna-icon {
+      width: 32px;
+      height: 44px;
+      transform: rotate(45deg);
+      display: block;
+    }
+
+    .text-omnih {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .btn-top-login {
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-top-login:hover {
+      border-color: var(--active-blue);
+      color: var(--active-blue);
+      background-color: #f8fafc;
+    }
+
+    .protocol-subbar {
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+
+    .header-protocol-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      letter-spacing: 0.3px;
+    }
+
+    .entity-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .btn-entity {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      background-color: #f8fafc;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-entity.active {
+      background-color: #ebf8ff;
+      border-color: #63b3ed;
+      color: var(--active-blue);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: #63b3ed;
+      box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.25);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .hint-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #90cdf4 0%, #bee3f8 50%, #ffffff 100%);
+      color: #1a365d;
+      border: 1px solid #90cdf4;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #bee3f8 0%, #ebf8ff 60%, #ffffff 100%);
+      color: var(--active-blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .quote-box {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--accent-gold);
+      padding: 12px 14px;
+      margin-top: 20px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .quote-text {
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    .quote-source {
+      display: block;
+      margin-top: 6px;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .modal-confirmacion {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.98);
+      padding: 24px;
+      text-align: center;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 24px;
+      z-index: 10;
+    }
+
+    .modal-confirmacion.active {
+      display: flex;
+    }
+
+    .modal-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--active-blue);
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .modal-email {
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .btn-action-modal {
+      padding: 12px 24px;
+      background: var(--active-blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header class="top-navbar">
+    <a href="/" class="brand-logo-link" title="Ir a la Raíz de la Omnihistoria">
+      <div class="dna-box">
+        <svg viewBox="0 0 120 240" width="32" height="44" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#b03a8a" />
+              <stop offset="35%" stop-color="#704fa0" />
+              <stop offset="70%" stop-color="#3b7cb3" />
+              <stop offset="100%" stop-color="#4aa47a" />
+            </linearGradient>
+            <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d95438" />
+              <stop offset="100%" stop-color="#eab308" />
+            </linearGradient>
+          </defs>
+          <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+          <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+        </svg>
+      </div>
+      <span class="text-omnih">OMNIH</span>
+    </a>
+    <a href="/login" class="btn-top-login">INGRESAR</a>
+  </header>
+
+  <div class="protocol-subbar">
+    <span class="header-protocol-text">PROTOCOLO DE REGISTRO UNIFICADO</span>
+  </div>
+
+  <main class="form-body">
+    <div class="entity-selector" role="group" aria-label="Tipo de Entidad">
+      <button type="button" class="btn-entity active" data-type="individual" aria-pressed="true">Individual</button>
+      <button type="button" class="btn-entity" data-type="colectivo" aria-pressed="false">Colectivo</button>
+    </div>
+
+    <form id="registerForm" novalidate>
+      <input type="hidden" id="entity-type" name="entity_type" value="individual">
+
+      <div class="form-group">
+        <label id="label-identificador" for="input-identificador">Identificador de Usuario</label>
+        <input type="text" id="input-identificador" name="username" required autocomplete="username" placeholder="Ej: usuario123">
+      </div>
+
+      <div class="form-group">
+        <label for="input-email">Correo Electrónico de Verificación</label>
+        <input type="email" id="input-email" name="email" required autocomplete="email" placeholder="nombre@ejemplo.org">
+      </div>
+
+      <div class="form-group">
+        <label for="select-territorio">Territorio / Residencia (Sintonización Hemisférica)</label>
+        <select id="select-territorio" name="territorio" required>
+          <option value="" disabled selected>Selecciona tu hemisferio o región...</option>
+          <option value="occidental">Hemisferio Occidental (América)</option>
+          <option value="oriental_eur">Hemisferio Oriental (Europa / África)</option>
+          <option value="oriental_asia">Hemisferio Oriental (Asia / Oceanía)</option>
+        </select>
+        <p class="hint-text">Calibra la Rosa de los Vientos y los Hemisferios de la Raíz.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="input-password">Contraseña Soberana</label>
+        <div class="input-wrapper">
+          <input type="password" id="input-password" name="password" required autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres">
+          <button type="button" id="btnTogglePassword" class="btn-toggle-pwd" aria-label="Mostrar u ocultar contraseña">Ver</button>
+        </div>
+      </div>
+
+      <button type="submit" id="btnSubmit" class="btn-submit">ESTABLECER REGISTRO</button>
+    </form>
+  </main>
+
+  <aside class="quote-box">
+    <p class="quote-text">"La preservación de la identidad digital no es un derecho opcional; es la piedra angular del ecosistema de legado ontológico."</p>
+    <span class="quote-source">— Manual de Arquitectura OMNIH</span>
+  </aside>
+
+  <!-- Modal de Confirmación -->
+  <div id="modalConfirmacion" class="modal-confirmacion" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-icon">✨</div>
+    <h2 id="modalTitle" class="modal-title">Registro Consolidado</h2>
+    <p class="modal-text">Se ha establecido tu credencial de soberanía. Se envió un aviso a: <span id="modalEmailDisplay" class="modal-email"></span></p>
+    <a href="/login" class="btn-action-modal">Continuar al Acceso</a>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registerForm');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const pwdInput = document.getElementById('input-password');
+    const togglePwdBtn = document.getElementById('btnTogglePassword');
+    const entityButtons = document.querySelectorAll('.btn-entity');
+    const labelIdentificador = document.getElementById('label-identificador');
+    const entityTypeInput = document.getElementById('entity-type');
+    
+    const modal = document.getElementById('modalConfirmacion');
+    const modalEmailDisplay = document.getElementById('modalEmailDisplay');
+
+    entityButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        entityButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+        
+        const type = button.getAttribute('data-type');
+        entityTypeInput.value = type;
+        labelIdentificador.textContent = type === 'colectivo' 
+          ? 'Identificador del Colectivo / Organización' 
+          : 'Identificador de Usuario';
+      });
+    });
+
+    togglePwdBtn.addEventListener('click', () => {
+      const isPwd = pwdInput.type === 'password';
+      pwdInput.type = isPwd ? 'text' : 'password';
+      togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'ESTABLECIENDO REGISTRO...';
+
+      const payload = {
+        username: document.getElementById('input-identificador').value.trim(),
+        email: document.getElementById('input-email').value.trim(),
+        territorio: document.getElementById('select-territorio').value,
+        entity_type: entityTypeInput.value,
+        password: pwdInput.value
+      };
+
+      try {
+        localStorage.setItem('omnih_user_residence', payload.territorio);
+        localStorage.setItem('omnih_user_session', JSON.stringify({
+          username: payload.username,
+          entity_type: payload.entity_type
+        }));
+
+        modalEmailDisplay.textContent = payload.email;
+        modal.classList.add('active');
+      } catch (err) {
+        console.error('Error registrando entidad:', err);
+        alert('Ocurrió un error procesando el registro local.');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'ESTABLECER REGISTRO';
+      }
+    });
+  });
+</script>
+
+</body>
+  </html>
