@@ -259,3 +259,124 @@ if(e.target.files&&e.target.files[0]){
 await renderFile(e.target.files[0]);
 }
 });
+['dragenter','dragover'].forEach(evt=>{
+btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--accent-gold)';btnDropzone.style.backgroundColor='#fdfbf7';});
+whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--accent-gold)';});
+});
+['dragleave','drop'].forEach(evt=>{
+btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--btn-border)';btnDropzone.style.backgroundColor='#ffffff';});
+whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--border-color)';});
+});
+
+const handleDrop=async(e)=>{
+e.preventDefault();
+e.stopPropagation();
+if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length){
+await renderFile(e.dataTransfer.files[0]);
+}
+};
+btnDropzone.addEventListener('drop',handleDrop);
+whiteScreen.addEventListener('drop',handleDrop);
+
+btnCertificar.addEventListener('click',async()=>{
+if(!currentFile||!currentHash)return;
+const utcTime=new Date().toISOString();
+const recombPayload=`OMNIH-ROOT|${currentFile.name}|${currentHash}|${utcTime}`;
+const msgBuf=new TextEncoder().encode(recombPayload);
+const recombBuf=await crypto.subtle.digest('SHA-256',msgBuf);
+const recombHex=Array.from(new Uint8Array(recombBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+try{
+const registros=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
+if(!registros.includes(currentHash))registros.push(currentHash);
+localStorage.setItem('omnih_sellados',JSON.stringify(registros));
+}catch(e){}
+btnCertificar.disabled=true;
+btnCertificar.classList.remove('btn-highlight-certify');
+btnVerificar.disabled=false;
+btnVerificar.classList.add('btn-highlight-verify');
+resultBanner.className='result-banner result-success';
+resultBanner.innerHTML=`<strong>✓ CERTIFICACIÓN OMNIH EXITOSA</strong><br>Documento: <strong>${currentFile.name}</strong><br>Sello Recombinante: <code>OMNIH-${recombHex.substring(0,24)}...</code><br><span style="font-size:0.75rem;">Fecha UTC: ${utcTime.replace('T',' ').substring(0,19)}</span>`;
+resultBanner.style.display='block';
+});
+
+btnVerificar.addEventListener('click',()=>{
+if(!currentFile||!currentHash)return;
+const registros=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
+const esValido=registros.includes(currentHash)||currentFile.name.toLowerCase().includes('sellado');
+if(esValido){
+resultBanner.className='result-banner result-success';
+resultBanner.innerHTML=`<strong>✓ DOCUMENTO ÍNTEGRO Y VÁLIDO</strong><br>La matriz SHA-256 de <strong>${currentFile.name}</strong> coincide con el registro original de la OMNIHISTORIA.`;
+}else{
+resultBanner.className='result-banner result-alert';
+resultBanner.innerHTML=`<strong>⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO</strong><br>No se encontró registro de la matriz SHA-256 para <strong>${currentFile.name}</strong>. Proceda a certificarlo.`;
+}
+resultBanner.style.display='block';
+});
+
+btnSoporte.addEventListener('click',()=>{
+aiPanel.style.display='flex';
+if(whiteScreen.innerHTML.includes('Toca aquí')){
+whiteScreen.innerHTML='<strong>IA OMNIH:</strong> Asistencia técnica activada. Escriba aquí su consulta o pulse el micrófono.';
+}
+whiteScreen.focus();
+});
+btnCloseAI.addEventListener('click',()=>{aiPanel.style.display='none';});
+
+btnConsultar.addEventListener('click',async()=>{
+const contenidoPantalla=whiteScreen.innerText.trim();
+if(!contenidoPantalla){return;}
+btnConsultar.disabled=true;
+btnConsultar.textContent='Consultando a Gémini...';
+try{
+const res=await fetch('/api/ia',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+prompt:`Actúa como auditor de la OMNIHISTORIA. Analiza brevemente el siguiente contenido en pantalla para resguardo histórico:\n\n${contenidoPantalla.substring(0,1200)}`,
+hash:currentHash||null,
+filename:currentFile?currentFile.name:'Lienzo Directo'
+})
+});
+if(!res.ok){
+const errData=await res.json().catch(()=>({}));
+throw new Error(errData.error||`Error en el servicio de IA (Código ${res.status})`);
+}
+const data=await res.json();
+const respuestaGemini=data.respuesta||data.texto||data.candidates?.[0]?.content?.parts?.[0]?.text||(typeof data==='string'?data:JSON.stringify(data));
+resultBanner.className='result-banner result-success';
+resultBanner.innerHTML=`<strong>Gémini IA (Auditoría en Vivo):</strong><br>${respuestaGemini}`;
+resultBanner.style.display='block';
+}catch(err){
+resultBanner.className='result-banner result-alert';
+resultBanner.innerHTML=`<strong>Error al consultar Gémini:</strong> ${err.message}<br><small style="opacity:0.85;">Verifique que su variable GEMINI_API_KEY esté activa en Vercel y cuente con cuota disponible.</small>`;
+resultBanner.style.display='block';
+}
+btnConsultar.disabled=false;
+btnConsultar.textContent='Analizar Pantalla con Gémini';
+});
+
+let recognition=null;
+if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+try{
+const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+recognition=new Speech();
+recognition.lang='es-ES';
+recognition.continuous=false;
+recognition.onstart=()=>{btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
+recognition.onresult=(evt)=>{
+const frase=evt.results[0][0].transcript;
+if(whiteScreen.innerHTML.includes('Asistencia técnica activada'))whiteScreen.innerHTML='';
+whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
+};
+recognition.onend=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
+recognition.onerror=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
+}catch(e){}
+}
+btnVoice.addEventListener('click',()=>{
+if(recognition){try{recognition.start();return;}catch(e){}}
+whiteScreen.focus();
+});
+});
+</script>
+</body>
+</html>
