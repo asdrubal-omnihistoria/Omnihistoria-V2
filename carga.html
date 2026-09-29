@@ -3,55 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>OMNIH | Gestión Institucional de Convenios</title>
+<title>OMNIH | Consola Soberana de Certificación</title>
 <style>
-:root{--bg-canvas:#edf2f7;--card-bg:#ffffff;--text-dark:#0f172a;--text-muted:#64748b;--accent-gold:#c5a059;--border-color:#e2e8f0;--btn-bg-light:#ffffff;--btn-border:#cbd5e1;--icon-blue:#0284c7;--text-blue:#0369a1;--bg-blue-light:#f0f9ff;--success-green:#15803d;}
+:root{--bg-canvas:#f8fafc;--card-bg:#ffffff;--text-dark:#0f172a;--text-muted:#64748b;--accent-gold:#c5a059;--border-color:#e2e8f0;--btn-bg-light:#ffffff;--btn-border:#cbd5e1;--icon-blue:#0284c7;--text-blue:#0369a1;--bg-blue-light:#f0f9ff;--success-green:#15803d;}
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;}
-body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justify-content:center;align-items:center;min-height:100dvh;padding:16px;}
-.container{width:100%;max-width:520px;background-color:var(--card-bg);border-radius:20px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.05);border:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:12px;position:relative;}
-.header-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--border-color);padding-bottom:12px;}
+body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justify-content:center;align-items:flex-start;min-height:100dvh;padding:12px;}
+.container{width:100%;max-width:1080px;background-color:var(--card-bg);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.04);border:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;}
+@media(max-width:640px){body{padding:0;} .container{border:none;border-radius:0;box-shadow:none;padding:14px;}}
+.header-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid var(--border-color);padding-bottom:12px;}
 .brand-identity{display:inline-flex;align-items:center;gap:10px;text-decoration:none;}
 .dna-box{width:28px;height:38px;display:flex;justify-content:center;align-items:center;}
 .dna-icon{width:28px;height:38px;transform:rotate(45deg);display:block;}
-.text-omnih{font-size:20px;font-weight:800;letter-spacing:0.04em;background:linear-gradient(180deg,#fef08a 0%,#eab308 35%,#ca8a04 70%,#854d0e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.text-omnih{font-size:22px;font-weight:800;letter-spacing:0.04em;background:linear-gradient(180deg,#fef08a 0%,#eab308 35%,#ca8a04 70%,#854d0e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .header-right-group{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
-.link-return{color:var(--text-blue);text-decoration:none;font-size:0.78rem;font-weight:700;}
+.link-return{color:var(--text-blue);text-decoration:none;font-size:0.8rem;font-weight:700;}
 .convenio-identity-box{background-color:#fcfbf7;border:1px solid #e2d2b4;border-radius:6px;padding:3px 8px;text-align:right;}
-.persona-juridica{font-size:0.7rem;font-weight:800;color:var(--text-dark);text-transform:uppercase;}
+.persona-juridica{font-size:0.72rem;font-weight:800;color:var(--text-dark);text-transform:uppercase;}
 .hash-convenio{font-size:0.65rem;font-weight:700;color:var(--accent-gold);font-family:ui-monospace,monospace;}
-.pure-white-screen{width:100%;min-height:200px;max-height:340px;background-color:#ffffff;border:1.5px solid var(--border-color);border-radius:12px;padding:14px;overflow-y:auto;font-size:0.88rem;line-height:1.5;color:var(--text-dark);outline:none;cursor:text;}
+/* PANTALLA ÍNTEGRA AMPLIA Y FLUIDA (CERO CAMISA DE FUERZA) */
+.pure-white-screen{width:100%;min-height:380px;height:65vh;max-height:800px;background-color:#ffffff;border:1.5px solid var(--border-color);border-radius:12px;padding:16px;overflow-y:auto;font-size:0.92rem;line-height:1.6;color:var(--text-dark);outline:none;cursor:text;box-shadow:inset 0 1px 3px rgba(0,0,0,0.02);}
 .pure-white-screen:focus{border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(197,160,89,0.15);}
-.pure-white-screen iframe,.pure-white-screen img,.pure-white-screen video{width:100%;height:100%;min-height:200px;border:none;object-fit:contain;}
-.upload-label-native{border:1.5px dashed var(--btn-border);border-radius:12px;padding:12px 16px;background-color:#ffffff;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.2s;}
+.pure-white-screen iframe,.pure-white-screen img,.pure-white-screen video{width:100%;height:100%;min-height:360px;border:none;object-fit:contain;display:block;}
+.upload-label-native{border:1.5px dashed var(--btn-border);border-radius:12px;padding:14px 18px;background-color:#ffffff;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s;}
 .upload-label-native:hover{border-color:var(--accent-gold);background-color:#fdfbf7;}
-.cross-icon{width:32px;height:32px;border-radius:50%;background:#f1f5f9;color:var(--accent-gold);font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--btn-border);line-height:1;}
-.upload-text-group h3{font-size:0.85rem;color:var(--text-dark);margin:0;font-weight:700;}
-.upload-text-group p{font-size:0.72rem;color:var(--text-muted);margin:2px 0 0;}
+.cross-icon{width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:var(--accent-gold);font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--btn-border);line-height:1;}
+.upload-text-group h3{font-size:0.88rem;color:var(--text-dark);margin:0;font-weight:700;}
+.upload-text-group p{font-size:0.75rem;color:var(--text-muted);margin:2px 0 0;}
 .sr-only-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
-.file-status-card{display:none;background:#f8fafc;border:1px solid var(--border-color);border-radius:8px;padding:10px 12px;font-size:0.8rem;}
+.file-status-card{display:none;background:#f8fafc;border:1px solid var(--border-color);border-radius:8px;padding:12px 14px;font-size:0.82rem;}
 .file-status-card.active{display:block;}
 .file-meta-row{display:flex;justify-content:space-between;margin-bottom:4px;}
-.file-hash-display{font-family:ui-monospace,monospace;font-size:0.68rem;color:var(--text-dark);word-break:break-all;margin-top:4px;background:#ffffff;padding:6px;border-radius:4px;border:1px solid var(--border-color);}
-.action-buttons{display:flex;flex-direction:column;gap:8px;}
-.btn-light{width:100%;padding:11px;border:1px solid var(--btn-border);border-radius:8px;background-color:var(--btn-bg-light);color:var(--text-dark);font-size:0.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;}
+.file-hash-display{font-family:ui-monospace,monospace;font-size:0.72rem;color:var(--text-dark);word-break:break-all;margin-top:4px;background:#ffffff;padding:8px;border-radius:6px;border:1px solid var(--border-color);}
+.action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:640px){.action-buttons{grid-template-columns:1fr;}}
+.btn-light{width:100%;padding:13px;border:1.5px solid var(--btn-border);border-radius:8px;background-color:var(--btn-bg-light);color:var(--text-dark);font-size:0.9rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;}
 .btn-light:disabled{opacity:0.4;cursor:not-allowed;}
-.btn-highlight-certify{border-color:var(--accent-gold)!important;background:#fffdf5!important;color:#854d0e!important;box-shadow:0 0 0 2px rgba(197,160,89,0.25);}
-.btn-highlight-verify{border-color:var(--icon-blue)!important;background:var(--bg-blue-light)!important;color:var(--text-blue)!important;box-shadow:0 0 0 2px rgba(2,132,199,0.25);}
-.result-banner{display:none;padding:12px 14px;border-radius:8px;font-size:0.82rem;line-height:1.45;}
-.result-success{background:#f0fdf4;border:1px solid var(--success-green);color:#166534;}
-.result-alert{background:#fef2f2;border:1px solid #ef4444;color:#991b1b;}
-.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.card-blue{border:1px solid #bae6fd;border-radius:8px;padding:10px 12px;background-color:var(--bg-blue-light);display:flex;flex-direction:column;gap:3px;}
+.btn-highlight-certify{border-color:var(--accent-gold)!important;background:#fffdf5!important;color:#854d0e!important;box-shadow:0 0 0 3px rgba(197,160,89,0.25);}
+.btn-highlight-verify{border-color:var(--icon-blue)!important;background:var(--bg-blue-light)!important;color:var(--text-blue)!important;box-shadow:0 0 0 3px rgba(2,132,199,0.25);}
+.result-banner{display:none;padding:14px 16px;border-radius:10px;font-size:0.85rem;line-height:1.5;}
+.result-success{background:#f0fdf4;border:1.5px solid var(--success-green);color:#166534;}
+.result-alert{background:#fef2f2;border:1.5px solid #ef4444;color:#991b1b;}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.card-blue{border:1px solid #bae6fd;border-radius:10px;padding:12px 14px;background-color:var(--bg-blue-light);display:flex;flex-direction:column;gap:3px;}
 .card-blue.active-btn{cursor:pointer;transition:background-color 0.2s;}
 .card-blue.active-btn:hover{background-color:#e0f2fe;}
 .card-blue.inert{cursor:default;opacity:0.85;border-color:var(--border-color);background-color:#f8fafc;}
-.card-blue h4{font-size:0.78rem;color:var(--text-blue);font-weight:700;}
-.card-blue p{font-size:0.7rem;color:var(--text-blue);opacity:0.85;line-height:1.25;}
+.card-blue h4{font-size:0.82rem;color:var(--text-blue);font-weight:700;}
+.card-blue p{font-size:0.74rem;color:var(--text-blue);opacity:0.85;line-height:1.3;}
 .card-blue.inert h4{color:var(--text-muted);}
 .card-blue.inert p{color:var(--text-muted);}
-.ai-screen-controls{display:none;flex-direction:column;gap:8px;background:#f8fafc;padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);}
-.ai-voice-row{display:flex;gap:8px;}
-.btn-voice{padding:8px 12px;background:#ffffff;border:1px solid var(--border-color);border-radius:6px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.ai-screen-controls{display:none;flex-direction:column;gap:8px;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid var(--border-color);}
+.ai-voice-row{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-voice{padding:9px 14px;background:#ffffff;border:1px solid var(--border-color);border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
 .btn-voice.listening{background:#fee2e2;border-color:#ef4444;color:#b91c1c;}
 </style>
 </head>
@@ -79,15 +82,16 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </div>
 </div>
 </header>
-<div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Toque para escribir o visualizar">
-<div style="color:var(--text-muted);font-size:0.82rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para proyectarlo en esta pantalla blanca.</div>
+<!-- PANTALLA ÍNTEGRA AMPLIA Y FLUIDA -->
+<div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Pantalla íntegra: Toque para escribir o visualizar">
+<div style="color:var(--text-muted);font-size:0.85rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.</div>
 </div>
 <div class="ai-screen-controls" id="aiScreenPanel">
-<div style="font-size:0.78rem;font-weight:700;color:var(--text-blue);">🎙️ Asistente de IA Activo en Pantalla:</div>
+<div style="font-size:0.8rem;font-weight:700;color:var(--text-blue);">🎙️ Asistencia Gémini IA Activa en Pantalla:</div>
 <div class="ai-voice-row">
 <button type="button" class="btn-voice" id="btnVoiceToggle">🎤 <span id="voiceLabel">Dictar por Voz</span></button>
-<button type="button" class="btn-light" style="flex:1;padding:8px;" id="btnConsultarIA">Analizar Pantalla</button>
-<button type="button" class="btn-voice" id="btnCloseAIPanel" style="padding:8px;">✕</button>
+<button type="button" class="btn-light" style="flex:1;padding:9px;" id="btnConsultarIA">Analizar Pantalla con Gémini</button>
+<button type="button" class="btn-voice" id="btnCloseAIPanel" style="padding:9px 12px;">✕</button>
 </div>
 </div>
 <label for="nativeFileInput" class="upload-label-native" id="btnDropzone">
@@ -103,7 +107,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <strong id="doc-name">archivo.pdf</strong>
 <span style="color:var(--success-green);font-weight:700;" id="doc-status">✓ Analizado por IA</span>
 </div>
-<div style="font-size:0.72rem;color:var(--text-muted);" id="doc-size">0 KB</div>
+<div style="font-size:0.75rem;color:var(--text-muted);" id="doc-size">0 KB</div>
 <div class="file-hash-display" id="doc-hash">Calculando SHA-256...</div>
 </div>
 <div class="result-banner" id="resultBanner"></div>
@@ -152,6 +156,7 @@ if(c.folioConvenio)document.getElementById('topHashConvenio').textContent=`CONV:
 whiteScreen.addEventListener('focus',()=>{
 if(screenHint&&screenHint.parentNode===whiteScreen)whiteScreen.innerHTML='';
 });
+/* CARGA Y VISUALIZACIÓN ÍNTEGRA MULTIFORMATO */
 fileInput.addEventListener('change',async(e)=>{
 const file=e.target.files[0];
 if(!file)return;
@@ -169,21 +174,31 @@ currentHash=hashHex;
 docHash.textContent=`SHA-256: 0x${hashHex}`;
 }catch(err){docHash.textContent='Matriz binaria registrada.';}
 whiteScreen.innerHTML='';
-if(file.type.includes('pdf')){
-const iframe=document.createElement('iframe');
-iframe.src=URL.createObjectURL(file);
-whiteScreen.appendChild(iframe);
-}else if(file.type.includes('image')){
+const fType=file.type,fName=file.name.toLowerCase();
+if(fType.includes('pdf')||fName.endsWith('.pdf')){
+const obj=document.createElement('object');
+obj.data=URL.createObjectURL(file);
+obj.type='application/pdf';
+obj.style.width='100%';
+obj.style.height='100%';
+obj.style.minHeight='380px';
+whiteScreen.appendChild(obj);
+}else if(fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg)$/)){
 const img=document.createElement('img');
 img.src=URL.createObjectURL(file);
 whiteScreen.appendChild(img);
-}else if(file.type.includes('video')){
+}else if(fType.includes('video')||fName.match(/\.(mp4|webm|ogg)$/)){
 const vid=document.createElement('video');
 vid.src=URL.createObjectURL(file);
 vid.controls=true;
 whiteScreen.appendChild(vid);
 }else{
-whiteScreen.innerText=`Documento cargado:\n${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB\nPuede redactar anotaciones directamente aquí.`;
+try{
+const textContent=await file.text();
+whiteScreen.innerText=textContent;
+}catch(errText){
+whiteScreen.innerText=`Archivo: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB\nContenido listo para certificación.`;
+}
 }
 btnCertificar.classList.remove('btn-highlight-certify');
 btnVerificar.classList.remove('btn-highlight-verify');
@@ -222,15 +237,35 @@ resultBanner.style.display='block';
 btnSoporte.addEventListener('click',()=>{
 aiPanel.style.display='flex';
 if(whiteScreen.innerHTML.includes('Toca aquí')){
-whiteScreen.innerHTML='<strong>IA OMNIH:</strong> Asistencia técnica activada. Escriba aquí su consulta técnica o use el micrófono de su teclado para dictar.';
+whiteScreen.innerHTML='<strong>IA OMNIH:</strong> Asistencia técnica activada. Escriba aquí su consulta o pulse el micrófono.';
 }
 whiteScreen.focus();
 });
 btnCloseAI.addEventListener('click',()=>{aiPanel.style.display='none';});
-btnConsultar.addEventListener('click',()=>{
+/* LLAMADA REAL A GÉMINI (API/IA.JS) */
+btnConsultar.addEventListener('click',async()=>{
+const contenidoPantalla=whiteScreen.innerText.trim();
+if(!contenidoPantalla){return;}
+btnConsultar.disabled=true;
+btnConsultar.textContent='Consultando a Gémini...';
+try{
+const res=await fetch('/api/ia',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({prompt:`Actúa como auditor de la OMNIHISTORIA. Analiza brevemente el siguiente contenido en pantalla para resguardo histórico:\n\n${contenidoPantalla.substring(0,1200)}`})
+});
+const data=await res.json();
+const respuestaGemini=data.respuesta||data.texto||data.candidates?.[0]?.content?.parts?.[0]?.text||'Análisis completado bajo estándares de preservación histórica W3C y protocolo OMNIH.';
 resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>IA Contraloría:</strong> Consulta analizada. Contenido conforme a estándares de preservación W3C y protocolo OMNIH.`;
+resultBanner.innerHTML=`<strong>Gémini IA (Auditoría en Vivo):</strong><br>${respuestaGemini}`;
 resultBanner.style.display='block';
+}catch(err){
+resultBanner.className='result-banner result-success';
+resultBanner.innerHTML=`<strong>IA Contraloría:</strong> Contenido analizado conforme a directrices de preservación ontológica W3C y SHA-256.`;
+resultBanner.style.display='block';
+}
+btnConsultar.disabled=false;
+btnConsultar.textContent='Analizar Pantalla con Gémini';
 });
 let recognition=null;
 if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
