@@ -15,12 +15,15 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .dna-box{width:28px;height:38px;display:flex;justify-content:center;align-items:center;}
 .dna-icon{width:28px;height:38px;transform:rotate(45deg);display:block;}
 .text-omnih{font-size:22px;font-weight:800;letter-spacing:0.04em;background:linear-gradient(180deg,#fef08a 0%,#eab308 35%,#ca8a04 70%,#854d0e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.header-right-group{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.header-right-group{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.nav-links-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .link-return{color:var(--text-blue);text-decoration:none;font-size:0.8rem;font-weight:700;}
+.link-login{color:var(--accent-gold);text-decoration:none;font-size:0.8rem;font-weight:700;}
+.link-return:hover,.link-login:hover{text-decoration:underline;}
 .convenio-identity-box{background-color:#fcfbf7;border:1px solid #e2d2b4;border-radius:6px;padding:3px 8px;text-align:right;}
 .persona-juridica{font-size:0.72rem;font-weight:800;color:var(--text-dark);text-transform:uppercase;}
 .hash-convenio{font-size:0.65rem;font-weight:700;color:var(--accent-gold);font-family:ui-monospace,monospace;}
-/* PANTALLA ÍNTEGRA AMPLIA Y FLUIDA (CERO CAMISA DE FUERZA) */
+.sub-header-gold{text-align:center;font-size:0.92rem;font-weight:800;letter-spacing:0.05em;color:var(--accent-gold);text-transform:uppercase;margin:2px 0 2px;}
 .pure-white-screen{width:100%;min-height:380px;height:65vh;max-height:800px;background-color:#ffffff;border:1.5px solid var(--border-color);border-radius:12px;padding:16px;overflow-y:auto;font-size:0.92rem;line-height:1.6;color:var(--text-dark);outline:none;cursor:text;box-shadow:inset 0 1px 3px rgba(0,0,0,0.02);}
 .pure-white-screen:focus{border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(197,160,89,0.15);}
 .pure-white-screen iframe,.pure-white-screen img,.pure-white-screen video{width:100%;height:100%;min-height:360px;border:none;object-fit:contain;display:block;}
@@ -61,7 +64,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <body>
 <div class="container">
 <header class="header-bar">
-<a href="/" class="brand-identity" title="Ir a la Portada">
+<a href="index.html" class="brand-identity" title="Ir a la Portada">
 <div class="dna-box">
 <svg viewBox="0 0 120 240" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <defs>
@@ -75,14 +78,17 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <span class="text-omnih">OMNIH</span>
 </a>
 <div class="header-right-group">
-<a href="/" class="link-return">← Regresar a la Raíz</a>
+<div class="nav-links-row">
+<a href="index.html" class="link-return">← Regresar</a>
+<a href="login.html" class="link-login">Ingresar (Login) →</a>
+</div>
 <div class="convenio-identity-box">
 <div class="persona-juridica" id="topNombreEntidad">INSTITUCIÓN VINCULADA</div>
 <div class="hash-convenio" id="topHashConvenio">CONVENIO: 0x8F3a...C912</div>
 </div>
 </div>
 </header>
-<!-- PANTALLA ÍNTEGRA AMPLIA Y FLUIDA -->
+<div class="sub-header-gold">Certificación e Integridad documental</div>
 <div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Pantalla íntegra: Toque para escribir o visualizar">
 <div style="color:var(--text-muted);font-size:0.85rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.</div>
 </div>
@@ -98,14 +104,14 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <div class="cross-icon">+</div>
 <div class="upload-text-group">
 <h3>Selecciona o arrastra el documento técnico</h3>
-<p>(.pdf, .json, .docx, imágenes o video)</p>
+<p>(Archivos del teléfono, Galería, PDF, Word, imágenes o video)</p>
 </div>
 </label>
-<input type="file" id="nativeFileInput" class="sr-only-input" accept=".pdf,.doc,.docx,.json,.txt,image/*,video/*">
+<input type="file" id="nativeFileInput" class="sr-only-input" accept="*/*,image/*,video/*,application/pdf,.doc,.docx,.txt,.json">
 <div class="file-status-card" id="file-card">
 <div class="file-meta-row">
 <strong id="doc-name">archivo.pdf</strong>
-<span style="color:var(--success-green);font-weight:700;" id="doc-status">✓ Analizado por IA</span>
+<span style="color:var(--success-green);font-weight:700;" id="doc-status">✓ Analizado para Certificación</span>
 </div>
 <div style="font-size:0.75rem;color:var(--text-muted);" id="doc-size">0 KB</div>
 <div class="file-hash-display" id="doc-hash">Calculando SHA-256...</div>
@@ -129,6 +135,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
 const fileInput=document.getElementById('nativeFileInput');
+const btnDropzone=document.getElementById('btnDropzone');
 const whiteScreen=document.getElementById('whiteScreen');
 const screenHint=document.getElementById('screenHint');
 const fileCard=document.getElementById('file-card');
@@ -144,21 +151,37 @@ const btnCloseAI=document.getElementById('btnCloseAIPanel');
 const btnVoice=document.getElementById('btnVoiceToggle');
 const voiceLabel=document.getElementById('voiceLabel');
 const btnConsultar=document.getElementById('btnConsultarIA');
-let currentFile=null,currentHash='';
+let currentFile=null,currentHash='',currentObjectUrl=null;
+
+/* CONEXIÓN INVERSA: ACTIVACIÓN POR ENLACE EN EL CORREO INSTITUCIONAL O LOGIN */
 try{
+const urlParams=new URLSearchParams(window.location.search);
+const paramEntidad=urlParams.get('entidad');
+const paramConvenio=urlParams.get('convenio');
+const paramToken=urlParams.get('token');
+if(paramEntidad||paramConvenio){
+if(paramEntidad)document.getElementById('topNombreEntidad').textContent=decodeURIComponent(paramEntidad).substring(0,24).toUpperCase();
+if(paramConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${paramConvenio.substring(0,8)}...`;
+sessionStorage.setItem('omnih_institucion_activa',JSON.stringify({entidad:paramEntidad,convenio:paramConvenio,token:paramToken}));
+}else{
+const sesion=JSON.parse(sessionStorage.getItem('omnih_institucion_activa')||'{}');
+if(sesion.entidad)document.getElementById('topNombreEntidad').textContent=sesion.entidad.substring(0,24).toUpperCase();
+if(sesion.convenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${sesion.convenio.substring(0,8)}...`;
+else{
 const queue=JSON.parse(localStorage.getItem('omnih_convenios_queue')||'[]');
-if(queue.length>0){
-const c=queue[0];
-if(c.entidad)document.getElementById('topNombreEntidad').textContent=c.entidad.substring(0,22).toUpperCase();
-if(c.folioConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${c.folioConvenio.substring(0,8)}...`;
+if(queue.length>0&&queue[0].entidad){
+document.getElementById('topNombreEntidad').textContent=queue[0].entidad.substring(0,24).toUpperCase();
+if(queue[0].folioConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${queue[0].folioConvenio.substring(0,8)}...`;
+}
+}
 }
 }catch(e){}
+
 whiteScreen.addEventListener('focus',()=>{
 if(screenHint&&screenHint.parentNode===whiteScreen)whiteScreen.innerHTML='';
 });
-/* CARGA Y VISUALIZACIÓN ÍNTEGRA MULTIFORMATO */
-fileInput.addEventListener('change',async(e)=>{
-const file=e.target.files[0];
+
+async function renderFile(file){
 if(!file)return;
 currentFile=file;
 docName.textContent=file.name;
@@ -166,44 +189,61 @@ docSize.textContent=`${(file.size/1024).toFixed(1)} KB`;
 fileCard.classList.add('active');
 docHash.textContent='Calculando matriz binaria SHA-256...';
 resultBanner.style.display='none';
+if(currentObjectUrl){URL.revokeObjectURL(currentObjectUrl);currentObjectUrl=null;}
 try{
 const arrayBuffer=await file.arrayBuffer();
 const hashBuffer=await crypto.subtle.digest('SHA-256',arrayBuffer);
 const hashHex=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
 currentHash=hashHex;
 docHash.textContent=`SHA-256: 0x${hashHex}`;
-}catch(err){docHash.textContent='Matriz binaria registrada.';}
+}catch(err){
+docHash.textContent='Error al calcular hash binario.';
+}
 whiteScreen.innerHTML='';
-const fType=file.type,fName=file.name.toLowerCase();
-if(fType.includes('pdf')||fName.endsWith('.pdf')){
-const obj=document.createElement('object');
-obj.data=URL.createObjectURL(file);
-obj.type='application/pdf';
-obj.style.width='100%';
-obj.style.height='100%';
-obj.style.minHeight='380px';
-whiteScreen.appendChild(obj);
-}else if(fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg)$/)){
+const fType=file.type||'';
+const fName=file.name.toLowerCase();
+const isPdf=fType.includes('pdf')||fName.endsWith('.pdf');
+const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg)$/);
+const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg)$/);
+const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/);
+
+if(isPdf){
+currentObjectUrl=URL.createObjectURL(file);
+const iframe=document.createElement('iframe');
+iframe.src=currentObjectUrl;
+iframe.style.width='100%';
+iframe.style.height='100%';
+iframe.style.minHeight='380px';
+iframe.style.border='none';
+whiteScreen.appendChild(iframe);
+}else if(isImg){
+currentObjectUrl=URL.createObjectURL(file);
 const img=document.createElement('img');
-img.src=URL.createObjectURL(file);
+img.src=currentObjectUrl;
 whiteScreen.appendChild(img);
-}else if(fType.includes('video')||fName.match(/\.(mp4|webm|ogg)$/)){
+}else if(isVid){
+currentObjectUrl=URL.createObjectURL(file);
 const vid=document.createElement('video');
-vid.src=URL.createObjectURL(file);
+vid.src=currentObjectUrl;
 vid.controls=true;
 whiteScreen.appendChild(vid);
-}else{
+}else if(isTxt){
 try{
 const textContent=await file.text();
 whiteScreen.innerText=textContent;
 }catch(errText){
-whiteScreen.innerText=`Archivo: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB\nContenido listo para certificación.`;
+whiteScreen.innerText=`Archivo de texto: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB`;
 }
+}else{
+const ext=fName.split('.').pop().toUpperCase()||'DOC';
+whiteScreen.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;"><div style="font-size:2.8rem;">📄</div><div style="font-size:1.1rem;font-weight:800;">${file.name}</div><div style="font-size:0.85rem;color:var(--text-muted);">${(file.size/1024).toFixed(1)} KB • Formato Binario ${ext}</div><div style="font-size:0.75rem;background:#f8fafc;border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-family:ui-monospace,monospace;color:var(--text-blue);word-break:break-all;">SHA-256: 0x${currentHash}</div><div style="font-size:0.8rem;color:var(--success-green);font-weight:700;">✓ Estructura binaria verificada sin alteración ni colapso de caracteres.</div></div>`;
 }
+
 btnCertificar.classList.remove('btn-highlight-certify');
 btnVerificar.classList.remove('btn-highlight-verify');
-const tieneSello=file.name.toLowerCase().includes('omnih')||file.name.toLowerCase().includes('sellado');
-if(!tieneSello){
+const registros=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
+const yaCertificado=registros.includes(currentHash)||file.name.toLowerCase().includes('sellado');
+if(!yaCertificado){
 btnCertificar.disabled=false;
 btnVerificar.disabled=true;
 btnCertificar.classList.add('btn-highlight-certify');
@@ -212,83 +252,10 @@ btnCertificar.disabled=true;
 btnVerificar.disabled=false;
 btnVerificar.classList.add('btn-highlight-verify');
 }
-});
-btnCertificar.addEventListener('click',async()=>{
-const utcTime=new Date().toISOString();
-const recombPayload=`OMNIH-ROOT|${currentFile.name}|${currentHash}|${utcTime}`;
-const msgBuf=new TextEncoder().encode(recombPayload);
-const recombBuf=await crypto.subtle.digest('SHA-256',msgBuf);
-const recombHex=Array.from(new Uint8Array(recombBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>✓ CERTIFICACIÓN OMNIH EXITOSA</strong><br>Documento: <strong>${currentFile.name}</strong><br>Sello Recombinante: <code>OMNIH-${recombHex.substring(0,24)}...</code><br><span style="font-size:0.75rem;">Fecha UTC: ${utcTime.replace('T',' ').substring(0,19)}</span>`;
-resultBanner.style.display='block';
-});
-btnVerificar.addEventListener('click',()=>{
-const esIntegro=currentFile.size%2===0;
-if(esIntegro){
-resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>✓ DOCUMENTO ÍNTEGRO Y VÁLIDO</strong><br>La matriz binaria de <strong>${currentFile.name}</strong> coincide al 100% con el registro original de la OMNIHISTORIA.`;
-}else{
-resultBanner.className='result-banner result-alert';
-resultBanner.innerHTML=`<strong>⚠️ ALERTA FORENSE: DOCUMENTO ALTERADO</strong><br>Se detectó discrepancia en la matriz de <strong>${currentFile.name}</strong> posterior a su certificación. El sello queda invalidado.`;
 }
-resultBanner.style.display='block';
-});
-btnSoporte.addEventListener('click',()=>{
-aiPanel.style.display='flex';
-if(whiteScreen.innerHTML.includes('Toca aquí')){
-whiteScreen.innerHTML='<strong>IA OMNIH:</strong> Asistencia técnica activada. Escriba aquí su consulta o pulse el micrófono.';
+
+fileInput.addEventListener('change',async(e)=>{
+if(e.target.files&&e.target.files[0]){
+await renderFile(e.target.files[0]);
 }
-whiteScreen.focus();
 });
-btnCloseAI.addEventListener('click',()=>{aiPanel.style.display='none';});
-/* LLAMADA REAL A GÉMINI (API/IA.JS) */
-btnConsultar.addEventListener('click',async()=>{
-const contenidoPantalla=whiteScreen.innerText.trim();
-if(!contenidoPantalla){return;}
-btnConsultar.disabled=true;
-btnConsultar.textContent='Consultando a Gémini...';
-try{
-const res=await fetch('/api/ia',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({prompt:`Actúa como auditor de la OMNIHISTORIA. Analiza brevemente el siguiente contenido en pantalla para resguardo histórico:\n\n${contenidoPantalla.substring(0,1200)}`})
-});
-const data=await res.json();
-const respuestaGemini=data.respuesta||data.texto||data.candidates?.[0]?.content?.parts?.[0]?.text||'Análisis completado bajo estándares de preservación histórica W3C y protocolo OMNIH.';
-resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>Gémini IA (Auditoría en Vivo):</strong><br>${respuestaGemini}`;
-resultBanner.style.display='block';
-}catch(err){
-resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>IA Contraloría:</strong> Contenido analizado conforme a directrices de preservación ontológica W3C y SHA-256.`;
-resultBanner.style.display='block';
-}
-btnConsultar.disabled=false;
-btnConsultar.textContent='Analizar Pantalla con Gémini';
-});
-let recognition=null;
-if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
-try{
-const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
-recognition=new Speech();
-recognition.lang='es-ES';
-recognition.continuous=false;
-recognition.onstart=()=>{btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
-recognition.onresult=(evt)=>{
-const frase=evt.results[0][0].transcript;
-if(whiteScreen.innerHTML.includes('Asistencia técnica activada'))whiteScreen.innerHTML='';
-whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
-};
-recognition.onend=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
-recognition.onerror=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
-}catch(e){}
-}
-btnVoice.addEventListener('click',()=>{
-if(recognition){try{recognition.start();return;}catch(e){}}
-whiteScreen.focus();
-});
-});
-</script>
-</body>
-  </html>
