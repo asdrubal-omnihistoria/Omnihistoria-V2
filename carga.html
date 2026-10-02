@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>OMNIH | Consola Soberana de Certificación</title>
 <style>
-:root{--bg-canvas:#f8fafc;--card-bg:#ffffff;--text-dark:#0f172a;--text-muted:#64748b;--accent-gold:#c5a059;--border-color:#e2e8f0;--btn-bg-light:#ffffff;--btn-border:#cbd5e1;--icon-blue:#0284c7;--text-blue:#0369a1;--bg-blue-light:#f0f9ff;--success-green:#15803d;}
+:root{--bg-canvas:#f8fafc;--card-bg:#ffffff;--text-dark:#0f172a;--text-muted:#64748b;--accent-gold:#c5a059;--border-color:#e2e8f0;--btn-bg-light:#ffffff;--btn-border:#cbd5e1;--icon-blue:#0284c7;--text-blue:#0f4c81;--bg-blue-light:#f0f9ff;--success-green:#22c55e;--warning-amber:#f59e0b;--shadow-soft:0 4px 20px rgba(0,0,0,0.04);}
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;}
 body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justify-content:center;align-items:flex-start;min-height:100dvh;padding:12px;}
-.container{width:100%;max-width:1080px;background-color:var(--card-bg);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.04);border:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;}
+.container{width:100%;max-width:1080px;background-color:var(--card-bg);border-radius:16px;box-shadow:var(--shadow-soft);border:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:14px;}
 @media(max-width:640px){body{padding:0;} .container{border:none;border-radius:0;box-shadow:none;padding:14px;}}
 .header-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid var(--border-color);padding-bottom:12px;}
 .brand-identity{display:inline-flex;align-items:center;gap:10px;text-decoration:none;}
@@ -24,12 +24,12 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .persona-juridica{font-size:0.72rem;font-weight:800;color:var(--text-dark);text-transform:uppercase;}
 .hash-convenio{font-size:0.65rem;font-weight:700;color:var(--accent-gold);font-family:ui-monospace,monospace;}
 .sub-header-gold{text-align:center;font-size:0.92rem;font-weight:800;letter-spacing:0.05em;color:var(--accent-gold);text-transform:uppercase;margin:2px 0 2px;}
-.pure-white-screen{width:100%;min-height:380px;height:65vh;max-height:800px;background-color:#ffffff;border:1.5px solid var(--border-color);border-radius:12px;padding:16px;overflow-y:auto;font-size:0.92rem;line-height:1.6;color:var(--text-dark);outline:none;cursor:text;box-shadow:inset 0 1px 3px rgba(0,0,0,0.02);}
+.pure-white-screen{width:100%;min-height:380px;height:65vh;max-height:800px;background-color:#ffffff;border:1.5px solid var(--border-color);border-radius:12px;padding:16px;overflow-y:auto;font-size:0.88rem;line-height:1.55;color:var(--text-dark);word-break:break-word;white-space:pre-wrap;}
 .pure-white-screen:focus{border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(197,160,89,0.15);}
 .pure-white-screen iframe,.pure-white-screen img,.pure-white-screen video{width:100%;height:100%;min-height:360px;border:none;object-fit:contain;display:block;}
-.upload-label-native{border:1.5px dashed var(--btn-border);border-radius:12px;padding:14px 18px;background-color:#ffffff;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s;}
+.upload-label-native{border:1.5px dashed var(--btn-border);border-radius:12px;padding:14px 18px;background-color:#ffffff;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s ease-in-out;}
 .upload-label-native:hover{border-color:var(--accent-gold);background-color:#fdfbf7;}
-.cross-icon{width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:var(--accent-gold);font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--btn-border);line-height:1;}
+.cross-icon{width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:var(--accent-gold);font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .upload-text-group h3{font-size:0.88rem;color:var(--text-dark);margin:0;font-weight:700;}
 .upload-text-group p{font-size:0.75rem;color:var(--text-muted);margin:2px 0 0;}
 .sr-only-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
@@ -39,7 +39,8 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .file-hash-display{font-family:ui-monospace,monospace;font-size:0.72rem;color:var(--text-dark);word-break:break-all;margin-top:4px;background:#ffffff;padding:8px;border-radius:6px;border:1px solid var(--border-color);}
 .action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 @media(max-width:640px){.action-buttons{grid-template-columns:1fr;}}
-.btn-light{width:100%;padding:13px;border:1.5px solid var(--btn-border);border-radius:8px;background-color:var(--btn-bg-light);color:var(--text-dark);font-size:0.9rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;}
+.btn-light{width:100%;padding:13px;border:1.5px solid var(--btn-border);border-radius:8px;background-color:var(--btn-bg-light);color:var(--text-dark);font-size:0.9rem;font-weight:800;cursor:pointer;transition:all 0.2s ease;}
+.btn-light:hover:not(:disabled){transform:translateY(-1px);}
 .btn-light:disabled{opacity:0.4;cursor:not-allowed;}
 .btn-highlight-certify{border-color:var(--accent-gold)!important;background:#fffdf5!important;color:#854d0e!important;box-shadow:0 0 0 3px rgba(197,160,89,0.25);}
 .btn-highlight-verify{border-color:var(--icon-blue)!important;background:var(--bg-blue-light)!important;color:var(--text-blue)!important;box-shadow:0 0 0 3px rgba(2,132,199,0.25);}
@@ -68,7 +69,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <div class="dna-box">
 <svg viewBox="0 0 120 240" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <defs>
-<linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b03a8a"/><stop offset="35%" stop-color="#704fa0"/><stop offset="70%" stop-color="#3b7cb3"/><stop offset="100%" stop-color="#4aa47a"/></linearGradient>
+<linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b03a8a"/><stop offset="35%" stop-color="#704fa0"/><stop offset="70%" stop-color="#3b7cb3"/><stop offset="100%" stop-color="#0f766e"/></linearGradient>
 <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#d95438"/><stop offset="100%" stop-color="#eab308"/></linearGradient>
 </defs>
 <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round"/>
@@ -91,7 +92,6 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <div class="sub-header-gold">Certificación e Integridad documental</div>
 <div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Pantalla íntegra: Toque para escribir o visualizar">
 <div style="color:var(--text-muted);font-size:0.85rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.</div>
-</div>
 <div class="ai-screen-controls" id="aiScreenPanel">
 <div style="font-size:0.8rem;font-weight:700;color:var(--text-blue);">🎙️ Asistencia Gémini IA Activa en Pantalla:</div>
 <div class="ai-voice-row">
@@ -108,6 +108,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </div>
 </label>
 <input type="file" id="nativeFileInput" class="sr-only-input" accept="*/*,image/*,video/*,application/pdf,.doc,.docx,.txt,.json">
+<button type="button" id="btnOpenSystem" class="btn-light" style="margin:12px 0 8px;">📁 Abrir selector del sistema</button>
 <div class="file-status-card" id="file-card">
 <div class="file-meta-row">
 <strong id="doc-name">archivo.pdf</strong>
@@ -151,9 +152,9 @@ const btnCloseAI=document.getElementById('btnCloseAIPanel');
 const btnVoice=document.getElementById('btnVoiceToggle');
 const voiceLabel=document.getElementById('voiceLabel');
 const btnConsultar=document.getElementById('btnConsultarIA');
+const btnOpenSystem=document.getElementById('btnOpenSystem');
 let currentFile=null,currentHash='',currentObjectUrl=null;
 
-/* CONEXIÓN INVERSA: ACTIVACIÓN POR ENLACE EN EL CORREO INSTITUCIONAL O LOGIN */
 try{
 const urlParams=new URLSearchParams(window.location.search);
 const paramEntidad=urlParams.get('entidad');
@@ -203,9 +204,9 @@ whiteScreen.innerHTML='';
 const fType=file.type||'';
 const fName=file.name.toLowerCase();
 const isPdf=fType.includes('pdf')||fName.endsWith('.pdf');
-const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg)$/);
-const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg)$/);
-const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/);
+const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg)$/i);
+const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg)$/i);
+const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/i);
 
 if(isPdf){
 currentObjectUrl=URL.createObjectURL(file);
@@ -236,7 +237,7 @@ whiteScreen.innerText=`Archivo de texto: ${file.name}\nTamaño: ${(file.size/102
 }
 }else{
 const ext=fName.split('.').pop().toUpperCase()||'DOC';
-whiteScreen.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;"><div style="font-size:2.8rem;">📄</div><div style="font-size:1.1rem;font-weight:800;">${file.name}</div><div style="font-size:0.85rem;color:var(--text-muted);">${(file.size/1024).toFixed(1)} KB • Formato Binario ${ext}</div><div style="font-size:0.75rem;background:#f8fafc;border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-family:ui-monospace,monospace;color:var(--text-blue);word-break:break-all;">SHA-256: 0x${currentHash}</div><div style="font-size:0.8rem;color:var(--success-green);font-weight:700;">✓ Estructura binaria verificada sin alteración ni colapso de caracteres.</div></div>`;
+whiteScreen.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;"><div style="font-size:48px;opacity:0.06;font-weight:800;">${ext}</div><div style="font-weight:800;font-size:0.95rem;">${file.name}</div><div style="color:var(--text-muted);font-size:0.85rem;">Tipo: ${fType||'Desconocido'}</div></div>`;
 }
 
 btnCertificar.classList.remove('btn-highlight-certify');
@@ -278,7 +279,29 @@ await renderFile(e.dataTransfer.files[0]);
 btnDropzone.addEventListener('drop',handleDrop);
 whiteScreen.addEventListener('drop',handleDrop);
 
-/* CERTIFICACIÓN SOBERANA ASIMÉTRICA + ANCLAJE REAL EN BITCOIN */
+if(btnOpenSystem){
+btnOpenSystem.addEventListener('click',async()=>{
+if(window.showOpenFilePicker){
+try{
+const handles = await window.showOpenFilePicker({
+multiple:false,
+types:[{description:'Archivos OMNIH',accept:{'*/*':['.pdf','.doc','.docx','.txt','.json','.jpg','.jpeg','.png','.mp4','.webm','.csv','.md','.svg']}}]
+});
+if(handles && handles.length){
+const fh = handles[0];
+const file = await fh.getFile();
+await renderFile(file);
+}
+}catch(e){
+console.warn('showOpenFilePicker falló, usando input.file como fallback',e);
+fileInput.click();
+}
+}else{
+fileInput.click();
+}
+});
+}
+
 btnCertificar.addEventListener('click', async () => {
   if (!currentFile || !currentHash) return;
   btnCertificar.disabled = true;
@@ -305,13 +328,23 @@ btnCertificar.addEventListener('click', async () => {
     const cert = await response.json();
     const otsInfo = cert.anchors?.[0] || {};
 
+    try{
+      const registros = JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
+      if(!registros.includes(currentHash)){
+        registros.push(currentHash);
+        localStorage.setItem('omnih_sellados', JSON.stringify(registros));
+      }
+    }catch(e){
+      console.warn('No se pudo actualizar omnih_sellados:', e);
+    }
+
     resultBanner.className = 'result-banner result-success';
     resultBanner.innerHTML = `
       <strong>✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO</strong><br>
-      Documento: <strong>${cert.filename}</strong> (${cert.size} bytes)<br>
-      Emisor: <code>${cert.signer}</code> [${cert.signature_algo}]<br>
-      Estado Blockchain: <strong>${otsInfo.status}</strong><br>
-      Firma JWS: <code style="word-break:break-all;font-size:0.7rem;">${cert.signature.substring(0, 28)}...${cert.signature.substring(cert.signature.length - 12)}</code><br>
+      Documento: <strong>${cert.filename || currentFile.name}</strong> (${cert.size || currentFile.size} bytes)<br>
+      Emisor: <code>${cert.signer || 'OMNIH-CA'}</code> [${cert.signature_algo || 'Ed25519'}]<br>
+      Estado Blockchain: <strong>${otsInfo.status || 'pendiente'}</strong><br>
+      Firma JWS: <code style="word-break:break-all;font-size:0.7rem;">${(cert.signature || '').substring(0, 28)}...${(cert.signature || '').substring((cert.signature || '').length - 12)}</code><br>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button type="button" class="action-mini-btn" id="btnDescargarJSON" style="font-weight:700;color:var(--text-blue);">📥 Acta Legal (.json)</button>
         <button type="button" class="action-mini-btn" id="btnDescargarOTS" style="font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;">⚓ Recibo Bitcoin (.ots)</button>
@@ -320,32 +353,34 @@ btnCertificar.addEventListener('click', async () => {
     `;
     resultBanner.style.display = 'block';
 
-    // Descarga 1: Acta JSON con firma asimétrica Ed25519
     document.getElementById('btnDescargarJSON').onclick = () => {
       const blob = new Blob([JSON.stringify(cert, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `${cert.filename}.proof.json`;
+      a.download = `${(cert.filename || currentFile.name)}.proof.json`;
       a.click();
     };
 
-    // Descarga 2: Recibo binario .ots para auditoría Bitcoin
     document.getElementById('btnDescargarOTS').onclick = () => {
       if (!otsInfo.ots_receipt_base64) {
         alert('El recibo OTS no está disponible en este ciclo.');
         return;
       }
-      const byteCharacters = atob(otsInfo.ots_receipt_base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      try{
+        const byteCharacters = atob(otsInfo.ots_receipt_base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${(cert.filename || currentFile.name)}.ots`;
+        a.click();
+      }catch(e){
+        alert('Error al generar el archivo OTS: '+e.message);
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/octet-stream' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${cert.filename}.ots`;
-      a.click();
     };
 
     btnVerificar.disabled = false;
@@ -393,15 +428,7 @@ if(!contenidoPantalla){return;}
 btnConsultar.disabled=true;
 btnConsultar.textContent='Consultando a Gémini...';
 try{
-const res=await fetch('/api/ia',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-prompt:`Actúa como auditor de la OMNIHISTORIA. Analiza brevemente el siguiente contenido en pantalla para resguardo histórico:\n\n${contenidoPantalla.substring(0,1200)}`,
-hash:currentHash||null,
-filename:currentFile?currentFile.name:'Lienzo Directo'
-})
-});
+const res=await fetch('/api/ia',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:`Actúa como auditor de la OMNIHISTORIA. Analiza brevemente el siguiente contenido en pantalla para resguardo histórico:\n\n${contenidoPantalla.substring(0,1200)}`,hash:currentHash||null,filename:currentFile?currentFile.name:'Lienzo Directo'})});
 if(!res.ok){
 const errData=await res.json().catch(()=>({}));
 throw new Error(errData.error||`Error en el servicio de IA (Código ${res.status})`);
@@ -431,14 +458,15 @@ recognition.onstart=()=>{btnVoice.classList.add('listening');voiceLabel.textCont
 recognition.onresult=(evt)=>{
 const frase=evt.results[0][0].transcript;
 if(whiteScreen.innerHTML.includes('Asistencia técnica activada'))whiteScreen.innerHTML='';
-whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
+whiteScreen.innerText+=(whiteScreen.innerText? '\n':'')+'• '+frase;
 };
 recognition.onend=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
 recognition.onerror=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
 }catch(e){}
 }
 btnVoice.addEventListener('click',()=>{
-if(recognition){try{recognition.start();return;}catch(e){}}
+if(recognition){try{recognition.start();return;}catch(e){}
+}
 whiteScreen.focus();
 });
 });
