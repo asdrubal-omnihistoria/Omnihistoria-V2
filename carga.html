@@ -279,28 +279,31 @@ await renderFile(e.dataTransfer.files[0]);
 btnDropzone.addEventListener('drop',handleDrop);
 whiteScreen.addEventListener('drop',handleDrop);
 
-if(btnOpenSystem){
-btnOpenSystem.addEventListener('click',async()=>{
-if(window.showOpenFilePicker){
-try{
-const handles = await window.showOpenFilePicker({
-multiple:false,
-types:[{description:'Archivos OMNIH',accept:{'*/*':['.pdf','.doc','.docx','.txt','.json','.jpg','.jpeg','.png','.mp4','.webm','.csv','.md','.svg']}}]
+btnOpenSystem?.addEventListener('click', async () => {
+  try {
+    if (window.showOpenFilePicker) {
+      const [fh] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [{
+          description: 'Documentos e imágenes',
+          accept: {
+            'application/pdf': ['.pdf'],
+            'image/*': ['.jpg', '.jpeg', '.png', '.svg'],
+            'text/*': ['.txt', '.md', '.csv', '.json']
+          }
+        }]
+      });
+      const file = await fh.getFile();
+      await handleFile(file);        // ← misma función que el input fallback
+    } else {
+      fileInput?.click();
+    }
+  } catch (e) {
+    if (e.name === 'AbortError') return;   // usuario canceló: no hacer nada
+    console.error('Error al abrir archivo:', e);
+    showErrorUI('No se pudo abrir el documento.'); // ← función tuya que NO toca los botones
+  }
 });
-if(handles && handles.length){
-const fh = handles[0];
-const file = await fh.getFile();
-await renderFile(file);
-}
-}catch(e){
-console.warn('showOpenFilePicker falló, usando input.file como fallback',e);
-fileInput.click();
-}
-}else{
-fileInput.click();
-}
-});
-}
 
 btnCertificar.addEventListener('click', async () => {
   if (!currentFile || !currentHash) return;
