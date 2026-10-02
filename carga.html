@@ -278,7 +278,91 @@ await renderFile(e.dataTransfer.files[0]);
 btnDropzone.addEventListener('drop',handleDrop);
 whiteScreen.addEventListener('drop',handleDrop);
 
+/* CERTIFICACIÓN SOBERANA ASIMÉTRICA + ANCLAJE REAL EN BITCOIN */
+btnCertificar.addEventListener('click', async () => {
+  if (!currentFile || !currentHash) return;
+  btnCertificar.disabled = true;
+  btnCertificar.textContent = 'Anclando en Bitcoin y OMNIH-CA...';
+  resultBanner.style.display = 'none';
 
+  const entidadActual = document.getElementById('topNombreEntidad').textContent.trim();
+  const convenioActual = document.getElementById('topHashConvenio').textContent.trim();
+
+  try {
+    const response = await fetch('/api/certify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        hash: `0x${currentHash}`,
+        filename: currentFile.name,
+        size: currentFile.size,
+        entidad: entidadActual,
+        convenio: convenioActual
+      })
+    });
+
+    if (!response.ok) throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
+    const cert = await response.json();
+    const otsInfo = cert.anchors?.[0] || {};
+
+    resultBanner.className = 'result-banner result-success';
+    resultBanner.innerHTML = `
+      <strong>✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO</strong><br>
+      Documento: <strong>${cert.filename}</strong> (${cert.size} bytes)<br>
+      Emisor: <code>${cert.signer}</code> [${cert.signature_algo}]<br>
+      Estado Blockchain: <strong>${otsInfo.status}</strong><br>
+      Firma JWS: <code style="word-break:break-all;font-size:0.7rem;">${cert.signature.substring(0, 28)}...${cert.signature.substring(cert.signature.length - 12)}</code><br>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button type="button" class="action-mini-btn" id="btnDescargarJSON" style="font-weight:700;color:var(--text-blue);">📥 Acta Legal (.json)</button>
+        <button type="button" class="action-mini-btn" id="btnDescargarOTS" style="font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;">⚓ Recibo Bitcoin (.ots)</button>
+      </div>
+      <small style="color:var(--text-muted);display:block;margin-top:6px;">Auditable independientemente en <a href="https://opentimestamps.org" target="_blank" style="color:var(--text-blue);">opentimestamps.org</a></small>
+    `;
+    resultBanner.style.display = 'block';
+
+    // Descarga 1: Acta JSON con firma asimétrica Ed25519
+    document.getElementById('btnDescargarJSON').onclick = () => {
+      const blob = new Blob([JSON.stringify(cert, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${cert.filename}.proof.json`;
+      a.click();
+    };
+
+    // Descarga 2: Recibo binario .ots para auditoría Bitcoin
+    document.getElementById('btnDescargarOTS').onclick = () => {
+      if (!otsInfo.ots_receipt_base64) {
+        alert('El recibo OTS no está disponible en este ciclo.');
+        return;
+      }
+      const byteCharacters = atob(otsInfo.ots_receipt_base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${cert.filename}.ots`;
+      a.click();
+    };
+
+    btnVerificar.disabled = false;
+    btnVerificar.classList.add('btn-highlight-verify');
+
+  } catch (err) {
+    resultBanner.className = 'result-banner result-alert';
+    resultBanner.innerHTML = `
+      <strong>⚠️ ERROR EN EL ANCLAJE</strong><br>
+      No se pudo completar el sellado en OMNIH-CA: ${err.message}.
+    `;
+    resultBanner.style.display = 'block';
+  } finally {
+    btnCertificar.textContent = '🔒 Certificar en OMNIH-CA (Ed25519 + Blockchain)';
+    btnCertificar.disabled = false;
+  }
+});
 
 btnVerificar.addEventListener('click',()=>{
 if(!currentFile||!currentHash)return;
