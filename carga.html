@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OMNIH | Consola Soberana de Certificación</title>
 <style>
 :root{--bg-canvas:#f8fafc;--card-bg:#ffffff;--text-dark:#0f172a;--text-muted:#64748b;--accent-gold:#c5a059;--border-color:#e2e8f0;--btn-bg-light:#ffffff;--btn-border:#cbd5e1;--icon-blue:#0284c7;--text-blue:#0f4c81;--bg-blue-light:#f0f9ff;--success-green:#22c55e;--warning-amber:#f59e0b;--shadow-soft:0 4px 20px rgba(0,0,0,0.04);}
@@ -98,13 +98,12 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </header>
 <div class="sub-header-gold">Certificación e Integridad documental</div>
 
-<!-- ZONA 1: pantalla de visualización. Solo contiene el mensaje de bienvenida;
-     el panel de IA y los botones viven FUERA. (FIX #1) -->
+<!-- ZONA 1: pantalla de visualización. -->
 <div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Pantalla íntegra: Toque para escribir o visualizar">
 <div style="color:var(--text-muted);font-size:0.85rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.</div>
 </div>
 
-<!-- ZONA 3: panel de asistencia IA, fuera de la pantalla blanca (FIX #1) -->
+<!-- ZONA 3: panel de asistencia IA, fuera de la pantalla blanca -->
 <div class="ai-screen-controls" id="aiScreenPanel">
 <div style="font-size:0.8rem;font-weight:700;color:var(--text-blue);">🎙️ Asistencia Gémini IA Activa en Pantalla:</div>
 <div class="ai-voice-row">
@@ -118,11 +117,17 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <div class="cross-icon">+</div>
 <div class="upload-text-group">
 <h3>Selecciona o arrastra el documento técnico</h3>
-<p>(Archivos del teléfono, Galería, PDF, Word, imágenes o video)</p>
+<p>(Archivos del teléfono, Drive, PDF, Word, imágenes o video)</p>
 </div>
 </label>
-<input type="file" id="nativeFileInput" class="sr-only-input" accept="*/*,image/*,video/*,application/pdf,.doc,.docx,.txt,.json">
-<button type="button" id="btnOpenSystem" class="btn-light" style="margin:12px 0 8px;">📁 Abrir selector del sistema</button>
+<!-- Dos selectores separados: sin "accept" abre el gestor de archivos (Drive incluido);
+     con image/*,video/* abre la Galería / selector de fotos del teléfono. -->
+<input type="file" id="nativeFileInput" class="sr-only-input">
+<input type="file" id="galleryInput" class="sr-only-input" accept="image/*,video/*">
+<div class="action-buttons" style="margin:12px 0 8px;">
+<button type="button" id="btnOpenSystem" class="btn-light">📁 Archivos y Drive</button>
+<button type="button" id="btnGaleria" class="btn-light">🖼️ Galería (fotos y video)</button>
+</div>
 <div class="file-status-card" id="file-card">
 <div class="file-meta-row">
 <strong id="doc-name">archivo.pdf</strong>
@@ -130,10 +135,10 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </div>
 <div style="font-size:0.75rem;color:var(--text-muted);" id="doc-size">0 KB</div>
 <div class="file-hash-display" id="doc-hash">Calculando SHA-256...</div>
+<div class="banner-actions"><button type="button" class="action-mini-btn" id="btnLimpiar">✕ Quitar documento</button></div>
 </div>
 
-<!-- Zona de mensajes: banners de éxito / error. Todo su contenido se inserta con
-     textContent o createElement, NUNCA innerHTML con datos externos. (FIX #6) -->
+<!-- Banners: todo el contenido se inserta con textContent / createElement. -->
 <div class="result-banner" id="resultBanner"></div>
 
 <div class="action-buttons">
@@ -153,10 +158,28 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </div>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
+
+/* ================= CONFIGURACIÓN ================= */
+const OMNIH_CONFIG={
+  // Client ID OAuth (tipo "Aplicación web") de Google Cloud, para "Archivar en nube (Drive)".
+  // Autoriza tu dominio de Vercel en "Orígenes JavaScript autorizados". Vacío = botón avisa.
+  GOOGLE_CLIENT_ID:'',
+  DRIVE_FOLDER:'OMNIH-Archivo',
+  // Calendarios públicos de OpenTimestamps (se usan si /api/certify no responde).
+  OTS_CALENDARS:[
+    'https://alice.btc.calendar.opentimestamps.org',
+    'https://bob.btc.calendar.opentimestamps.org',
+    'https://finney.calendar.eternitywall.com'
+  ]
+};
+const HINT_TEXT='Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.';
+const LABEL_CERTIFICAR='🔒 Certificar Documento (Sello OMNIH Recombinante)';
+
 const fileInput=document.getElementById('nativeFileInput');
+const galleryInput=document.getElementById('galleryInput');
 const btnDropzone=document.getElementById('btnDropzone');
 const whiteScreen=document.getElementById('whiteScreen');
-const screenHint=document.getElementById('screenHint');
+let screenHint=document.getElementById('screenHint');
 const fileCard=document.getElementById('file-card');
 const docName=document.getElementById('doc-name');
 const docSize=document.getElementById('doc-size');
@@ -171,33 +194,61 @@ const btnVoice=document.getElementById('btnVoiceToggle');
 const voiceLabel=document.getElementById('voiceLabel');
 const btnConsultar=document.getElementById('btnConsultarIA');
 const btnOpenSystem=document.getElementById('btnOpenSystem');
+const btnGaleria=document.getElementById('btnGaleria');
+const btnLimpiar=document.getElementById('btnLimpiar');
 let currentFile=null,currentHash='',currentObjectUrl=null;
+let displayMode='empty';   // 'empty' | 'file' | 'notes'
+let analysisId=0,notesTimer=null;
+let sesion={entidad:null,convenio:null,token:null};
 
-/* ---------- Utilidades de zona (FIX #2, #5, #6) ---------- */
+/* ================= UTILIDADES ================= */
+const enc=new TextEncoder();
+function hexToBytes(h){const a=new Uint8Array(h.length/2);for(let i=0;i<a.length;i++)a[i]=parseInt(h.substr(i*2,2),16);return a;}
+function bytesToHex(b){return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function bytesToB64(b){let s='';for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s);}
+function b64ToBytes(b64){const bin=atob(b64);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+async function sha256Hex(buf){return bytesToHex(new Uint8Array(await crypto.subtle.digest('SHA-256',buf)));}
+function downloadBlob(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+const _scripts={};
+function loadScript(src){
+  if(_scripts[src])return _scripts[src];
+  _scripts[src]=new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src=src;s.async=true;s.onload=()=>res();
+    s.onerror=()=>{delete _scripts[src];rej(new Error('No se pudo cargar '+src));};
+    document.head.appendChild(s);
+  });
+  return _scripts[src];
+}
 
-// Retira SOLO el mensaje de bienvenida. Nada más. (FIX #2)
+/* ================= ZONAS ================= */
 function removeHint(){
   if(screenHint&&screenHint.parentNode===whiteScreen)screenHint.remove();
 }
-
-// Limpia SOLO la zona de visualización (whiteScreen). Los botones, el panel IA
-// y el dropzone viven fuera y sobreviven siempre. (FIX #1, #3)
+function restoreHint(){
+  screenHint=document.createElement('div');
+  screenHint.id='screenHint';
+  screenHint.style.cssText='color:var(--text-muted);font-size:0.85rem;';
+  screenHint.textContent=HINT_TEXT;
+  whiteScreen.appendChild(screenHint);
+}
 function clearDisplayZone(){
   if(currentObjectUrl){URL.revokeObjectURL(currentObjectUrl);currentObjectUrl=null;}
   whiteScreen.replaceChildren();
 }
-
-// Banner de mensajes: todo se inserta como TEXTO PLANO. (FIX #6)
-// kind: 'success' | 'alert'
 function showBanner(kind,lines){
   resultBanner.className='result-banner '+(kind==='success'?'result-success':'result-alert');
   resultBanner.replaceChildren();
   lines.forEach((line)=>{
-    if(line.el){ // nodo DOM pre-construido (para botones de descarga)
-      resultBanner.appendChild(line.el);
-    }else{
+    if(line.el){resultBanner.appendChild(line.el);}
+    else{
       const p=document.createElement(line.strong?'strong':'div');
-      p.textContent=line.text; // textContent: cero inyección de código
+      p.textContent=line.text;
       resultBanner.appendChild(p);
     }
     if(line.br)resultBanner.appendChild(document.createElement('br'));
@@ -206,14 +257,10 @@ function showBanner(kind,lines){
 }
 function hideBanner(){resultBanner.classList.remove('visible');resultBanner.replaceChildren();}
 
-// Registro de sellados: se decide SOLO por hash SHA-256, nunca por nombre. (FIX #4)
-// Formato nuevo: [{hash, filename, timestamp}]. Compatible con el formato
-// antiguo (array simple de strings).
+/* ================= REGISTROS (solo caché local) ================= */
 function getRegistros(){
-  try{
-    const raw=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
-    return Array.isArray(raw)?raw:[];
-  }catch(e){return[];}
+  try{const raw=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');return Array.isArray(raw)?raw:[];}
+  catch(e){return[];}
 }
 function hashEstaCertificado(hash){
   return getRegistros().some(r=>typeof r==='string'?r===hash:(r&&r.hash===hash));
@@ -225,391 +272,49 @@ function registrarHash(hash,filename){
     localStorage.setItem('omnih_sellados',JSON.stringify(registros));
   }
 }
+function getRec(hash){
+  try{const s=JSON.parse(localStorage.getItem('omnih_certificados')||'{}');return s[hash]||null;}catch(e){return null;}
+}
+function saveRec(hash,rec){
+  try{
+    const s=JSON.parse(localStorage.getItem('omnih_certificados')||'{}');
+    s[hash]=rec;localStorage.setItem('omnih_certificados',JSON.stringify(s));
+  }catch(e){console.warn('No se pudo guardar el certificado local:',e);}
+}
+// Bitácora encadenada por hash (cada entrada incluye el hash de la anterior).
+async function ledgerAppend(hash,filename,timestamp){
+  try{
+    const led=JSON.parse(localStorage.getItem('omnih_ledger')||'[]');
+    const prev=led.length?led[led.length-1].entry_hash:'0'.repeat(64);
+    const entry={seq:led.length+1,hash:hash,filename:filename,timestamp:timestamp,prev:prev};
+    entry.entry_hash=await sha256Hex(enc.encode(JSON.stringify([entry.seq,hash,filename,timestamp,prev])));
+    led.push(entry);
+    localStorage.setItem('omnih_ledger',JSON.stringify(led));
+    return entry;
+  }catch(e){return null;}
+}
+const fechaCert=(rec)=>rec.cert.timestamp||rec.cert.issued_at||rec.cert.timestamp_local||rec.timestamp;
 
-/* ---------- Sesión / convenio ---------- */
+/* ================= SESIÓN / CONVENIO ================= */
 try{
 const urlParams=new URLSearchParams(window.location.search);
-const paramEntidad=urlParams.get('entidad');
+const paramEntidad=urlParams.get('entidad');   // URLSearchParams ya decodifica
 const paramConvenio=urlParams.get('convenio');
 const paramToken=urlParams.get('token');
 if(paramEntidad||paramConvenio){
-if(paramEntidad)document.getElementById('topNombreEntidad').textContent=decodeURIComponent(paramEntidad).substring(0,24).toUpperCase();
-if(paramConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${paramConvenio.substring(0,8)}...`;
-sessionStorage.setItem('omnih_institucion_activa',JSON.stringify({entidad:paramEntidad,convenio:paramConvenio,token:paramToken}));
+  sesion={entidad:paramEntidad,convenio:paramConvenio,token:paramToken};
+  if(paramEntidad)document.getElementById('topNombreEntidad').textContent=paramEntidad.substring(0,24).toUpperCase();
+  if(paramConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${paramConvenio.substring(0,8)}...`;
+  sessionStorage.setItem('omnih_institucion_activa',JSON.stringify({entidad:paramEntidad,convenio:paramConvenio,token:paramToken}));
+  // El token no debe quedarse en la barra de direcciones / historial.
+  try{history.replaceState(null,'',window.location.pathname);}catch(e){}
 }else{
-const sesion=JSON.parse(sessionStorage.getItem('omnih_institucion_activa')||'{}');
-if(sesion.entidad)document.getElementById('topNombreEntidad').textContent=sesion.entidad.substring(0,24).toUpperCase();
-if(sesion.convenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${sesion.convenio.substring(0,8)}...`;
-else{
-const queue=JSON.parse(localStorage.getItem('omnih_convenios_queue')||'[]');
-if(queue.length>0&&queue[0].entidad){
-document.getElementById('topNombreEntidad').textContent=queue[0].entidad.substring(0,24).toUpperCase();
-if(queue[0].folioConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${queue[0].folioConvenio.substring(0,8)}...`;
-}
-}
-}
-}catch(e){}
-
-/* ---------- Interacción con la pantalla blanca ---------- */
-// Al tocar/escribir: retirar SOLO el mensaje de bienvenida. (FIX #2)
-// Antes: whiteScreen.innerHTML='' destruía el panel IA que vivía dentro.
-whiteScreen.addEventListener('focus',removeHint);
-
-/* ---------- Render de archivo importado ---------- */
-async function renderFile(file){
-if(!file)return;
-currentFile=file;
-docName.textContent=file.name;                      // textContent: sin XSS (FIX #6)
-docSize.textContent=`${(file.size/1024).toFixed(1)} KB`;
-fileCard.classList.add('active');
-docHash.textContent='Calculando matriz binaria SHA-256...';
-hideBanner();
-try{
-const arrayBuffer=await file.arrayBuffer();
-const hashBuffer=await crypto.subtle.digest('SHA-256',arrayBuffer);
-const hashHex=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
-currentHash=hashHex;
-docHash.textContent=`SHA-256: 0x${hashHex}`;
-}catch(err){
-currentHash='';
-docHash.textContent='Error al calcular hash binario.';
-showBanner('alert',[{strong:true,text:'No se pudo calcular el SHA-256 del documento.'}]);
-return;
-}
-
-// Limpiar SOLO la zona de visualización: los botones y el panel IA sobreviven.
-// (FIX #3; antes el panel IA moría por vivir dentro de whiteScreen)
-clearDisplayZone();
-removeHint();
-
-const fType=file.type||'';
-const fName=file.name.toLowerCase();
-const isPdf=fType.includes('pdf')||fName.endsWith('.pdf');
-const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg)$/i);
-const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg)$/i);
-const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/i);
-
-if(isPdf){
-currentObjectUrl=URL.createObjectURL(file);
-const iframe=document.createElement('iframe');
-iframe.src=currentObjectUrl;
-iframe.style.width='100%';
-iframe.style.height='100%';
-iframe.style.minHeight='380px';
-iframe.style.border='none';
-whiteScreen.appendChild(iframe);
-}else if(isImg){
-currentObjectUrl=URL.createObjectURL(file);
-const img=document.createElement('img');
-img.src=currentObjectUrl;
-whiteScreen.appendChild(img);
-}else if(isVid){
-currentObjectUrl=URL.createObjectURL(file);
-const vid=document.createElement('video');
-vid.src=currentObjectUrl;
-vid.controls=true;
-whiteScreen.appendChild(vid);
-}else if(isTxt){
-try{
-const textContent=await file.text();
-whiteScreen.innerText=textContent;   // innerText: texto plano, sin HTML
-}catch(errText){
-whiteScreen.innerText=`Archivo de texto: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB`;
-}
-}else{
-// Tipo no previsualizable: se construye con createElement/textContent.
-// (FIX #6: antes usaba innerHTML con ${file.name} → inyección posible)
-const ext=(fName.split('.').pop()||'doc').toUpperCase();
-const box=document.createElement('div');
-box.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;';
-const big=document.createElement('div');
-big.style.cssText='font-size:48px;opacity:0.06;font-weight:800;';
-big.textContent=ext;
-const nm=document.createElement('div');
-nm.style.cssText='font-weight:800;font-size:0.95rem;';
-nm.textContent=file.name;
-const tp=document.createElement('div');
-tp.style.cssText='color:var(--text-muted);font-size:0.85rem;';
-tp.textContent='Tipo: '+(fType||'Desconocido');
-box.append(big,nm,tp);
-whiteScreen.appendChild(box);
-}
-
-btnCertificar.classList.remove('btn-highlight-certify');
-btnVerificar.classList.remove('btn-highlight-verify');
-
-// FIX #4: el estado "ya certificado" se decide SOLO por el hash SHA-256.
-// Antes: || file.name.toLowerCase().includes('sellado') permitía falsear el
-// estado simplemente renombrando el archivo.
-const yaCertificado=hashEstaCertificado(currentHash);
-if(!yaCertificado){
-btnCertificar.disabled=false;
-btnVerificar.disabled=true;
-btnCertificar.classList.add('btn-highlight-certify');
-}else{
-btnCertificar.disabled=true;
-btnVerificar.disabled=false;
-btnVerificar.classList.add('btn-highlight-verify');
-}
-}
-
-/* ---------- Importación de archivos ---------- */
-fileInput.addEventListener('change',async(e)=>{
-if(e.target.files&&e.target.files[0]){
-await renderFile(e.target.files[0]);
-}
-});
-['dragenter','dragover'].forEach(evt=>{
-btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--accent-gold)';btnDropzone.style.backgroundColor='#fdfbf7';});
-whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--accent-gold)';});
-});
-['dragleave','drop'].forEach(evt=>{
-btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--btn-border)';btnDropzone.style.backgroundColor='#ffffff';});
-whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--border-color)';});
-});
-
-const handleDrop=async(e)=>{
-e.preventDefault();
-e.stopPropagation();
-if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length){
-await renderFile(e.dataTransfer.files[0]);
-}
-};
-btnDropzone.addEventListener('drop',handleDrop);
-whiteScreen.addEventListener('drop',handleDrop);
-
-/* FIX #5: "Abrir selector del sistema" llamaba a handleFile y showErrorUI,
-   que NO existían. Ahora llama a la función real (renderFile) y los errores
-   se muestran en el banner rojo, sin romper nada. */
-btnOpenSystem?.addEventListener('click', async () => {
-  try {
-    if (window.showOpenFilePicker) {
-      const [fh] = await window.showOpenFilePicker({
-        multiple: false,
-        types: [{
-          description: 'Documentos e imágenes',
-          accept: {
-            'application/pdf': ['.pdf'],
-            'image/*': ['.jpg', '.jpeg', '.png', '.svg'],
-            'text/*': ['.txt', '.md', '.csv', '.json']
-          }
-        }]
-      });
-      const file = await fh.getFile();
-      await renderFile(file);        // ← función real que sí existe
-    } else {
-      fileInput?.click();
-    }
-  } catch (e) {
-    if (e.name === 'AbortError') return;   // usuario canceló: no hacer nada
-    showBanner('alert',[
-      {strong:true,text:'No se pudo abrir el documento.'},
-      {text:'Detalle: '+e.message}
-    ]);
-  }
-});
-
-/* ---------- Certificación ---------- */
-btnCertificar.addEventListener('click', async () => {
-  if (!currentFile || !currentHash) return;
-  btnCertificar.disabled = true;
-  btnCertificar.textContent = 'Anclando en Bitcoin y OMNIH-CA...';
-  hideBanner();
-
-  const entidadActual = document.getElementById('topNombreEntidad').textContent.trim();
-  const convenioActual = document.getElementById('topHashConvenio').textContent.trim();
-
-  try {
-    const response = await fetch('/api/certify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        hash: `0x${currentHash}`,
-        filename: currentFile.name,
-        size: currentFile.size,
-        entidad: entidadActual,
-        convenio: convenioActual
-      })
-    });
-
-    if (!response.ok) throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
-    const cert = await response.json();
-    // otsInfo (antes había un typo "otsInf" que rompía el banner) (FIX extra)
-    const otsInfo = cert.anchors?.[0] || {};
-
-    registrarHash(currentHash, currentFile.name);
-
-    // Registrar el certificado completo para verificación offline posterior
-    try{
-      const sellados=JSON.parse(localStorage.getItem('omnih_certificados')||'{}');
-      sellados[currentHash]={cert:cert,timestamp:new Date().toISOString()};
-      localStorage.setItem('omnih_certificados',JSON.stringify(sellados));
-    }catch(e){console.warn('No se pudo guardar el certificado local:',e);}
-
-    // FIX #6: el banner de éxito se construye con createElement/textContent.
-    // Antes: innerHTML con cert.filename, cert.signer, otsInfo.* → XSS.
-    const sig=(cert.signature||'');
-    const sigPreview=sig?sig.substring(0,28)+'...'+sig.substring(sig.length-12):'(no firmado)';
-    showBanner('success',[
-      {strong:true,text:'✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO',br:true},
-      {text:'Documento: '+(cert.filename||currentFile.name)+' ('+(cert.size||currentFile.size)+' bytes)',br:true},
-      {text:'Emisor: '+(cert.signer||'OMNIH-CA')+' ['+(cert.signature_algo||'Ed25519')+']',br:true},
-      {text:'Estado Blockchain: '+(otsInfo.status||'pendiente'),br:true},
-      {text:'Firma JWS: '+sigPreview,br:true}
-    ]);
-
-    // Fila de acciones de descarga (nodos reales, no HTML inyectado)
-    const actions=document.createElement('div');
-    actions.className='banner-actions';
-
-    const btnJSON=document.createElement('button');
-    btnJSON.type='button';
-    btnJSON.className='action-mini-btn';
-    btnJSON.style.cssText='font-weight:700;color:var(--text-blue);';
-    btnJSON.textContent='📥 Acta Legal (.json)';
-    btnJSON.onclick=()=>{
-      const blob=new Blob([JSON.stringify(cert,null,2)],{type:'application/json'});
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download=`${(cert.filename||currentFile.name)}.proof.json`;
-      a.click();
-      setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-    };
-
-    const btnOTS=document.createElement('button');
-    btnOTS.type='button';
-    btnOTS.className='action-mini-btn';
-    btnOTS.style.cssText='font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;';
-    btnOTS.textContent='⚓ Recibo Bitcoin (.ots)';
-    btnOTS.onclick=()=>{
-      if(!otsInfo.ots_receipt_base64){
-        showBanner('alert',[{strong:true,text:'El recibo OTS no está disponible en este ciclo.'}]);
-        return;
-      }
-      try{
-        const byteCharacters=atob(otsInfo.ots_receipt_base64);
-        const byteArray=new Uint8Array(byteCharacters.length);
-        for(let i=0;i<byteCharacters.length;i++){byteArray[i]=byteCharacters.charCodeAt(i);}
-        const blob=new Blob([byteArray],{type:'application/octet-stream'});
-        const a=document.createElement('a');
-        a.href=URL.createObjectURL(blob);
-        a.download=`${(cert.filename||currentFile.name)}.ots`;
-        a.click();
-        setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-      }catch(e){
-        showBanner('alert',[{strong:true,text:'Error al generar el archivo OTS: '+e.message}]);
-      }
-    };
-
-    actions.append(btnJSON,btnOTS);
-    const note=document.createElement('small');
-    note.style.cssText='color:var(--text-muted);display:block;margin-top:6px;';
-    note.textContent='Auditable independientemente en opentimestamps.org';
-    const link=document.createElement('a');
-    link.href='https://opentimestamps.org';
-    link.target='_blank';
-    link.style.color='var(--text-blue)';
-    link.textContent='opentimestamps.org';
-    note.appendChild(link);
-    resultBanner.append(actions,note);
-
-    btnVerificar.disabled=false;
-    btnVerificar.classList.add('btn-highlight-verify');
-
-  } catch (err) {
-    // Banner de error también con texto plano (FIX #6)
-    showBanner('alert',[
-      {strong:true,text:'⚠️ ERROR EN EL ANCLAJE',br:true},
-      {text:'No se pudo completar el sellado en OMNIH-CA: '+err.message+'.'}
-    ]);
-  } finally {
-    btnCertificar.textContent='🔒 Certificar en OMNIH-CA (Ed25519 + Blockchain)';
-    btnCertificar.disabled=false;
-  }
-});
-
-/* ---------- Verificación ---------- */
-btnVerificar.addEventListener('click',()=>{
-if(!currentFile||!currentHash)return;
-// FIX #4: la verificación es SOLO criptográfica (hash contra registro).
-// Antes: || currentFile.name.toLowerCase().includes('sellado') hacía que
-// cualquier archivo renombrado "...sellado..." pasara como válido.
-if(hashEstaCertificado(currentHash)){
-showBanner('success',[
-  {strong:true,text:'✓ DOCUMENTO ÍNTEGRO Y VÁLIDO',br:true},
-  {text:'La matriz SHA-256 de '+currentFile.name+' coincide con el registro original de la OMNIHISTORIA.'}
-]);
-}else{
-showBanner('alert',[
-  {strong:true,text:'⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO',br:true},
-  {text:'No se encontró registro de la matriz SHA-256 para '+currentFile.name+'. Proceda a certificarlo.'}
-]);
-}
-});
-
-/* ---------- Asistencia IA ---------- */
-btnSoporte.addEventListener('click',()=>{
-// Mostrar el panel IA (que vive fuera de la pantalla: nunca es destruido) (FIX #1)
-aiPanel.classList.add('visible');
-// Retirar solo el mensaje de bienvenida si aún está (FIX #2)
-removeHint();
-whiteScreen.focus();
-});
-btnCloseAI?.addEventListener('click',()=>{aiPanel.classList.remove('visible');});
-
-btnConsultar.addEventListener('click',async()=>{
-const contenidoPantalla=whiteScreen.innerText.trim();
-if(!contenidoPantalla){return;}
-btnConsultar.disabled=true;
-btnConsultar.textContent='Consultando a Gémini...';
-try{
-const res=await fetch('/api/ia',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:`Actúa como auditor de la OMNIHISTORIA. Analiza brevemente el siguiente contenido en pantalla para resguardo histórico:\n\n${contenidoPantalla.substring(0,1200)}`,hash:currentHash||null,filename:currentFile?currentFile.name:'Lienzo Directo'})});
-if(!res.ok){
-const errData=await res.json().catch(()=>({}));
-throw new Error(errData.error||`Error en el servicio de IA (Código ${res.status})`);
-}
-const data=await res.json();
-const respuestaGemini=data.respuesta||data.texto||data.candidates?.[0]?.content?.parts?.[0]?.text||(typeof data==='string'?data:JSON.stringify(data));
-// Respuesta de la IA como TEXTO PLANO (FIX #6: era innerHTML → XSS si el
-// servicio devolviera HTML malicioso)
-showBanner('success',[
-{strong:true,text:'Gémini IA (Auditoría en Vivo):',br:true},
-{text:respuestaGemini}
-]);
-}catch(err){
-showBanner('alert',[
-{strong:true,text:'Error al consultar Gémini:',br:true},
-{text:err.message,br:true},
-{text:'Verifique que su variable GEMINI_API_KEY esté activa en Vercel y cuente con cuota disponible.'}
-]);
-}
-btnConsultar.disabled=false;
-btnConsultar.textContent='Analizar Pantalla con Gémini';
-});
-
-/* ---------- Dictado por voz ---------- */
-let recognition=null;
-if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
-try{
-const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
-recognition=new Speech();
-recognition.lang='es-ES';
-recognition.continuous=false;
-recognition.onstart=()=>{btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
-recognition.onresult=(evt)=>{
-const frase=evt.results[0][0].transcript;
-removeHint(); // solo el mensaje de bienvenida (antes borraba la pantalla)
-whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
-};
-recognition.onend=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
-recognition.onerror=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
-}catch(e){}
-}
-btnVoice.addEventListener('click',()=>{
-if(recognition){try{recognition.start();return;}catch(e){}}
-whiteScreen.focus();
-});
-});
-</script>
-</body>
-</html>
+  const s=JSON.parse(sessionStorage.getItem('omnih_institucion_activa')||'{}');
+  if(s.entidad){sesion.entidad=s.entidad;document.getElementById('topNombreEntidad').textContent=s.entidad.substring(0,24).toUpperCase();}
+  if(s.convenio){sesion.convenio=s.convenio;sesion.token=s.token||null;document.getElementById('topHashConvenio').textContent=`CONV: 0x${s.convenio.substring(0,8)}...`;}
+  else{
+    const queue=JSON.parse(localStorage.getItem('omnih_convenios_queue')||'[]');
+    if(queue.length>0&&queue[0].entidad){
+      sesion.entidad=queue[0].entidad;
+      document.getElementById('topNombreEntidad').textContent=queue[0].entidad.substring(0,24).toUpperCase();
+      if(queue[0].folioConvenio)
