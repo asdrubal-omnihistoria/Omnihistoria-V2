@@ -323,6 +323,491 @@ if(paramEntidad||paramConvenio){
   }
 }
 }catch(e){}
+     /* ================= ESTADO DE BOTONES / ANÁLISIS ================= */
+function refreshButtons(){
+  btnCertificar.classList.remove('btn-highlight-certify');
+  btnVerificar.classList.remove('btn-highlight-verify');
+  if(!currentFile||!currentHash){btnCertificar.disabled=true;btnVerificar.disabled=true;return;}
+  if(!hashEstaCertificado(currentHash)){
+    btnCertificar.disabled=false;btnVerificar.disabled=true;
+    btnCertificar.classList.add('btn-highlight-certify');
+  }else{
+    btnCertificar.disabled=true;btnVerificar.disabled=false;
+    btnVerificar.classList.add('btn-highlight-verify');
+  }
+}
+async function analyze(file){
+  const myId=++analysisId;
+  currentFile=file;currentHash='';
+  docName.textContent=file.name;
+  docSize.textContent=`${(file.size/1024).toFixed(1)} KB`;
+  fileCard.classList.add('active');
+  docHash.textContent='Calculando matriz binaria SHA-256...';
+  hideBanner();refreshButtons();
+  try{
+    const hex=await sha256Hex(await file.arrayBuffer());
+    if(myId!==analysisId)return false;
+    currentHash=hex;
+    docHash.textContent=`SHA-256: 0x${hex}`;
+    return true;
+  }catch(err){
+    if(myId!==analysisId)return false;
+    currentHash='';
+    docHash.textContent='Error al calcular hash binario.';
+    showBanner('alert',[{strong:true,text:'No se pudo calcular el SHA-256 del documento.'}]);
+    return false;
+  }
+}
+
+/* ================= PANTALLA BLANCA: NOTAS ================= */
+whiteScreen.addEventListener('focus',removeHint);
+// Pegar siempre como texto plano (evita HTML ajeno dentro de la pantalla).
+whiteScreen.addEventListener('paste',(e)=>{
+  if(displayMode==='file')return;
+  e.preventDefault();
+  const t=(e.clipboardData||window.clipboardData).getData('text/plain');
+  document.execCommand('insertText',false,t);
+});
+// Las notas escritas también pueden certificarse (se tratan como nota-tecnica.txt).
+async function syncNotes(){
+  if(displayMode==='file')return;
+  if(screenHint&&screenHint.parentNode===whiteScreen)return;
+  const txt=whiteScreen.innerText.replace(/\r\n/g,'\n').trim();
+  if(!txt){
+    displayMode='empty';analysisId++;
+    currentFile=null;currentHash='';fileCard.classList.remove('active');refreshButtons();
+    return;
+  }
+  displayMode='notes';
+  const f=new File([txt],'nota-tecnica.txt',{type:'text/plain'});
+  if(await analyze(f))refreshButtons();
+}
+whiteScreen.addEventListener('input',()=>{
+  if(displayMode==='file')return;
+  clearTimeout(notesTimer);notesTimer=setTimeout(syncNotes,500);
+});
+
+/* ================= RENDER DE ARCHIVO IMPORTADO ================= */
+async function renderFile(file){
+  if(!file)return;
+  const ok=await analyze(file);
+  if(!ok)return;
+  clearDisplayZone();
+  displayMode='file';
+  whiteScreen.contentEditable='false';   // el documento mostrado no se edita
+  removeHint();
+
+  const fType=file.type||'';
+  const fName=file.name.toLowerCase();
+  const isPdf=fType.includes('pdf')||fName.endsWith('.pdf');
+  const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg|heic)$/i);
+  const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg|mov)$/i);
+  const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/i);
+
+  if(isPdf){
+    currentObjectUrl=URL.createObjectURL(file);
+    const iframe=document.createElement('iframe');
+    iframe.src=currentObjectUrl;
+    iframe.style.width='100%';iframe.style.height='100%';iframe.style.minHeight='380px';iframe.style.border='none';
+    whiteScreen.appendChild(iframe);
+  }else if(isImg){
+    currentObjectUrl=URL.createObjectURL(file);
+    const img=document.createElement('img');
+    img.src=currentObjectUrl;
+    whiteScreen.appendChild(img);
+  }else if(isVid){
+    currentObjectUrl=URL.createObjectURL(file);
+    const vid=document.createElement('video');
+    vid.src=currentObjectUrl;vid.controls=true;
+    whiteScreen.appendChild(vid);
+  }else if(isTxt){
+    try{whiteScreen.innerText=await file.text();}
+    catch(errText){whiteScreen.innerText=`Archivo de texto: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB`;}
+  }else{
+    const ext=(fName.split('.').pop()||'doc').toUpperCase();
+    const box=document.createElement('div');
+    box.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;';
+    const big=document.createElement('div');
+    big.style.cssText='font-size:48px;opacity:0.06;font-weight:800;';
+    big.textContent=ext;
+    const nm=document.createElement('div');
+    nm.style.cssText='font-weight:800;font-size:0.95rem;';
+    nm.textContent=file.name;
+    const tp=document.createElement('div');
+    tp.style.cssText='color:var(--text-muted);font-size:0.85rem;';
+    tp.textContent='Tipo: '+(fType||'Desconocido');
+    box.append(big,nm,tp);
+    whiteScreen.appendChild(box);
+  }
+  refreshButtons();   // estado "ya certificado" SOLO por hash SHA-256
+}
+
+btnLimpiar.addEventListener('click',()=>{
+  analysisId++;
+  clearDisplayZone();
+  displayMode='empty';
+  whiteScreen.contentEditable='true';
+  restoreHint();
+  currentFile=null;currentHash='';
+  fileCard.classList.remove('active');
+  hideBanner();refreshButtons();
+});
+
+/* ================= IMPORTACIÓN ================= */
+// Documentos / Drive (sin "accept": gestor de archivos del sistema)
+btnOpenSystem.addEventListener('click',()=>fileInput.click());
+// Galería (image/*,video/*: selector de fotos del teléfono)
+btnGaleria.addEventListener('click',()=>galleryInput.click());
+[fileInput,galleryInput].forEach((inp)=>{
+  inp.addEventListener('change',async(e)=>{
+    const f=e.target.files&&e.target.files[0];
+    if(f)await renderFile(f);
+    inp.value='';   // permite volver a elegir el mismo archivo
+  });
+});
+['dragenter','dragover'].forEach(evt=>{
+  btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--accent-gold)';btnDropzone.style.backgroundColor='#fdfbf7';});
+  whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--accent-gold)';});
+});
+['dragleave','drop'].forEach(evt=>{
+  btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--btn-border)';btnDropzone.style.backgroundColor='#ffffff';});
+  whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--border-color)';});
+});
+const handleDrop=async(e)=>{
+  e.preventDefault();e.stopPropagation();
+  if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length)await renderFile(e.dataTransfer.files[0]);
+};
+btnDropzone.addEventListener('drop',handleDrop);
+whiteScreen.addEventListener('drop',handleDrop);
+// Soltar fuera de las zonas no debe abrir el archivo y sacar al usuario de la página.
+['dragover','drop'].forEach(evt=>window.addEventListener(evt,(e)=>e.preventDefault()));
+
+/* ================= OPENTIMESTAMPS (directo a calendarios públicos) ================= */
+const OTS_MAGIC=Uint8Array.of(0x00,0x4f,0x70,0x65,0x6e,0x54,0x69,0x6d,0x65,0x73,0x74,0x61,0x6d,0x70,0x73,0x00,0x00,0x50,0x72,0x6f,0x6f,0x66,0x00,0xbf,0x89,0xe2,0xe8,0x84,0xe8,0x92,0x94);
+async function stampOTS(hashHex){
+  const digest=hexToBytes(hashHex);
+  let lastErr=null;
+  for(const cal of OMNIH_CONFIG.OTS_CALENDARS){
+    try{
+      const ctrl=new AbortController();
+      const t=setTimeout(()=>ctrl.abort(),15000);
+      const r=await fetch(cal+'/digest',{method:'POST',headers:{'Accept':'application/vnd.opentimestamps.v1','Content-Type':'application/x-www-form-urlencoded'},body:digest,signal:ctrl.signal});
+      clearTimeout(t);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const ts=new Uint8Array(await r.arrayBuffer());
+      // Archivo .ots = cabecera + versión 1 + op SHA256 (0x08) + digest + árbol de timestamp del calendario
+      const out=new Uint8Array(OTS_MAGIC.length+34+ts.length);
+      out.set(OTS_MAGIC,0);
+      out[OTS_MAGIC.length]=0x01;
+      out[OTS_MAGIC.length+1]=0x08;
+      out.set(digest,OTS_MAGIC.length+2);
+      out.set(ts,OTS_MAGIC.length+34);
+      return{calendar:cal,base64:bytesToB64(out)};
+    }catch(e){lastErr=e;}
+  }
+  throw new Error('Ningún calendario OpenTimestamps respondió'+(lastErr?' ('+lastErr.message+')':''));
+}
+
+/* ================= PDF DEL CERTIFICADO ================= */
+async function buildPdf(rec,name,size,hash){
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
+  const W=210,M=18;let y=24;
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(197,160,89);doc.text('OMNIH',M,y);
+  doc.setFontSize(10);doc.setTextColor(100,116,139);doc.text('Certificado de Integridad Documental',M,y+7);
+  doc.setDrawColor(197,160,89);doc.setLineWidth(0.6);doc.line(M,y+11,W-M,y+11);
+  y+=22;
+  const row=(label,value,mono)=>{
+    doc.setFont(mono?'courier':'helvetica','normal');doc.setFontSize(mono?9:10.5);
+    const lines=doc.splitTextToSize(String(value),W-2*M);
+    if(y+6+lines.length*5>280){doc.addPage();y=24;}
+    doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(100,116,139);doc.text(label.toUpperCase(),M,y);y+=5;
+    doc.setFont(mono?'courier':'helvetica','normal');doc.setFontSize(mono?9:10.5);doc.setTextColor(15,23,42);
+    doc.text(lines,M,y);y+=lines.length*5+5;
+  };
+  const sig=c.signature||'';
+  const modoLocal=rec.modo==='local';
+  row('Institución',c.entidad||sesion.entidad||'No indicada');
+  row('Convenio',c.convenio||sesion.convenio||'No indicado');
+  row('Documento',name);
+  row('Tamaño',size+' bytes');
+  row('Huella SHA-256','0x'+hash,true);
+  row('Fecha y hora (UTC)',fechaCert(rec));
+  row('Fuente de la hora',modoLocal?'Reloj del dispositivo. La prueba independiente de la fecha es el sello OpenTimestamps (Bitcoin).':'Servidor OMNIH-CA y anclaje OpenTimestamps (Bitcoin).');
+  row('Emisor',(c.signer||'OMNIH')+(c.signature_algo?' ['+c.signature_algo+']':''));
+  row('Firma',sig?sig.substring(0,40)+'...'+sig.substring(sig.length-12):'Sin firma de autoridad (modo local)',true);
+  row('Anclaje Bitcoin (OpenTimestamps)',(o.status||'pendiente')+(o.calendar?' - '+o.calendar:''));
+  if(rec.ledger)row('Bitácora encadenada','N.º '+rec.ledger.seq+' | entrada '+rec.ledger.entry_hash,true);
+  if(y>245){doc.addPage();y=24;}
+  y+=4;doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);doc.line(M,y,W-M,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,116,139);
+  const nota='Cómo verificar: calcule el SHA-256 del archivo original y compárelo con la huella indicada. El recibo .ots que acompaña este certificado se valida en opentimestamps.org cuando el anclaje en Bitcoin se confirma (puede tardar varias horas). Este certificado prueba que el contenido existía en la fecha indicada; no acredita por sí solo autoría.';
+  doc.text(doc.splitTextToSize(nota,W-2*M),M,y);
+  return doc.output('blob');
+}
+
+/* ================= EXPORTACIÓN / COPIA / COMPARTIR / NUBE ================= */
+function miniBtn(txt,style,fn){
+  const b=document.createElement('button');
+  b.type='button';b.className='action-mini-btn';
+  if(style)b.style.cssText=style;
+  b.textContent=txt;
+  b.addEventListener('click',()=>fn(b));
+  return b;
+}
+function actaTexto(rec,name,hash){
+  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
+  return ['OMNIH | Certificado de Integridad Documental',
+    'Documento: '+name,
+    'SHA-256: 0x'+hash,
+    'Fecha (UTC): '+fechaCert(rec),
+    'Emisor: '+(c.signer||'OMNIH')+(c.signature_algo?' ['+c.signature_algo+']':''),
+    'Anclaje Bitcoin (OpenTimestamps): '+(o.status||'pendiente'),
+    'Verificación independiente: https://opentimestamps.org'].join('\n');
+}
+// Driver de Google Drive (token OAuth con alcance mínimo drive.file)
+async function driveToken(){
+  if(!OMNIH_CONFIG.GOOGLE_CLIENT_ID)throw new Error('Falta configurar GOOGLE_CLIENT_ID en OMNIH_CONFIG (Google Cloud > Credenciales).');
+  await loadScript('https://accounts.google.com/gsi/client');
+  return new Promise((res,rej)=>{
+    const tc=window.google.accounts.oauth2.initTokenClient({
+      client_id:OMNIH_CONFIG.GOOGLE_CLIENT_ID,
+      scope:'https://www.googleapis.com/auth/drive.file',
+      callback:(r)=>r.error?rej(new Error(r.error)):res(r.access_token),
+      error_callback:(e)=>rej(new Error((e&&e.type)||'Autorización cancelada'))
+    });
+    tc.requestAccessToken({prompt:''});
+  });
+}
+async function driveFetch(token,url,opts){
+  const o=opts||{};
+  const r=await fetch(url,{method:o.method||'GET',body:o.body,headers:Object.assign({Authorization:'Bearer '+token},o.headers||{})});
+  if(!r.ok)throw new Error('Drive respondió HTTP '+r.status);
+  return r.json();
+}
+async function driveFolder(token){
+  const q=encodeURIComponent("name='"+OMNIH_CONFIG.DRIVE_FOLDER+"' and mimeType='application/vnd.google-apps.folder' and trashed=false");
+  const l=await driveFetch(token,'https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name)&spaces=drive');
+  if(l.files&&l.files.length)return l.files[0].id;
+  const c=await driveFetch(token,'https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:OMNIH_CONFIG.DRIVE_FOLDER,mimeType:'application/vnd.google-apps.folder'})});
+  return c.id;
+}
+async function driveUpload(token,folderId,name,blob){
+  const b='omnih'+Math.random().toString(36).slice(2);
+  const meta=JSON.stringify({name:name,parents:[folderId]});
+  const body=new Blob(['--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+b+'\r\nContent-Type: '+(blob.type||'application/octet-stream')+'\r\n\r\n',blob,'\r\n--'+b+'--']);
+  return driveFetch(token,'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:body});
+}
+
+function addExtras(rec,file,hash){
+  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
+  const base=c.filename||file.name;
+  const size=c.size||file.size;
+  let pdfBlob=null;
+  const getPdf=async()=>{if(!pdfBlob)pdfBlob=await buildPdf(rec,base,size,hash);return pdfBlob;};
+  const jsonBlob=()=>new Blob([JSON.stringify(c,null,2)],{type:'application/json'});
+  const bitacoraBlob=()=>new Blob([JSON.stringify({hash:'0x'+hash,timestamp:rec.timestamp,modo:rec.modo,bitacora:rec.ledger||null},null,2)],{type:'application/json'});
+  const otsBlob=()=>o.ots_receipt_base64?new Blob([b64ToBytes(o.ots_receipt_base64)],{type:'application/octet-stream'}):null;
+
+  const st=document.createElement('div');
+  st.style.cssText='margin-top:8px;font-size:0.78rem;';
+  const setSt=(text,ok)=>{st.textContent=text;st.style.color=ok?'#166534':'#991b1b';};
+  const run=async(b,busy,fn)=>{
+    const t=b.textContent;b.disabled=true;b.textContent=busy;st.textContent='';
+    try{await fn();}catch(e){setSt('⚠️ '+e.message,false);}
+    finally{b.disabled=false;b.textContent=t;}
+  };
+
+  const actions=document.createElement('div');
+  actions.className='banner-actions';
+
+  actions.append(
+    miniBtn('📄 Certificado (.pdf)','font-weight:700;color:var(--text-blue);',(b)=>run(b,'Generando PDF...',async()=>{
+      downloadBlob(await getPdf(),base+'.certificado.pdf');
+    })),
+    miniBtn('📥 Acta Legal (.json)','font-weight:700;color:var(--text-blue);',()=>{
+      downloadBlob(jsonBlob(),base+'.proof.json');
+    }),
+    miniBtn('⚓ Recibo Bitcoin (.ots)','font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;',()=>{
+      const blob=(()=>{try{return otsBlob();}catch(e){return null;}})();
+      if(!blob){setSt('⚠️ El recibo OTS no está disponible en este ciclo.',false);return;}
+      downloadBlob(blob,base+'.ots');
+    }),
+    miniBtn('📋 Copiar acta','font-weight:700;',async(b)=>{
+      const txt=actaTexto(rec,base,hash);
+      try{await navigator.clipboard.writeText(txt);}
+      catch(e){
+        const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;';
+        document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+      }
+      const t=b.textContent;b.textContent='✓ Copiado';setTimeout(()=>{b.textContent=t;},1600);
+    }),
+    miniBtn('📤 Compartir / Guardar','font-weight:700;',(b)=>run(b,'Preparando...',async()=>{
+      const pdf=await getPdf();
+      const lista=[new File([pdf],base+'.certificado.pdf',{type:'application/pdf'}),new File([jsonBlob()],base+'.proof.json',{type:'application/json'})];
+      const ob=otsBlob();if(ob)lista.push(new File([ob],base+'.ots',{type:'application/octet-stream'}));
+      let files=lista.concat([file]);
+      if(!(navigator.canShare&&navigator.canShare({files:files})))files=lista;
+      if(!(navigator.share&&navigator.canShare&&navigator.canShare({files:files})))throw new Error('Este navegador no permite compartir archivos; use los botones de descarga.');
+      try{await navigator.share({files:files,title:'Certificación OMNIH'});}
+      catch(e){if(e.name==='AbortError')return;if(e.name==='NotAllowedError')throw new Error('El sistema pidió un nuevo toque: pulse de nuevo el botón.');throw e;}
+    })),
+    miniBtn('☁️ Archivar en nube (Drive)','font-weight:700;color:var(--text-blue);',(b)=>run(b,'Archivando...',async()=>{
+      const token=await driveToken();
+      const folder=await driveFolder(token);
+      const pre=hash.substring(0,10)+'_';
+      const paquete=[[file.name,file],[base+'.proof.json',jsonBlob()],[base+'.bitacora.json',bitacoraBlob()],[base+'.certificado.pdf',await getPdf()]];
+      const ob=otsBlob();if(ob)paquete.push([base+'.ots',ob]);
+      for(const p of paquete)await driveUpload(token,folder,pre+p[0],p[1]);
+      rec.archivo={drive:true,carpeta:OMNIH_CONFIG.DRIVE_FOLDER,fecha:new Date().toISOString()};
+      saveRec(hash,rec);
+      setSt('✓ Archivados '+paquete.length+' archivos en Drive, carpeta "'+OMNIH_CONFIG.DRIVE_FOLDER+'".',true);
+    }))
+  );
+  const note=document.createElement('small');
+  note.style.cssText='color:var(--text-muted);display:block;margin-top:6px;';
+  note.append('Auditable independientemente en ');
+  const link=document.createElement('a');
+  link.href='https://opentimestamps.org';link.target='_blank';link.rel='noopener';
+  link.style.color='var(--text-blue)';link.textContent='opentimestamps.org';
+  note.appendChild(link);
+  resultBanner.append(actions,st,note);
+  // Precarga el SDK de Google para que el popup de autorización no se bloquee.
+  if(OMNIH_CONFIG.GOOGLE_CLIENT_ID)loadScript('https://accounts.google.com/gsi/client').catch(()=>{});
+}
+
+/* ================= CERTIFICACIÓN ================= */
+btnCertificar.addEventListener('click',async()=>{
+  if(!currentFile||!currentHash)return;
+  const fileSnap=currentFile,hashSnap=currentHash;
+  let registrado=false;
+  btnCertificar.disabled=true;
+  btnCertificar.textContent='Anclando en Bitcoin y OMNIH-CA...';
+  hideBanner();
+  try{
+    let cert=null,modo='servidor',avisoServidor='';
+    try{
+      const response=await fetch('/api/certify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          hash:`0x${hashSnap}`,
+          filename:fileSnap.name,
+          size:fileSnap.size,
+          entidad:sesion.entidad||null,       // valores completos, no el texto recortado del encabezado
+          convenio:sesion.convenio||null
+        })
+      });
+      if(!response.ok)throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
+      cert=await response.json();
+    }catch(errSrv){
+      // Respaldo: sello de tiempo OpenTimestamps directo, SIN firma de OMNIH-CA.
+      avisoServidor=errSrv.message;modo='local';
+      const ots=await stampOTS(hashSnap);
+      cert={version:'omnih-local-1',hash:'0x'+hashSnap,filename:fileSnap.name,size:fileSnap.size,
+        entidad:sesion.entidad||null,convenio:sesion.convenio||null,
+        timestamp_local:new Date().toISOString(),signer:OMNIH (modo local)',signature:null,signature_algo:null,
+        anchors:[{type:'opentimestamps',status:'pendiente',calendar:ots.calendar,ots_receipt_base64:ots.base64}]};
+    }
+    const otsInfo=(cert.anchors&&cert.anchors[0])||{};
+    const ts=new Date().toISOString();
+    const led=await ledgerAppend(hashSnap,fileSnap.name,ts);
+    registrarHash(hashSnap,fileSnap.name);
+    registrado=true;
+    const rec={cert:cert,timestamp:ts,modo:modo,ledger:led};
+    saveRec(hashSnap,rec);
+    if(currentHash!==hashSnap)return;   // el usuario cargó otro documento mientras tanto
+
+    const sig=(cert.signature||'');
+    const sigPreview=sig?sig.substring(0,28)+'...'+sig.substring(sig.length-12):'(no firmado)';
+    const lineas=[
+      {strong:true,text:modo==='servidor'?'✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO':'✓ SELLO DE TIEMPO EMITIDO (modo local, sin firma OMNIH-CA)',br:true},
+      {text:'Documento: '+(cert.filename||fileSnap.name)+' ('+(cert.size||fileSnap.size)+' bytes)',br:true},
+      {text:'Fecha y hora (UTC): '+fechaCert(rec),br:true},
+      {text:'Emisor: '+(cert.signer||'OMNIH-CA')+' ['+(cert.signature_algo||(modo==='servidor'?'Ed25519':'sin firma'))+']',br:true},
+      {text:'Estado Blockchain: '+(otsInfo.status||'pendiente'),br:true},
+      {text:'Firma JWS: '+sigPreview,br:true}
+    ];
+    if(modo==='local')lineas.push({text:'Aviso: '+avisoServidor+'. Se selló directamente en OpenTimestamps; vuelva a certificar con el servidor para obtener la firma OMNIH-CA.',br:true});
+    showBanner('success',lineas);
+    addExtras(rec,fileSnap,hashSnap);
+    btnCertificar.classList.remove('btn-highlight-certify');
+    btnVerificar.disabled=false;
+    btnVerificar.classList.add('btn-highlight-verify');
+  }catch(err){
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ERROR EN EL ANCLAJE',br:true},
+      {text:'No se pudo completar el sellado: '+err.message+'.'}
+    ]);
+  }finally{
+    btnCertificar.textContent=LABEL_CERTIFICAR;
+    btnCertificar.disabled=registrado||!currentHash;   // ya certificado: no se vuelve a certificar
+    if(!registrado)refreshButtons();
+  }
+});
+
+/* ================= VERIFICACIÓN ================= */
+btnVerificar.addEventListener('click',()=>{
+  if(!currentFile||!currentHash)return;
+  // Solo criptográfica: el hash se compara contra el registro, nunca por nombre de archivo.
+  if(hashEstaCertificado(currentHash)){
+    const rec=getRec(currentHash);
+    const lineas=[
+      {strong:true,text:'✓ DOCUMENTO ÍNTEGRO Y VÁLIDO',br:true},
+      {text:'La matriz SHA-256 de '+currentFile.name+' coincide con el registro original de la OMNIHISTORIA.'}
+    ];
+    if(rec){
+      lineas.push({br:true,text:''});
+      lineas.push({text:'Certificado el: '+fechaCert(rec)+(rec.modo==='local'?' (reloj del dispositivo + OpenTimestamps)':'')});
+      const o=(rec.cert.anchors&&rec.cert.anchors[0])||{};
+      lineas.push({text:'Estado Blockchain: '+(o.status||'pendiente')});
+    }
+    showBanner('success',lineas);
+    if(rec)addExtras(rec,currentFile,currentHash);
+  }else{
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO',br:true},
+      {text:'No se encontró registro de la matriz SHA-256 para '+currentFile.name+'. Proceda a certificarlo.'}
+    ]);
+  }
+});
+/* ================= DICTADO POR VOZ ================= */
+let recognition=null,escuchando=false;
+if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+  try{
+    const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+    recognition=new Speech();
+    recognition.lang='es-ES';
+    recognition.continuous=false;
+    recognition.onstart=()=>{escuchando=true;btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
+    recognition.onresult=(evt)=>{
+      const frase=evt.results[0][0].transcript;
+      if(displayMode==='file')return;
+      removeHint();
+      whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
+      syncNotes();
+    };
+    recognition.onend=()=>{escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
+    recognition.onerror=(e)=>{
+      escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';
+      if(e&&e.error==='not-allowed')showBanner('alert',[{strong:true,text:'El navegador no tiene permiso para usar el micrófono.'}]);
+    };
+  }catch(e){}
+}
+btnVoice.addEventListener('click',()=>{
+  if(displayMode==='file'){
+    showBanner('alert',[{strong:true,text:'Hay un documento cargado.',br:true},{text:'Pulse "Quitar documento" para dictar notas en la pantalla.'}]);
+    return;
+  }
+  if(!recognition){whiteScreen.focus();return;}
+  if(escuchando){try{recognition.stop();}catch(e){}return;}
+  try{recognition.start();}catch(e){whiteScreen.focus();}
+});
+});
+</script>
+</body>
+</html>
 
 
 
