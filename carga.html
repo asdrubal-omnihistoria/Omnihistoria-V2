@@ -24,9 +24,16 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .persona-juridica{font-size:0.72rem;font-weight:800;color:var(--text-dark);text-transform:uppercase;}
 .hash-convenio{font-size:0.65rem;font-weight:700;color:var(--accent-gold);font-family:ui-monospace,monospace;}
 .sub-header-gold{text-align:center;font-size:0.92rem;font-weight:800;letter-spacing:0.05em;color:var(--accent-gold);text-transform:uppercase;margin:2px 0 2px;}
+/* ZONA 1: visualización. Solo esta zona se limpia y re-renderiza. */
 .pure-white-screen{width:100%;min-height:380px;height:65vh;max-height:800px;background-color:#ffffff;border:1.5px solid var(--border-color);border-radius:12px;padding:16px;overflow-y:auto;font-size:0.88rem;line-height:1.55;color:var(--text-dark);word-break:break-word;white-space:pre-wrap;}
 .pure-white-screen:focus{border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(197,160,89,0.15);}
 .pure-white-screen iframe,.pure-white-screen img,.pure-white-screen video{width:100%;height:100%;min-height:360px;border:none;object-fit:contain;display:block;}
+/* ZONA 3: estado / asistente IA. Vive FUERA de la pantalla blanca (FIX #1). */
+.ai-screen-controls{display:none;flex-direction:column;gap:8px;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid var(--border-color);}
+.ai-screen-controls.visible{display:flex;}
+.ai-voice-row{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-voice{padding:9px 14px;background:#ffffff;border:1px solid var(--border-color);border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.btn-voice.listening{background:#fee2e2;border-color:#ef4444;color:#b91c1c;}
 .upload-label-native{border:1.5px dashed var(--btn-border);border-radius:12px;padding:14px 18px;background-color:#ffffff;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s ease-in-out;}
 .upload-label-native:hover{border-color:var(--accent-gold);background-color:#fdfbf7;}
 .cross-icon{width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:var(--accent-gold);font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -37,6 +44,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .file-status-card.active{display:block;}
 .file-meta-row{display:flex;justify-content:space-between;margin-bottom:4px;}
 .file-hash-display{font-family:ui-monospace,monospace;font-size:0.72rem;color:var(--text-dark);word-break:break-all;margin-top:4px;background:#ffffff;padding:8px;border-radius:6px;border:1px solid var(--border-color);}
+/* ZONA 2: controles. Se crea una sola vez; ningún handler la toca. */
 .action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 @media(max-width:640px){.action-buttons{grid-template-columns:1fr;}}
 .btn-light{width:100%;padding:13px;border:1.5px solid var(--btn-border);border-radius:8px;background-color:var(--btn-bg-light);color:var(--text-dark);font-size:0.9rem;font-weight:800;cursor:pointer;transition:all 0.2s ease;}
@@ -45,8 +53,11 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .btn-highlight-certify{border-color:var(--accent-gold)!important;background:#fffdf5!important;color:#854d0e!important;box-shadow:0 0 0 3px rgba(197,160,89,0.25);}
 .btn-highlight-verify{border-color:var(--icon-blue)!important;background:var(--bg-blue-light)!important;color:var(--text-blue)!important;box-shadow:0 0 0 3px rgba(2,132,199,0.25);}
 .result-banner{display:none;padding:14px 16px;border-radius:10px;font-size:0.85rem;line-height:1.5;}
+.result-banner.visible{display:block;}
 .result-success{background:#f0fdf4;border:1.5px solid var(--success-green);color:#166534;}
 .result-alert{background:#fef2f2;border:1.5px solid #ef4444;color:#991b1b;}
+.action-mini-btn{padding:8px 14px;background:#ffffff;border:1px solid var(--btn-border);border-radius:8px;font-size:0.8rem;cursor:pointer;}
+.banner-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .card-blue{border:1px solid #bae6fd;border-radius:10px;padding:12px 14px;background-color:var(--bg-blue-light);display:flex;flex-direction:column;gap:3px;}
 .card-blue.active-btn{cursor:pointer;transition:background-color 0.2s;}
@@ -56,10 +67,6 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .card-blue p{font-size:0.74rem;color:var(--text-blue);opacity:0.85;line-height:1.3;}
 .card-blue.inert h4{color:var(--text-muted);}
 .card-blue.inert p{color:var(--text-muted);}
-.ai-screen-controls{display:none;flex-direction:column;gap:8px;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid var(--border-color);}
-.ai-voice-row{display:flex;gap:10px;flex-wrap:wrap;}
-.btn-voice{padding:9px 14px;background:#ffffff;border:1px solid var(--border-color);border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
-.btn-voice.listening{background:#fee2e2;border-color:#ef4444;color:#b91c1c;}
 </style>
 </head>
 <body>
@@ -90,8 +97,14 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </div>
 </header>
 <div class="sub-header-gold">Certificación e Integridad documental</div>
+
+<!-- ZONA 1: pantalla de visualización. Solo contiene el mensaje de bienvenida;
+     el panel de IA y los botones viven FUERA. (FIX #1) -->
 <div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Pantalla íntegra: Toque para escribir o visualizar">
 <div style="color:var(--text-muted);font-size:0.85rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.</div>
+</div>
+
+<!-- ZONA 3: panel de asistencia IA, fuera de la pantalla blanca (FIX #1) -->
 <div class="ai-screen-controls" id="aiScreenPanel">
 <div style="font-size:0.8rem;font-weight:700;color:var(--text-blue);">🎙️ Asistencia Gémini IA Activa en Pantalla:</div>
 <div class="ai-voice-row">
@@ -100,6 +113,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <button type="button" class="btn-voice" id="btnCloseAIPanel" style="padding:9px 12px;">✕</button>
 </div>
 </div>
+
 <label for="nativeFileInput" class="upload-label-native" id="btnDropzone">
 <div class="cross-icon">+</div>
 <div class="upload-text-group">
@@ -117,7 +131,11 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <div style="font-size:0.75rem;color:var(--text-muted);" id="doc-size">0 KB</div>
 <div class="file-hash-display" id="doc-hash">Calculando SHA-256...</div>
 </div>
+
+<!-- Zona de mensajes: banners de éxito / error. Todo su contenido se inserta con
+     textContent o createElement, NUNCA innerHTML con datos externos. (FIX #6) -->
 <div class="result-banner" id="resultBanner"></div>
+
 <div class="action-buttons">
 <button class="btn-light" type="button" id="btnCertificar" disabled>🔒 Certificar Documento (Sello OMNIH Recombinante)</button>
 <button class="btn-light" type="button" id="btnVerificar" disabled>🛡️ Verificar Integridad Criptográfica</button>
@@ -155,6 +173,60 @@ const btnConsultar=document.getElementById('btnConsultarIA');
 const btnOpenSystem=document.getElementById('btnOpenSystem');
 let currentFile=null,currentHash='',currentObjectUrl=null;
 
+/* ---------- Utilidades de zona (FIX #2, #5, #6) ---------- */
+
+// Retira SOLO el mensaje de bienvenida. Nada más. (FIX #2)
+function removeHint(){
+  if(screenHint&&screenHint.parentNode===whiteScreen)screenHint.remove();
+}
+
+// Limpia SOLO la zona de visualización (whiteScreen). Los botones, el panel IA
+// y el dropzone viven fuera y sobreviven siempre. (FIX #1, #3)
+function clearDisplayZone(){
+  if(currentObjectUrl){URL.revokeObjectURL(currentObjectUrl);currentObjectUrl=null;}
+  whiteScreen.replaceChildren();
+}
+
+// Banner de mensajes: todo se inserta como TEXTO PLANO. (FIX #6)
+// kind: 'success' | 'alert'
+function showBanner(kind,lines){
+  resultBanner.className='result-banner '+(kind==='success'?'result-success':'result-alert');
+  resultBanner.replaceChildren();
+  lines.forEach((line)=>{
+    if(line.el){ // nodo DOM pre-construido (para botones de descarga)
+      resultBanner.appendChild(line.el);
+    }else{
+      const p=document.createElement(line.strong?'strong':'div');
+      p.textContent=line.text; // textContent: cero inyección de código
+      resultBanner.appendChild(p);
+    }
+    if(line.br)resultBanner.appendChild(document.createElement('br'));
+  });
+  resultBanner.classList.add('visible');
+}
+function hideBanner(){resultBanner.classList.remove('visible');resultBanner.replaceChildren();}
+
+// Registro de sellados: se decide SOLO por hash SHA-256, nunca por nombre. (FIX #4)
+// Formato nuevo: [{hash, filename, timestamp}]. Compatible con el formato
+// antiguo (array simple de strings).
+function getRegistros(){
+  try{
+    const raw=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
+    return Array.isArray(raw)?raw:[];
+  }catch(e){return[];}
+}
+function hashEstaCertificado(hash){
+  return getRegistros().some(r=>typeof r==='string'?r===hash:(r&&r.hash===hash));
+}
+function registrarHash(hash,filename){
+  const registros=getRegistros();
+  if(!registros.some(r=>typeof r==='string'?r===hash:(r&&r.hash===hash))){
+    registros.push({hash:hash,filename:filename,timestamp:new Date().toISOString()});
+    localStorage.setItem('omnih_sellados',JSON.stringify(registros));
+  }
+}
+
+/* ---------- Sesión / convenio ---------- */
 try{
 const urlParams=new URLSearchParams(window.location.search);
 const paramEntidad=urlParams.get('entidad');
@@ -178,19 +250,20 @@ if(queue[0].folioConvenio)document.getElementById('topHashConvenio').textContent
 }
 }catch(e){}
 
-whiteScreen.addEventListener('focus',()=>{
-if(screenHint&&screenHint.parentNode===whiteScreen)whiteScreen.innerHTML='';
-});
+/* ---------- Interacción con la pantalla blanca ---------- */
+// Al tocar/escribir: retirar SOLO el mensaje de bienvenida. (FIX #2)
+// Antes: whiteScreen.innerHTML='' destruía el panel IA que vivía dentro.
+whiteScreen.addEventListener('focus',removeHint);
 
+/* ---------- Render de archivo importado ---------- */
 async function renderFile(file){
 if(!file)return;
 currentFile=file;
-docName.textContent=file.name;
+docName.textContent=file.name;                      // textContent: sin XSS (FIX #6)
 docSize.textContent=`${(file.size/1024).toFixed(1)} KB`;
 fileCard.classList.add('active');
 docHash.textContent='Calculando matriz binaria SHA-256...';
-resultBanner.style.display='none';
-if(currentObjectUrl){URL.revokeObjectURL(currentObjectUrl);currentObjectUrl=null;}
+hideBanner();
 try{
 const arrayBuffer=await file.arrayBuffer();
 const hashBuffer=await crypto.subtle.digest('SHA-256',arrayBuffer);
@@ -198,9 +271,17 @@ const hashHex=Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padSt
 currentHash=hashHex;
 docHash.textContent=`SHA-256: 0x${hashHex}`;
 }catch(err){
+currentHash='';
 docHash.textContent='Error al calcular hash binario.';
+showBanner('alert',[{strong:true,text:'No se pudo calcular el SHA-256 del documento.'}]);
+return;
 }
-whiteScreen.innerHTML='';
+
+// Limpiar SOLO la zona de visualización: los botones y el panel IA sobreviven.
+// (FIX #3; antes el panel IA moría por vivir dentro de whiteScreen)
+clearDisplayZone();
+removeHint();
+
 const fType=file.type||'';
 const fName=file.name.toLowerCase();
 const isPdf=fType.includes('pdf')||fName.endsWith('.pdf');
@@ -231,19 +312,36 @@ whiteScreen.appendChild(vid);
 }else if(isTxt){
 try{
 const textContent=await file.text();
-whiteScreen.innerText=textContent;
+whiteScreen.innerText=textContent;   // innerText: texto plano, sin HTML
 }catch(errText){
 whiteScreen.innerText=`Archivo de texto: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB`;
 }
 }else{
-const ext=fName.split('.').pop().toUpperCase()||'DOC';
-whiteScreen.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;"><div style="font-size:48px;opacity:0.06;font-weight:800;">${ext}</div><div style="font-weight:800;font-size:0.95rem;">${file.name}</div><div style="color:var(--text-muted);font-size:0.85rem;">Tipo: ${fType||'Desconocido'}</div></div>`;
+// Tipo no previsualizable: se construye con createElement/textContent.
+// (FIX #6: antes usaba innerHTML con ${file.name} → inyección posible)
+const ext=(fName.split('.').pop()||'doc').toUpperCase();
+const box=document.createElement('div');
+box.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;';
+const big=document.createElement('div');
+big.style.cssText='font-size:48px;opacity:0.06;font-weight:800;';
+big.textContent=ext;
+const nm=document.createElement('div');
+nm.style.cssText='font-weight:800;font-size:0.95rem;';
+nm.textContent=file.name;
+const tp=document.createElement('div');
+tp.style.cssText='color:var(--text-muted);font-size:0.85rem;';
+tp.textContent='Tipo: '+(fType||'Desconocido');
+box.append(big,nm,tp);
+whiteScreen.appendChild(box);
 }
 
 btnCertificar.classList.remove('btn-highlight-certify');
 btnVerificar.classList.remove('btn-highlight-verify');
-const registros=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
-const yaCertificado=registros.includes(currentHash)||file.name.toLowerCase().includes('sellado');
+
+// FIX #4: el estado "ya certificado" se decide SOLO por el hash SHA-256.
+// Antes: || file.name.toLowerCase().includes('sellado') permitía falsear el
+// estado simplemente renombrando el archivo.
+const yaCertificado=hashEstaCertificado(currentHash);
 if(!yaCertificado){
 btnCertificar.disabled=false;
 btnVerificar.disabled=true;
@@ -255,6 +353,7 @@ btnVerificar.classList.add('btn-highlight-verify');
 }
 }
 
+/* ---------- Importación de archivos ---------- */
 fileInput.addEventListener('change',async(e)=>{
 if(e.target.files&&e.target.files[0]){
 await renderFile(e.target.files[0]);
@@ -279,6 +378,9 @@ await renderFile(e.dataTransfer.files[0]);
 btnDropzone.addEventListener('drop',handleDrop);
 whiteScreen.addEventListener('drop',handleDrop);
 
+/* FIX #5: "Abrir selector del sistema" llamaba a handleFile y showErrorUI,
+   que NO existían. Ahora llama a la función real (renderFile) y los errores
+   se muestran en el banner rojo, sin romper nada. */
 btnOpenSystem?.addEventListener('click', async () => {
   try {
     if (window.showOpenFilePicker) {
@@ -294,22 +396,25 @@ btnOpenSystem?.addEventListener('click', async () => {
         }]
       });
       const file = await fh.getFile();
-      await handleFile(file);        // ← misma función que el input fallback
+      await renderFile(file);        // ← función real que sí existe
     } else {
       fileInput?.click();
     }
   } catch (e) {
     if (e.name === 'AbortError') return;   // usuario canceló: no hacer nada
-    console.error('Error al abrir archivo:', e);
-    showErrorUI('No se pudo abrir el documento.'); // ← función tuya que NO toca los botones
+    showBanner('alert',[
+      {strong:true,text:'No se pudo abrir el documento.'},
+      {text:'Detalle: '+e.message}
+    ]);
   }
 });
 
+/* ---------- Certificación ---------- */
 btnCertificar.addEventListener('click', async () => {
   if (!currentFile || !currentHash) return;
   btnCertificar.disabled = true;
   btnCertificar.textContent = 'Anclando en Bitcoin y OMNIH-CA...';
-  resultBanner.style.display = 'none';
+  hideBanner();
 
   const entidadActual = document.getElementById('topNombreEntidad').textContent.trim();
   const convenioActual = document.getElementById('topHashConvenio').textContent.trim();
@@ -329,101 +434,128 @@ btnCertificar.addEventListener('click', async () => {
 
     if (!response.ok) throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
     const cert = await response.json();
+    // otsInfo (antes había un typo "otsInf" que rompía el banner) (FIX extra)
     const otsInfo = cert.anchors?.[0] || {};
 
+    registrarHash(currentHash, currentFile.name);
+
+    // Registrar el certificado completo para verificación offline posterior
     try{
-      const registros = JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
-      if(!registros.includes(currentHash)){
-        registros.push(currentHash);
-        localStorage.setItem('omnih_sellados', JSON.stringify(registros));
-      }
-    }catch(e){
-      console.warn('No se pudo actualizar omnih_sellados:', e);
-    }
+      const sellados=JSON.parse(localStorage.getItem('omnih_certificados')||'{}');
+      sellados[currentHash]={cert:cert,timestamp:new Date().toISOString()};
+      localStorage.setItem('omnih_certificados',JSON.stringify(sellados));
+    }catch(e){console.warn('No se pudo guardar el certificado local:',e);}
 
-    resultBanner.className = 'result-banner result-success';
-    resultBanner.innerHTML = `
-      <strong>✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO</strong><br>
-      Documento: <strong>${cert.filename || currentFile.name}</strong> (${cert.size || currentFile.size} bytes)<br>
-      Emisor: <code>${cert.signer || 'OMNIH-CA'}</code> [${cert.signature_algo || 'Ed25519'}]<br>
-      Estado Blockchain: <strong>${otsInfo.status || 'pendiente'}</strong><br>
-      Firma JWS: <code style="word-break:break-all;font-size:0.7rem;">${(cert.signature || '').substring(0, 28)}...${(cert.signature || '').substring((cert.signature || '').length - 12)}</code><br>
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button type="button" class="action-mini-btn" id="btnDescargarJSON" style="font-weight:700;color:var(--text-blue);">📥 Acta Legal (.json)</button>
-        <button type="button" class="action-mini-btn" id="btnDescargarOTS" style="font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;">⚓ Recibo Bitcoin (.ots)</button>
-      </div>
-      <small style="color:var(--text-muted);display:block;margin-top:6px;">Auditable independientemente en <a href="https://opentimestamps.org" target="_blank" style="color:var(--text-blue);">opentimestamps.org</a></small>
-    `;
-    resultBanner.style.display = 'block';
+    // FIX #6: el banner de éxito se construye con createElement/textContent.
+    // Antes: innerHTML con cert.filename, cert.signer, otsInfo.* → XSS.
+    const sig=(cert.signature||'');
+    const sigPreview=sig?sig.substring(0,28)+'...'+sig.substring(sig.length-12):'(no firmado)';
+    showBanner('success',[
+      {strong:true,text:'✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO',br:true},
+      {text:'Documento: '+(cert.filename||currentFile.name)+' ('+(cert.size||currentFile.size)+' bytes)',br:true},
+      {text:'Emisor: '+(cert.signer||'OMNIH-CA')+' ['+(cert.signature_algo||'Ed25519')+']',br:true},
+      {text:'Estado Blockchain: '+(otsInfo.status||'pendiente'),br:true},
+      {text:'Firma JWS: '+sigPreview,br:true}
+    ]);
 
-    document.getElementById('btnDescargarJSON').onclick = () => {
-      const blob = new Blob([JSON.stringify(cert, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${(cert.filename || currentFile.name)}.proof.json`;
+    // Fila de acciones de descarga (nodos reales, no HTML inyectado)
+    const actions=document.createElement('div');
+    actions.className='banner-actions';
+
+    const btnJSON=document.createElement('button');
+    btnJSON.type='button';
+    btnJSON.className='action-mini-btn';
+    btnJSON.style.cssText='font-weight:700;color:var(--text-blue);';
+    btnJSON.textContent='📥 Acta Legal (.json)';
+    btnJSON.onclick=()=>{
+      const blob=new Blob([JSON.stringify(cert,null,2)],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=`${(cert.filename||currentFile.name)}.proof.json`;
       a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),5000);
     };
 
-    document.getElementById('btnDescargarOTS').onclick = () => {
-      if (!otsInfo.ots_receipt_base64) {
-        alert('El recibo OTS no está disponible en este ciclo.');
+    const btnOTS=document.createElement('button');
+    btnOTS.type='button';
+    btnOTS.className='action-mini-btn';
+    btnOTS.style.cssText='font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;';
+    btnOTS.textContent='⚓ Recibo Bitcoin (.ots)';
+    btnOTS.onclick=()=>{
+      if(!otsInfo.ots_receipt_base64){
+        showBanner('alert',[{strong:true,text:'El recibo OTS no está disponible en este ciclo.'}]);
         return;
       }
       try{
-        const byteCharacters = atob(otsInfo.ots_receipt_base64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/octet-stream' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${(cert.filename || currentFile.name)}.ots`;
+        const byteCharacters=atob(otsInfo.ots_receipt_base64);
+        const byteArray=new Uint8Array(byteCharacters.length);
+        for(let i=0;i<byteCharacters.length;i++){byteArray[i]=byteCharacters.charCodeAt(i);}
+        const blob=new Blob([byteArray],{type:'application/octet-stream'});
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download=`${(cert.filename||currentFile.name)}.ots`;
         a.click();
+        setTimeout(()=>URL.revokeObjectURL(a.href),5000);
       }catch(e){
-        alert('Error al generar el archivo OTS: '+e.message);
+        showBanner('alert',[{strong:true,text:'Error al generar el archivo OTS: '+e.message}]);
       }
     };
 
-    btnVerificar.disabled = false;
+    actions.append(btnJSON,btnOTS);
+    const note=document.createElement('small');
+    note.style.cssText='color:var(--text-muted);display:block;margin-top:6px;';
+    note.textContent='Auditable independientemente en opentimestamps.org';
+    const link=document.createElement('a');
+    link.href='https://opentimestamps.org';
+    link.target='_blank';
+    link.style.color='var(--text-blue)';
+    link.textContent='opentimestamps.org';
+    note.appendChild(link);
+    resultBanner.append(actions,note);
+
+    btnVerificar.disabled=false;
     btnVerificar.classList.add('btn-highlight-verify');
 
   } catch (err) {
-    resultBanner.className = 'result-banner result-alert';
-    resultBanner.innerHTML = `
-      <strong>⚠️ ERROR EN EL ANCLAJE</strong><br>
-      No se pudo completar el sellado en OMNIH-CA: ${err.message}.
-    `;
-    resultBanner.style.display = 'block';
+    // Banner de error también con texto plano (FIX #6)
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ERROR EN EL ANCLAJE',br:true},
+      {text:'No se pudo completar el sellado en OMNIH-CA: '+err.message+'.'}
+    ]);
   } finally {
-    btnCertificar.textContent = '🔒 Certificar en OMNIH-CA (Ed25519 + Blockchain)';
-    btnCertificar.disabled = false;
+    btnCertificar.textContent='🔒 Certificar en OMNIH-CA (Ed25519 + Blockchain)';
+    btnCertificar.disabled=false;
   }
 });
 
+/* ---------- Verificación ---------- */
 btnVerificar.addEventListener('click',()=>{
 if(!currentFile||!currentHash)return;
-const registros=JSON.parse(localStorage.getItem('omnih_sellados')||'[]');
-const esValido=registros.includes(currentHash)||currentFile.name.toLowerCase().includes('sellado');
-if(esValido){
-resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>✓ DOCUMENTO ÍNTEGRO Y VÁLIDO</strong><br>La matriz SHA-256 de <strong>${currentFile.name}</strong> coincide con el registro original de la OMNIHISTORIA.`;
+// FIX #4: la verificación es SOLO criptográfica (hash contra registro).
+// Antes: || currentFile.name.toLowerCase().includes('sellado') hacía que
+// cualquier archivo renombrado "...sellado..." pasara como válido.
+if(hashEstaCertificado(currentHash)){
+showBanner('success',[
+  {strong:true,text:'✓ DOCUMENTO ÍNTEGRO Y VÁLIDO',br:true},
+  {text:'La matriz SHA-256 de '+currentFile.name+' coincide con el registro original de la OMNIHISTORIA.'}
+]);
 }else{
-resultBanner.className='result-banner result-alert';
-resultBanner.innerHTML=`<strong>⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO</strong><br>No se encontró registro de la matriz SHA-256 para <strong>${currentFile.name}</strong>. Proceda a certificarlo.`;
+showBanner('alert',[
+  {strong:true,text:'⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO',br:true},
+  {text:'No se encontró registro de la matriz SHA-256 para '+currentFile.name+'. Proceda a certificarlo.'}
+]);
 }
-resultBanner.style.display='block';
 });
 
+/* ---------- Asistencia IA ---------- */
 btnSoporte.addEventListener('click',()=>{
-aiPanel.style.display='flex';
-if(whiteScreen.innerHTML.includes('Toca aquí')){
-whiteScreen.innerHTML='<strong>IA OMNIH:</strong> Asistencia técnica activada. Escriba aquí su consulta o pulse el micrófono.';
-}
+// Mostrar el panel IA (que vive fuera de la pantalla: nunca es destruido) (FIX #1)
+aiPanel.classList.add('visible');
+// Retirar solo el mensaje de bienvenida si aún está (FIX #2)
+removeHint();
 whiteScreen.focus();
 });
-btnCloseAI.addEventListener('click',()=>{aiPanel.style.display='none';});
+btnCloseAI?.addEventListener('click',()=>{aiPanel.classList.remove('visible');});
 
 btnConsultar.addEventListener('click',async()=>{
 const contenidoPantalla=whiteScreen.innerText.trim();
@@ -438,18 +570,24 @@ throw new Error(errData.error||`Error en el servicio de IA (Código ${res.status
 }
 const data=await res.json();
 const respuestaGemini=data.respuesta||data.texto||data.candidates?.[0]?.content?.parts?.[0]?.text||(typeof data==='string'?data:JSON.stringify(data));
-resultBanner.className='result-banner result-success';
-resultBanner.innerHTML=`<strong>Gémini IA (Auditoría en Vivo):</strong><br>${respuestaGemini}`;
-resultBanner.style.display='block';
+// Respuesta de la IA como TEXTO PLANO (FIX #6: era innerHTML → XSS si el
+// servicio devolviera HTML malicioso)
+showBanner('success',[
+{strong:true,text:'Gémini IA (Auditoría en Vivo):',br:true},
+{text:respuestaGemini}
+]);
 }catch(err){
-resultBanner.className='result-banner result-alert';
-resultBanner.innerHTML=`<strong>Error al consultar Gémini:</strong> ${err.message}<br><small style="opacity:0.85;">Verifique que su variable GEMINI_API_KEY esté activa en Vercel y cuente con cuota disponible.</small>`;
-resultBanner.style.display='block';
+showBanner('alert',[
+{strong:true,text:'Error al consultar Gémini:',br:true},
+{text:err.message,br:true},
+{text:'Verifique que su variable GEMINI_API_KEY esté activa en Vercel y cuente con cuota disponible.'}
+]);
 }
 btnConsultar.disabled=false;
 btnConsultar.textContent='Analizar Pantalla con Gémini';
 });
 
+/* ---------- Dictado por voz ---------- */
 let recognition=null;
 if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
 try{
@@ -460,16 +598,15 @@ recognition.continuous=false;
 recognition.onstart=()=>{btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
 recognition.onresult=(evt)=>{
 const frase=evt.results[0][0].transcript;
-if(whiteScreen.innerHTML.includes('Asistencia técnica activada'))whiteScreen.innerHTML='';
-whiteScreen.innerText+=(whiteScreen.innerText? '\n':'')+'• '+frase;
+removeHint(); // solo el mensaje de bienvenida (antes borraba la pantalla)
+whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
 };
 recognition.onend=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
 recognition.onerror=()=>{btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
 }catch(e){}
 }
 btnVoice.addEventListener('click',()=>{
-if(recognition){try{recognition.start();return;}catch(e){}
-}
+if(recognition){try{recognition.start();return;}catch(e){}}
 whiteScreen.focus();
 });
 });
