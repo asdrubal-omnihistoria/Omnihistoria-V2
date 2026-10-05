@@ -7,7 +7,7 @@
 
 ## 📜 DEFINICIÓN Y PROPÓSITO GENERAL
 
-La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, criptográfico y descentralizado a implementar en **cinco (5) fases**, diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general, armonizado desde una compilación de las diferentes etapas de vida, constituyendo un legado personal, familiar, colectivo, intelectual, ontológico, filosófico e historiográfico.
+La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, criptográfico y descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases**, diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general individual o social, armonizado desde la compilación de las diferentes etapas de vida, constituyendo en forma permanente (presente) un legado personal, familiar, colectivo, intelectual, ontológico, filosófico e historiográfico.
 
 El sistema actúa como **custodio digital certificado de alta fidelidad hermenéutica**, que salvaguarda obras, documentos, fotos, videos, registros históricos colectivos y memorias familiares frente al paso del tiempo, en un contexto tecnológico asignado por la inteligencia artificial.
 
