@@ -7,14 +7,14 @@
 
 ## 📜 DEFINICIÓN Y PROPÓSITO GENERAL
 
-La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, criptográfico y descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases**, diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general individual o social, armonizado desde la compilación de las diferentes etapas de vida, constituyendo en forma permanente (presente) un legado personal, familiar, colectivo, intelectual, ontológico, filosófico e historiográfico.
+La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, inmutable, criptográfico, descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases**, diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general individual, familiar o social, armonizado desde la compilación de relatos y testimonios documentales e iconofraficos, en las diferentes etapas de la vida, constituyendo en forma permanente (presente) un legado personal, familiar y colectivo, de orden intelectual, ontológico, filosófico e historiográfico.
 
-El sistema actúa como **custodio digital certificado de alta fidelidad hermenéutica**, que salvaguarda obras, documentos, fotos, videos, registros históricos colectivos y memorias familiares frente al paso del tiempo, en un contexto tecnológico asignado por la inteligencia artificial.
+El sistema actúa como **custodio digital certificado de alta fidelidad hermenéutica**, que salvaguarda obras, documentos, fotos, videos, registros históricos colectivos y memorias familiares frente al paso del tiempo, en un contexto tecnológico asignado por la inteligencia artificial, "la historia del futuro se escribe en tiempo presente".
 
 ---
 
 ## 🎯 MISIÓN
-Proporcionar una plataforma interactiva, segura y descentralizada que transforme archivos valiosos, muchas veces dispersos, en una obra estructurada bajo los estándares clásicos usuales, con información y compendios permanentemente actualizados de accesibilidad controlada.
+Proporcionar una plataforma interactiva, segura y descentralizada que transforme archivos valiosos, muchas veces dispersos, en una obra estructurada bajo los estándares clásicos usuales, con información y compendios permanentemente actualizados y de accesibilidad controlada.
 
 La misión central para este nuestro tiempo, ante la cultura de lo efímero, la falta de propiedad real de la data generada en redes sociales y la arbitrariedad de las grandes tecnologías, es garantizar la preservación y difusión de **fuentes Omnihistóricas (historia, tecnología y comunidad)** elaboradas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades (**teselas**) que constituye la humanidad.
 
