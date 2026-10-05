@@ -1,7 +1,7 @@
-# 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA (Versión 2)
-### Ecosistema Criptográfico y Descentralizado de Preservación Histórica
+# 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA.
+### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Criptográfico y Descentralizado (DAO), para la Preservación Histórica en formato digital, certificado.
 
-> *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital humano durante un horizonte de 1.000 años."*
+> *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital humano."*
 
 ---
 
