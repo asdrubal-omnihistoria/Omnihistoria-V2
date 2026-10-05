@@ -1,0 +1,19 @@
+/* OMNIH BASE STYLESHEET - layout compartido (criterio de carga.html) */
+:root{
+  --bg-canvas:#f8fafc;
+  --card-bg:#ffffff;
+  --text-dark:#0f172a;
+  --text-muted:#64748b;
+  --accent-gold:#c5a059;
+  --border-color:#e2e8f0;
+  --shadow-soft:0 4px 20px rgba(0,0,0,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justify-content:center;align-items:flex-start;min-height:100dvh;padding:12px;}
+.container{width:100%;max-width:1080px;background-color:var(--card-bg);border-radius:16px;box-shadow:var(--shadow-soft);border:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;}
+@media(max-width:640px){
+  body{padding:0;}
+  .container{border:none;border-radius:0;box-shadow:none;padding:14px;}
+}
+/* Separación vertical opcional entre bloques (criterio de carga.html) */
+.container.stack{gap:14px;}
