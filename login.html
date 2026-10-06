@@ -4,45 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
   <title>OMNIH - Iniciar Sesión</title>
+  <link rel="stylesheet" href="/css/omnih-base.css">
   <style>
     :root {
       --bg-canvas: #edf2f7;
-      --card-bg: #ffffff;
-      --text-dark: #0f172a;
-      --text-muted: #64748b;
-      --accent-gold: #c5a059;
-      --border-color: #e2e8f0;
       --active-blue: #3182ce;
       --error-red: #e53e3e;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      --border-color: #e2e8f0;
+      --text-dark: #1a202c;
+      --text-muted: #718096;
+      --accent-gold: #d69e2e;
     }
 
     body {
-      background: var(--bg-canvas);
-      color: var(--text-dark);
+      background-color: var(--bg-canvas);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100dvh;
-      padding: 1rem;
+      min-height: 100vh;
     }
 
     .container {
-      background-color: var(--card-bg);
-      width: 100%;
       max-width: 480px;
+      width: 100%;
+      background: #ffffff;
       border-radius: 24px;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border-color);
       position: relative;
       padding: 1.5rem 1.25rem;
+      margin: auto;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        min-height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 14px;
+      }
     }
 
     .top-navbar {
@@ -141,6 +141,7 @@
       color: var(--text-dark);
       outline: none;
       background: #ffffff;
+      box-sizing: border-box;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
@@ -158,6 +159,17 @@
       font-weight: 600;
       color: var(--text-muted);
       cursor: pointer;
+    }
+
+    .error-banner {
+      display: none;
+      background-color: #fff5f5;
+      color: var(--error-red);
+      border: 1px solid #feb2b2;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
     }
 
     .btn-submit {
@@ -208,6 +220,9 @@
       color: var(--accent-gold);
     }
   </style>
+
+  <!-- SDK oficial de Supabase mediante CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -243,6 +258,9 @@
   </div>
 
   <main class="form-body">
+    <!-- Mensaje de error para credenciales incorrectas o fallo de red -->
+    <div id="errorAlert" class="error-banner" role="alert"></div>
+
     <form id="formLogin" novalidate>
       <div class="form-group">
         <label for="loginEmail">Correo Electrónico</label>
@@ -269,28 +287,46 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  // 1. Configuración de credenciales de Supabase
+  const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
+  const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('formLogin');
     const emailInput = document.getElementById('loginEmail');
     const pwdInput = document.getElementById('loginPassword');
     const btnSubmit = document.getElementById('btnLoginSubmit');
     const togglePwdBtn = document.getElementById('btnTogglePassword');
+    const errorAlert = document.getElementById('errorAlert');
 
+    // Comprobar si ya existe una sesión activa y redirigir
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      window.location.href = '/central';
+      return;
+    }
+
+    // Alternar visibilidad de contraseña
     togglePwdBtn.addEventListener('click', () => {
       const isPwd = pwdInput.type === 'password';
       pwdInput.type = isPwd ? 'text' : 'password';
       togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
     });
 
-    async function generateHash(input) {
-      const msgUint8 = new TextEncoder().encode(input.toLowerCase().trim());
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    function showError(message) {
+      errorAlert.textContent = message;
+      errorAlert.style.display = 'block';
+    }
+
+    function clearError() {
+      errorAlert.textContent = '';
+      errorAlert.style.display = 'none';
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      clearError();
 
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -300,18 +336,36 @@
       btnSubmit.disabled = true;
       btnSubmit.textContent = 'AUTENTICANDO...';
 
+      const email = emailInput.value.trim();
+      const password = pwdInput.value;
+
       try {
-        const email = emailInput.value.trim();
-        const userHash = await generateHash(`${email}_OMNIH_SALT_2026`);
+        // Autenticación real enviando credenciales al servidor seguro
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
 
-        sessionStorage.setItem('omnih_active_user', userHash);
-        sessionStorage.setItem('omnih_user_email', email);
-        sessionStorage.setItem('omnih_auth_time', Date.now().toString());
+        if (error) {
+          // Errores comunes: credenciales inválidas, usuario no confirmado, etc.
+          if (error.message.includes('Invalid login credentials')) {
+            showError('El correo electrónico o la contraseña son incorrectos.');
+          } else if (error.message.includes('Email not confirmed')) {
+            showError('Debes confirmar tu correo electrónico antes de ingresar.');
+          } else {
+            showError(error.message || 'Error al iniciar sesión.');
+          }
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'INICIAR SESIÓN';
+          return;
+        }
 
+        // Éxito: el SDK almacena el token JWT de forma segura y redirige
         window.location.href = '/central';
-      } catch (error) {
-        console.error('Error en autenticación:', error);
-        alert('Ocurrió un error al procesar el inicio de sesión.');
+
+      } catch (err) {
+        console.error('Error de conexión:', err);
+        showError('No se pudo conectar con el servidor de autenticación.');
         btnSubmit.disabled = false;
         btnSubmit.textContent = 'INICIAR SESIÓN';
       }
