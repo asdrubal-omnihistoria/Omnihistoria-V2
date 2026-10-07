@@ -219,5 +219,5 @@ export default async function handler(req, res) {
     return res.status(200).json(certProof);
   } catch (err) {
     return res.status(500).json({ error: `Fallo de certificación: ${err.message}`.slice(0, 300) });
-  }
+ }
 }
