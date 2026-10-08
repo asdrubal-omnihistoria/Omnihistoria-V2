@@ -192,6 +192,23 @@
       margin-top: 4px;
     }
 
+    .form-error {
+      display: none;
+      background-color: #fff5f5;
+      border: 1px solid #feb2b2;
+      color: var(--error-red);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .form-error.active {
+      display: block;
+    }
+
     .btn-submit {
       width: 100%;
       padding: 14px;
@@ -300,7 +317,7 @@
 <body>
 
 <div class="container">
-  
+
   <header class="top-navbar">
     <a href="/" class="brand-logo-link" title="Ir a la Raíz de la Omnihistoria">
       <div class="dna-box">
@@ -368,6 +385,8 @@
         </div>
       </div>
 
+      <div id="formError" class="form-error" role="alert"></div>
+
       <button type="submit" id="btnSubmit" class="btn-submit">ESTABLECER REGISTRO</button>
     </form>
   </main>
@@ -381,83 +400,128 @@
   <div id="modalConfirmacion" class="modal-confirmacion" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-icon">✨</div>
     <h2 id="modalTitle" class="modal-title">Registro Consolidado</h2>
-    <p class="modal-text">Se ha establecido tu credencial de soberanía. Se envió un aviso a: <span id="modalEmailDisplay" class="modal-email"></span></p>
+    <p class="modal-text">Se ha establecido tu credencial de soberanía. Te enviamos un correo de verificación a: <span id="modalEmailDisplay" class="modal-email"></span><br>Revisa también la carpeta de spam.</p>
     <a href="/login" class="btn-action-modal">Continuar al Acceso</a>
   </div>
 
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registerForm');
-    const btnSubmit = document.getElementById('btnSubmit');
-    const pwdInput = document.getElementById('input-password');
-    const togglePwdBtn = document.getElementById('btnTogglePassword');
-    const entityButtons = document.querySelectorAll('.btn-entity');
-    const labelIdentificador = document.getElementById('label-identificador');
-    const entityTypeInput = document.getElementById('entity-type');
-    
-    const modal = document.getElementById('modalConfirmacion');
-    const modalEmailDisplay = document.getElementById('modalEmailDisplay');
+<script type="module">
+  // Inicializa Firebase (app por defecto) con tu archivo existente
+  import "./js/firebase-init.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
-    entityButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        entityButtons.forEach(btn => {
-          btn.classList.remove('active');
-          btn.setAttribute('aria-pressed', 'false');
-        });
-        button.classList.add('active');
-        button.setAttribute('aria-pressed', 'true');
-        
-        const type = button.getAttribute('data-type');
-        entityTypeInput.value = type;
-        labelIdentificador.textContent = type === 'colectivo' 
-          ? 'Identificador del Colectivo / Organización' 
-          : 'Identificador de Usuario';
+  const auth = getAuth();
+
+  const form = document.getElementById('registerForm');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const pwdInput = document.getElementById('input-password');
+  const togglePwdBtn = document.getElementById('btnTogglePassword');
+  const entityButtons = document.querySelectorAll('.btn-entity');
+  const labelIdentificador = document.getElementById('label-identificador');
+  const entityTypeInput = document.getElementById('entity-type');
+  const formError = document.getElementById('formError');
+
+  const modal = document.getElementById('modalConfirmacion');
+  const modalEmailDisplay = document.getElementById('modalEmailDisplay');
+
+  function mostrarError(msg) {
+    formError.textContent = msg;
+    formError.classList.add('active');
+  }
+
+  function limpiarError() {
+    formError.textContent = '';
+    formError.classList.remove('active');
+  }
+
+  function traducirError(code) {
+    switch (code) {
+      case 'auth/email-already-in-use': return 'Ese correo ya está registrado. Usa INGRESAR.';
+      case 'auth/invalid-email': return 'El correo no es válido.';
+      case 'auth/weak-password': return 'La contraseña es muy débil (mínimo 8 caracteres).';
+      case 'auth/network-request-failed': return 'Sin conexión. Revisa tu internet e intenta de nuevo.';
+      case 'auth/too-many-requests': return 'Demasiados intentos. Espera unos minutos.';
+      case 'auth/operation-not-allowed': return 'El registro por correo no está habilitado en Firebase.';
+      case 'auth/unauthorized-domain': return 'Este dominio no está autorizado en Firebase.';
+      default: return 'No se pudo crear la cuenta (' + (code || 'error desconocido') + ').';
+    }
+  }
+
+  entityButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      entityButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
       });
+      button.classList.add('active');
+      button.setAttribute('aria-pressed', 'true');
+
+      const type = button.getAttribute('data-type');
+      entityTypeInput.value = type;
+      labelIdentificador.textContent = type === 'colectivo'
+        ? 'Identificador del Colectivo / Organización'
+        : 'Identificador de Usuario';
     });
+  });
 
-    togglePwdBtn.addEventListener('click', () => {
-      const isPwd = pwdInput.type === 'password';
-      pwdInput.type = isPwd ? 'text' : 'password';
-      togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
-    });
+  togglePwdBtn.addEventListener('click', () => {
+    const isPwd = pwdInput.type === 'password';
+    pwdInput.type = isPwd ? 'text' : 'password';
+    togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
+  });
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    limpiarError();
 
-      btnSubmit.disabled = true;
-      btnSubmit.textContent = 'ESTABLECIENDO REGISTRO...';
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
 
-      const payload = {
-        username: document.getElementById('input-identificador').value.trim(),
-        email: document.getElementById('input-email').value.trim(),
-        territorio: document.getElementById('select-territorio').value,
-        entity_type: entityTypeInput.value,
-        password: pwdInput.value
-      };
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'ESTABLECIENDO REGISTRO...';
 
+    const payload = {
+      username: document.getElementById('input-identificador').value.trim(),
+      email: document.getElementById('input-email').value.trim(),
+      territorio: document.getElementById('select-territorio').value,
+      entity_type: entityTypeInput.value,
+      password: pwdInput.value
+    };
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, payload.email, payload.password);
+
+      // Guarda el identificador como nombre visible de la cuenta
+      try { await updateProfile(cred.user, { displayName: payload.username }); } catch (_) {}
+
+      // Envía el correo de verificación
+      await sendEmailVerification(cred.user);
+
+      // Datos locales de la app (igual que antes)
       try {
         localStorage.setItem('omnih_user_residence', payload.territorio);
         localStorage.setItem('omnih_user_session', JSON.stringify({
           username: payload.username,
           entity_type: payload.entity_type
         }));
+      } catch (_) {}
 
-        modalEmailDisplay.textContent = payload.email;
-        modal.classList.add('active');
-      } catch (err) {
-        console.error('Error registrando entidad:', err);
-        alert('Ocurrió un error procesando el registro local.');
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = 'ESTABLECER REGISTRO';
-      }
-    });
+      modalEmailDisplay.textContent = payload.email;
+      modal.classList.add('active');
+    } catch (err) {
+      console.error('Error registrando entidad:', err);
+      mostrarError(traducirError(err && err.code));
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'ESTABLECER REGISTRO';
+    }
   });
 </script>
 
