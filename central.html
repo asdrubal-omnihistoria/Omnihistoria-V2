@@ -301,11 +301,35 @@
         ></textarea>
 
         <div class="attachment-bar">
-          <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Borrador local disponible</span>
-          <div class="action-btns">
-            <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo →</button>
-          </div>
+              <div style="border:1px dashed var(--accent-blue); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px; background:#f0f9ff;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <button class="btn-action" id="btnPickDoc" type="button" style="background:var(--accent-blue-light); color:var(--accent-blue); border:1px solid #bae6fd;">+ Adjuntar documento</button>
+          <span id="doc-name" style="font-size:0.75rem; color:var(--text-muted);">Ningún documento adjunto</span>
         </div>
+        <div id="doc-hash" style="font-family:ui-monospace,monospace; font-size:0.7rem; color:var(--text-main); word-break:break-all;"></div>
+        <input type="file" id="doc-upload" style="display:none;">
+        <div style="font-size:0.7rem; color:var(--text-muted);">El documento no sale de tu dispositivo: solo se calcula su huella (SHA-256).</div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <label for="visibilidad-select" style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Visibilidad:</label>
+        <select id="visibilidad-select" style="border:1px solid var(--border-color); border-radius:6px; padding:6px 8px; font-size:0.78rem; font-weight:700; color:var(--accent-blue); background:#ffffff;">
+          <option value="privado">Privado (solo el sello)</option>
+          <option value="publico">Público (contenido visible)</option>
+        </select>
+      </div>
+
+      <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
+        <input type="checkbox" id="chk-responsable" style="margin-top:2px;">
+        <span>Declaro ser el emisor y asumo la responsabilidad exclusiva por la información que certifico.</span>
+      </label>
+
+      <div class="attachment-bar">
+        <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Borrador local disponible</span>
+        <div class="action-btns">
+          <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo →</button>
+        </div>
+                                                               </div>
       </div>
     </main>
 
