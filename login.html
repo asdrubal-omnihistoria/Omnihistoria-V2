@@ -4,41 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
   <title>OMNIH - Iniciar Sesión</title>
-  <link rel="stylesheet" href="/css/omnih-base.css">
   <style>
     :root {
       --bg-canvas: #edf2f7;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --accent-gold: #c5a059;
+      --border-color: #e2e8f0;
       --active-blue: #3182ce;
       --error-red: #e53e3e;
-      --border-color: #e2e8f0;
-      --text-dark: #1a202c;
-      --text-muted: #718096;
-      --accent-gold: #d69e2e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg-canvas);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
+      background: var(--bg-canvas);
+      color: var(--text-dark);
       display: flex;
       justify-content: center;
-      min-height: 100vh;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 1rem;
     }
 
     .container {
-      max-width: 480px;
+      background-color: var(--card-bg);
       width: 100%;
-      background: #ffffff;
+      max-width: 480px;
       border-radius: 24px;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
       position: relative;
       padding: 1.5rem 1.25rem;
-      margin: auto;
     }
 
+    /* Móvil: pantalla completa (criterio de carga.html) */
     @media (max-width: 640px) {
+      body {
+        padding: 0;
+        align-items: flex-start;
+      }
       .container {
+        max-width: none;
         min-height: 100dvh;
+        border: none;
         border-radius: 0;
         box-shadow: none;
         padding: 14px;
@@ -141,7 +157,6 @@
       color: var(--text-dark);
       outline: none;
       background: #ffffff;
-      box-sizing: border-box;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
@@ -220,14 +235,11 @@
       color: var(--accent-gold);
     }
   </style>
-
-  <!-- SDK oficial de Supabase mediante CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div class="container">
-  
+
   <header class="top-navbar">
     <a href="/" class="brand-logo-link" title="Ir a la Raíz">
       <div class="dna-box">
@@ -286,91 +298,85 @@
 
 </div>
 
-<script>
-  // 1. Configuración de credenciales de Supabase
-  const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
-  const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script type="module">
+  import { auth } from "/js/firebase-init.js";
+  import { signInWithEmailAndPassword, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    const form = document.getElementById('formLogin');
-    const emailInput = document.getElementById('loginEmail');
-    const pwdInput = document.getElementById('loginPassword');
-    const btnSubmit = document.getElementById('btnLoginSubmit');
-    const togglePwdBtn = document.getElementById('btnTogglePassword');
-    const errorAlert = document.getElementById('errorAlert');
+  const form = document.getElementById('formLogin');
+  const emailInput = document.getElementById('loginEmail');
+  const pwdInput = document.getElementById('loginPassword');
+  const btnSubmit = document.getElementById('btnLoginSubmit');
+  const togglePwdBtn = document.getElementById('btnTogglePassword');
+  const errorAlert = document.getElementById('errorAlert');
 
-    // Comprobar si ya existe una sesión activa y redirigir
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      window.location.href = '/central';
+  function showError(message) {
+    errorAlert.textContent = message;
+    errorAlert.style.display = 'block';
+  }
+  function clearError() {
+    errorAlert.textContent = '';
+    errorAlert.style.display = 'none';
+  }
+
+  // Si ya hay sesión abierta, pasa directo a la central
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = '/central';
+  });
+
+  // Alternar visibilidad de contraseña
+  togglePwdBtn.addEventListener('click', () => {
+    const isPwd = pwdInput.type === 'password';
+    pwdInput.type = isPwd ? 'text' : 'password';
+    togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
+  });
+
+  function mensajeDeError(code) {
+    switch (code) {
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return 'El correo electrónico o la contraseña son incorrectos.';
+      case 'auth/invalid-email':
+        return 'El correo no tiene un formato válido.';
+      case 'auth/user-disabled':
+        return 'Esta cuenta está deshabilitada.';
+      case 'auth/too-many-requests':
+        return 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.';
+      case 'auth/network-request-failed':
+        return 'Sin conexión. Revisa tu internet.';
+      default:
+        return 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
       return;
     }
 
-    // Alternar visibilidad de contraseña
-    togglePwdBtn.addEventListener('click', () => {
-      const isPwd = pwdInput.type === 'password';
-      pwdInput.type = isPwd ? 'text' : 'password';
-      togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
-    });
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'AUTENTICANDO...';
 
-    function showError(message) {
-      errorAlert.textContent = message;
-      errorAlert.style.display = 'block';
+    try {
+      const cred = await signInWithEmailAndPassword(
+        auth, emailInput.value.trim(), pwdInput.value
+      );
+      // Compatibilidad temporal con páginas que aún leen estos datos
+      sessionStorage.setItem('omnih_active_user', cred.user.uid);
+      sessionStorage.setItem('omnih_user_email', cred.user.email || '');
+      sessionStorage.setItem('omnih_auth_time', Date.now().toString());
+      window.location.href = '/central';
+    } catch (error) {
+      showError(mensajeDeError(error.code));
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'INICIAR SESIÓN';
     }
-
-    function clearError() {
-      errorAlert.textContent = '';
-      errorAlert.style.display = 'none';
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearError();
-
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
-
-      btnSubmit.disabled = true;
-      btnSubmit.textContent = 'AUTENTICANDO...';
-
-      const email = emailInput.value.trim();
-      const password = pwdInput.value;
-
-      try {
-        // Autenticación real enviando credenciales al servidor seguro
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
-
-        if (error) {
-          // Errores comunes: credenciales inválidas, usuario no confirmado, etc.
-          if (error.message.includes('Invalid login credentials')) {
-            showError('El correo electrónico o la contraseña son incorrectos.');
-          } else if (error.message.includes('Email not confirmed')) {
-            showError('Debes confirmar tu correo electrónico antes de ingresar.');
-          } else {
-            showError(error.message || 'Error al iniciar sesión.');
-          }
-          btnSubmit.disabled = false;
-          btnSubmit.textContent = 'INICIAR SESIÓN';
-          return;
-        }
-
-        // Éxito: el SDK almacena el token JWT de forma segura y redirige
-        window.location.href = '/central';
-
-      } catch (err) {
-        console.error('Error de conexión:', err);
-        showError('No se pudo conectar con el servidor de autenticación.');
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = 'INICIAR SESIÓN';
-      }
-    });
   });
 </script>
 </body>
-</html>
+  </html>
