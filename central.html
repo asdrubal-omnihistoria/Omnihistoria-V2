@@ -442,16 +442,57 @@
         }
       });
 
-       // 6. Puente hacia la Cápsula del Tiempo (Rama 1)
+      // 6. Documento adjunto (huella SHA-256 local) y puente a la Cápsula
       const relatoText = document.getElementById('relato-text');
       const vinculoSelect = document.getElementById('vinculo-select');
+      const visibilidadSelect = document.getElementById('visibilidad-select');
+      const chkResponsable = document.getElementById('chk-responsable');
       const btnSendToCapsule = document.getElementById('btnSendToCapsule');
+      const docInput = document.getElementById('doc-upload');
+      const docName = document.getElementById('doc-name');
+      const docHash = document.getElementById('doc-hash');
+      let docInfo = null;
+
+      async function sha256Hex(buffer) {
+        const digest = await crypto.subtle.digest('SHA-256', buffer);
+        return Array.from(new Uint8Array(digest))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+      }
+
+      document.getElementById('btnPickDoc').addEventListener('click', () => docInput.click());
+
+      docInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        docName.textContent = 'Calculando huella...';
+        docHash.textContent = '';
+        try {
+          const buffer = await file.arrayBuffer();
+          const hash = await sha256Hex(buffer);
+          docInfo = {
+            nombre: file.name,
+            tipo: file.type || 'desconocido',
+            tamano: file.size,
+            sha256: hash
+          };
+          docName.textContent = file.name;
+          docHash.textContent = 'SHA-256: ' + hash;
+        } catch (err) {
+          console.error('Error calculando huella:', err);
+          docInfo = null;
+          docName.textContent = 'No se pudo leer el documento';
+        }
+      });
 
       btnSendToCapsule.addEventListener('click', () => {
         const texto = relatoText.value.trim();
-        if (!texto) {
-          alert('Por favor escribe tu testimonio antes de enviarlo a la Cápsula.');
-          relatoText.focus();
+        if (!texto && !docInfo) {
+          alert('Escribe un testimonio o adjunta un documento antes de sellar.');
+          return;
+        }
+        if (!chkResponsable.checked) {
+          alert('Debes aceptar la declaración de responsabilidad del emisor.');
           return;
         }
 
@@ -459,7 +500,9 @@
           autor: displayName,
           hash: activeUser,
           vinculo: vinculoSelect.value,
+          visibilidad: visibilidadSelect.value,
           testimonio: texto,
+          documento: docInfo,
           fecha_sellado: new Date().toISOString(),
           imagenes_count: uploadedImages.length
         };
@@ -470,4 +513,4 @@
     }
   </script>
 </body>
-</html>     
+</html>
