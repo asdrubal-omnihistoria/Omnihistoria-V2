@@ -442,4 +442,32 @@
         }
       });
 
-      
+       // 6. Puente hacia la Cápsula del Tiempo (Rama 1)
+      const relatoText = document.getElementById('relato-text');
+      const vinculoSelect = document.getElementById('vinculo-select');
+      const btnSendToCapsule = document.getElementById('btnSendToCapsule');
+
+      btnSendToCapsule.addEventListener('click', () => {
+        const texto = relatoText.value.trim();
+        if (!texto) {
+          alert('Por favor escribe tu testimonio antes de enviarlo a la Cápsula.');
+          relatoText.focus();
+          return;
+        }
+
+        const payloadCapsula = {
+          autor: displayName,
+          hash: activeUser,
+          vinculo: vinculoSelect.value,
+          testimonio: texto,
+          fecha_sellado: new Date().toISOString(),
+          imagenes_count: uploadedImages.length
+        };
+
+        sessionStorage.setItem('omnih_capsula_activa', JSON.stringify(payloadCapsula));
+        window.location.href = '/capsula';
+      });
+    }
+  </script>
+</body>
+</html>     
