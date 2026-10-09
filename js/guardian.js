@@ -1,7 +1,9 @@
+import "./firebase-init.js";
 import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, sendEmailVerification,
-  signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence
+  signInWithEmailAndPassword, signOut, setPersistence,
+  browserSessionPersistence, updateProfile, deleteUser
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, serverTimestamp
@@ -10,13 +12,30 @@ import {
 const auth = getAuth(getApp());
 const db = getFirestore(getApp());
 
-export async function registrarPersona(correo, clave) {
+export async function registrarPersona(correo, clave, datos = {}) {
   const cred = await createUserWithEmailAndPassword(auth, correo, clave);
-  await setDoc(doc(db, "perfiles", cred.user.uid), {
-    correo, tipo: "persona", convenioId: null, creado: serverTimestamp()
-  });
-  await sendEmailVerification(cred.user);
-  await signOut(auth);
+  try {
+    if (datos.username) {
+      try { await updateProfile(cred.user, { displayName: datos.username }); } catch (_) {}
+    }
+    await setDoc(doc(db, "perfiles", cred.user.uid), {
+      correo,
+      tipo: "persona",
+      convenioId: null,
+      username: datos.username || "",
+      territorio: datos.territorio || "",
+      entidad: datos.entidad || "individual",
+      creado: serverTimestamp()
+    });
+  } catch (e) {
+    try { await deleteUser(cred.user); } catch (_) {}
+    throw e;
+  }
+  try {
+    await sendEmailVerification(cred.user);
+  } finally {
+    await signOut(auth);
+  }
 }
 
 export async function ingresar(correo, clave) {
@@ -38,15 +57,22 @@ export async function ingresar(correo, clave) {
   return perfil;
 }
 
+export async function reenviarVerificacion(correo, clave) {
+  const cred = await signInWithEmailAndPassword(auth, correo, clave);
+  try {
+    await cred.user.reload();
+    if (cred.user.emailVerified) throw new Error("ya_verificado");
+    await sendEmailVerification(cred.user);
+  } finally {
+    await signOut(auth);
+  }
+}
+
 export function mensajeError(e) {
   const m = {
     correo_no_verificado: "Revisa tu correo y confirma tu cuenta antes de ingresar.",
+    ya_verificado: "Tu correo ya está verificado. Puedes ingresar.",
     sin_perfil: "Cuenta no reconocida. Regístrate de nuevo.",
     convenio_inactivo: "Tu institución no tiene un convenio activo.",
+    "permission-denied": "No se pudo guardar tu perfil. Revisa las reglas de Firestore.",
     "auth/invalid-credential": "Correo o contraseña incorrectos.",
-    "auth/email-already-in-use": "Ese correo ya está registrado.",
-    "auth/weak-password": "La contraseña es muy débil (mínimo 6 caracteres).",
-    "auth/too-many-requests": "Demasiados intentos. Espera unos minutos."
-  };
-  return m[e.code] || m[e.message] || "No se pudo completar. Intenta de nuevo.";
-  }
