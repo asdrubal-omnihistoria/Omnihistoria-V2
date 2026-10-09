@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>OMNIH - Registro de Soberanía</title>
   <style>
     :root {
@@ -30,20 +30,22 @@
       color: var(--text-dark);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: stretch;
+      min-height: 100vh;
       min-height: 100dvh;
-      padding: 1rem;
+      padding: 0;
     }
 
+    /* Móvil: pantalla completa */
     .container {
       background-color: var(--card-bg);
       width: 100%;
-      max-width: 480px;
-      border-radius: 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border-color);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
       position: relative;
-      padding: 1.5rem 1.25rem;
+      padding: calc(1.5rem + env(safe-area-inset-top, 0px)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
     }
 
     .top-navbar {
@@ -115,6 +117,10 @@
       letter-spacing: 0.3px;
     }
 
+    .form-body {
+      margin-bottom: 20px;
+    }
+
     .entity-selector {
       display: flex;
       gap: 10px;
@@ -157,7 +163,7 @@
       padding: 11px 14px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 16px;
       color: var(--text-dark);
       background: #ffffff;
       outline: none;
@@ -238,7 +244,7 @@
       background-color: #f8fafc;
       border-left: 4px solid var(--accent-gold);
       padding: 12px 14px;
-      margin-top: 20px;
+      margin-top: auto;
       border-radius: 0 8px 8px 0;
       font-size: 0.8rem;
       line-height: 1.4;
@@ -269,7 +275,6 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      border-radius: 24px;
       z-index: 10;
     }
 
@@ -312,6 +317,28 @@
       cursor: pointer;
       text-decoration: none;
     }
+
+    /* Escritorio: tarjeta centrada */
+    @media (min-width: 600px) {
+      body {
+        align-items: center;
+        padding: 1rem;
+      }
+      .container {
+        max-width: 480px;
+        min-height: 0;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem 1.25rem;
+      }
+      .quote-box {
+        margin-top: 0;
+      }
+      .modal-confirmacion {
+        border-radius: 24px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -319,7 +346,7 @@
 <div class="container">
 
   <header class="top-navbar">
-    <a href="/" class="brand-logo-link" title="Ir a la Raíz de la Omnihistoria">
+    <a href="index.html" class="brand-logo-link" title="Ir a la Raíz de la Omnihistoria">
       <div class="dna-box">
         <svg viewBox="0 0 120 240" width="32" height="44" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
@@ -340,7 +367,7 @@
       </div>
       <span class="text-omnih">OMNIH</span>
     </a>
-    <a href="/login" class="btn-top-login">INGRESAR</a>
+    <a href="login.html" class="btn-top-login">INGRESAR</a>
   </header>
 
   <div class="protocol-subbar">
@@ -358,7 +385,7 @@
 
       <div class="form-group">
         <label id="label-identificador" for="input-identificador">Identificador de Usuario</label>
-        <input type="text" id="input-identificador" name="username" required autocomplete="username" placeholder="Ej: usuario123">
+        <input type="text" id="input-identificador" name="username" required minlength="3" autocomplete="username" placeholder="Ej: usuario123">
       </div>
 
       <div class="form-group">
@@ -400,23 +427,14 @@
   <div id="modalConfirmacion" class="modal-confirmacion" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-icon">✨</div>
     <h2 id="modalTitle" class="modal-title">Registro Consolidado</h2>
-    <p class="modal-text">Se ha establecido tu credencial de soberanía. Te enviamos un correo de verificación a: <span id="modalEmailDisplay" class="modal-email"></span><br>Revisa también la carpeta de spam.</p>
-    <a href="/login" class="btn-action-modal">Continuar al Acceso</a>
+    <p class="modal-text">Se ha establecido tu credencial de soberanía. Te enviamos un correo de verificación a: <span id="modalEmailDisplay" class="modal-email"></span><br><br>Confirma tu correo desde ese mensaje (revisa también el spam) y luego ingresa con tu correo y contraseña.</p>
+    <a id="btnContinuar" href="login.html" class="btn-action-modal">Ir al Acceso</a>
   </div>
 
 </div>
 
 <script type="module">
-  // Inicializa Firebase (app por defecto) con tu archivo existente
-  import "./js/firebase-init.js";
-  import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    sendEmailVerification,
-    updateProfile
-  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-
-  const auth = getAuth();
+  import { registrarPersona, mensajeError } from "./js/guardian.js";
 
   const form = document.getElementById('registerForm');
   const btnSubmit = document.getElementById('btnSubmit');
@@ -429,6 +447,7 @@
 
   const modal = document.getElementById('modalConfirmacion');
   const modalEmailDisplay = document.getElementById('modalEmailDisplay');
+  const btnContinuar = document.getElementById('btnContinuar');
 
   function mostrarError(msg) {
     formError.textContent = msg;
@@ -438,19 +457,6 @@
   function limpiarError() {
     formError.textContent = '';
     formError.classList.remove('active');
-  }
-
-  function traducirError(code) {
-    switch (code) {
-      case 'auth/email-already-in-use': return 'Ese correo ya está registrado. Usa INGRESAR.';
-      case 'auth/invalid-email': return 'El correo no es válido.';
-      case 'auth/weak-password': return 'La contraseña es muy débil (mínimo 8 caracteres).';
-      case 'auth/network-request-failed': return 'Sin conexión. Revisa tu internet e intenta de nuevo.';
-      case 'auth/too-many-requests': return 'Demasiados intentos. Espera unos minutos.';
-      case 'auth/operation-not-allowed': return 'El registro por correo no está habilitado en Firebase.';
-      case 'auth/unauthorized-domain': return 'Este dominio no está autorizado en Firebase.';
-      default: return 'No se pudo crear la cuenta (' + (code || 'error desconocido') + ').';
-    }
   }
 
   entityButtons.forEach(button => {
@@ -490,35 +496,28 @@
 
     const payload = {
       username: document.getElementById('input-identificador').value.trim(),
-      email: document.getElementById('input-email').value.trim(),
+      email: document.getElementById('input-email').value.trim().toLowerCase(),
       territorio: document.getElementById('select-territorio').value,
-      entity_type: entityTypeInput.value,
+      entidad: entityTypeInput.value,
       password: pwdInput.value
     };
 
     try {
-      const cred = await createUserWithEmailAndPassword(auth, payload.email, payload.password);
+      await registrarPersona(payload.email, payload.password, {
+        username: payload.username,
+        territorio: payload.territorio,
+        entidad: payload.entidad
+      });
 
-      // Guarda el identificador como nombre visible de la cuenta
-      try { await updateProfile(cred.user, { displayName: payload.username }); } catch (_) {}
+      try { localStorage.setItem('omnih_user_residence', payload.territorio); } catch (_) {}
 
-      // Envía el correo de verificación
-      await sendEmailVerification(cred.user);
-
-      // Datos locales de la app (igual que antes)
-      try {
-        localStorage.setItem('omnih_user_residence', payload.territorio);
-        localStorage.setItem('omnih_user_session', JSON.stringify({
-          username: payload.username,
-          entity_type: payload.entity_type
-        }));
-      } catch (_) {}
-
+      pwdInput.value = '';
       modalEmailDisplay.textContent = payload.email;
       modal.classList.add('active');
+      btnContinuar.focus();
     } catch (err) {
       console.error('Error registrando entidad:', err);
-      mostrarError(traducirError(err && err.code));
+      mostrarError(mensajeError(err));
       btnSubmit.disabled = false;
       btnSubmit.textContent = 'ESTABLECER REGISTRO';
     }
