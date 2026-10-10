@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-  <title>OMNIH - Iniciar Sesión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OMNIH - Acceso</title>
   <style>
     :root {
       --bg-canvas: #edf2f7;
@@ -14,6 +14,7 @@
       --border-color: #e2e8f0;
       --active-blue: #3182ce;
       --error-red: #e53e3e;
+      --success-green: #38a169;
     }
 
     * {
@@ -29,36 +30,22 @@
       color: var(--text-dark);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: stretch;
+      min-height: 100vh;
       min-height: 100dvh;
-      padding: 1rem;
+      padding: 0;
     }
 
+    /* Móvil: pantalla completa */
     .container {
       background-color: var(--card-bg);
       width: 100%;
-      max-width: 480px;
-      border-radius: 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border-color);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
       position: relative;
-      padding: 1.5rem 1.25rem;
-    }
-
-    /* Móvil: pantalla completa (criterio de carga.html) */
-    @media (max-width: 640px) {
-      body {
-        padding: 0;
-        align-items: flex-start;
-      }
-      .container {
-        max-width: none;
-        min-height: 100dvh;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-        padding: 14px;
-      }
+      padding: calc(1.5rem + env(safe-area-inset-top, 0px)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
     }
 
     .top-navbar {
@@ -101,7 +88,7 @@
       line-height: 1;
     }
 
-    .btn-top-register {
+    .btn-top-login {
       border: 1px solid var(--border-color);
       padding: 6px 14px;
       border-radius: 8px;
@@ -112,7 +99,7 @@
       transition: all 0.2s ease;
     }
 
-    .btn-top-register:hover {
+    .btn-top-login:hover {
       border-color: var(--active-blue);
       color: var(--active-blue);
       background-color: #f8fafc;
@@ -130,8 +117,12 @@
       letter-spacing: 0.3px;
     }
 
+    .form-body {
+      margin-bottom: 20px;
+    }
+
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .form-group label {
@@ -142,27 +133,27 @@
       color: var(--text-dark);
     }
 
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
     .form-group input {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 14px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 16px;
       color: var(--text-dark);
-      outline: none;
       background: #ffffff;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      transition: border-color 0.2s;
     }
 
     .form-group input:focus {
       border-color: #63b3ed;
-      box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
+      box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.25);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
     }
 
     .btn-toggle-pwd {
@@ -176,15 +167,30 @@
       cursor: pointer;
     }
 
-    .error-banner {
+    .form-error, .form-info {
       display: none;
-      background-color: #fff5f5;
-      color: var(--error-red);
-      border: 1px solid #feb2b2;
-      padding: 10px 12px;
       border-radius: 8px;
-      font-size: 0.85rem;
-      margin-bottom: 14px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .form-error {
+      background-color: #fff5f5;
+      border: 1px solid #feb2b2;
+      color: var(--error-red);
+    }
+
+    .form-info {
+      background-color: #f0fff4;
+      border: 1px solid #9ae6b4;
+      color: #276749;
+    }
+
+    .form-error.active, .form-info.active {
+      display: block;
     }
 
     .btn-submit {
@@ -195,11 +201,10 @@
       border: 1px solid #90cdf4;
       border-radius: 8px;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      transition: all 0.2s ease;
       margin-top: 10px;
-      box-shadow: 0 4px 12px rgba(144, 205, 244, 0.35);
     }
 
     .btn-submit:hover:not(:disabled) {
@@ -213,11 +218,37 @@
       cursor: not-allowed;
     }
 
+    .links-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--active-blue);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-link.hidden {
+      display: none;
+    }
+
     .quote-box {
       background-color: #f8fafc;
       border-left: 4px solid var(--accent-gold);
       padding: 12px 14px;
-      margin-top: 24px;
+      margin-top: auto;
       border-radius: 0 8px 8px 0;
       font-size: 0.8rem;
       line-height: 1.4;
@@ -234,6 +265,25 @@
       font-weight: 700;
       color: var(--accent-gold);
     }
+
+    /* Escritorio: tarjeta centrada */
+    @media (min-width: 600px) {
+      body {
+        align-items: center;
+        padding: 1rem;
+      }
+      .container {
+        max-width: 480px;
+        min-height: 0;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem 1.25rem;
+      }
+      .quote-box {
+        margin-top: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -241,7 +291,7 @@
 <div class="container">
 
   <header class="top-navbar">
-    <a href="/" class="brand-logo-link" title="Ir a la Raíz">
+    <a href="index.html" class="brand-logo-link" title="Ir a la Raíz de la Omnihistoria">
       <div class="dna-box">
         <svg viewBox="0 0 120 240" width="32" height="44" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
@@ -262,97 +312,95 @@
       </div>
       <span class="text-omnih">OMNIH</span>
     </a>
-    <a href="/registro" class="btn-top-register">REGISTRARSE</a>
+    <a href="registro.html" class="btn-top-login">REGISTRARSE</a>
   </header>
 
   <div class="protocol-subbar">
-    <span class="header-protocol-text">PROTOCOLO DE INICIO DE SESIÓN</span>
+    <span class="header-protocol-text">ACCESO AL REPOSITORIO</span>
   </div>
 
   <main class="form-body">
-    <!-- Mensaje de error para credenciales incorrectas o fallo de red -->
-    <div id="errorAlert" class="error-banner" role="alert"></div>
-
-    <form id="formLogin" novalidate>
+    <form id="loginForm" novalidate>
       <div class="form-group">
-        <label for="loginEmail">Correo Electrónico</label>
-        <input type="email" id="loginEmail" name="email" placeholder="correo@ejemplo.com" autocomplete="email" required>
+        <label for="input-email">Correo Electrónico</label>
+        <input type="email" id="input-email" name="email" required autocomplete="email" placeholder="nombre@ejemplo.org">
       </div>
 
       <div class="form-group">
-        <label for="loginPassword">Contraseña</label>
+        <label for="input-password">Contraseña Soberana</label>
         <div class="input-wrapper">
-          <input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+          <input type="password" id="input-password" name="password" required autocomplete="current-password" placeholder="Tu contraseña">
           <button type="button" id="btnTogglePassword" class="btn-toggle-pwd" aria-label="Mostrar u ocultar contraseña">Ver</button>
         </div>
       </div>
 
-      <button type="submit" class="btn-submit" id="btnLoginSubmit">INICIAR SESIÓN</button>
+      <div id="formInfo" class="form-info" role="status"></div>
+      <div id="formError" class="form-error" role="alert"></div>
+
+      <button type="submit" id="btnSubmit" class="btn-submit">INGRESAR</button>
+
+      <div class="links-row">
+        <button type="button" id="btnReenviar" class="btn-link hidden">Reenviar correo de verificación</button>
+        <button type="button" id="btnOlvide" class="btn-link">Olvidé mi contraseña</button>
+        <a href="registro.html" class="btn-link">¿Aún no tienes cuenta? Regístrate</a>
+      </div>
     </form>
   </main>
 
   <aside class="quote-box">
-    <p class="quote-text">"Bienvenido, sumando para compilar la historia del futuro."</p>
-    <span class="quote-source">— Comunidad de la Omnihistoria</span>
+    <p class="quote-text">"La preservación de la identidad digital no es un derecho opcional; es la piedra angular del ecosistema de legado ontológico."</p>
+    <span class="quote-source">— Manual de Arquitectura OMNIH</span>
   </aside>
 
 </div>
 
 <script type="module">
-  import { auth } from "/js/firebase-init.js";
-  import { signInWithEmailAndPassword, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { ingresar, reenviarVerificacion, mensajeError } from "./js/guardian.js";
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
-  const form = document.getElementById('formLogin');
-  const emailInput = document.getElementById('loginEmail');
-  const pwdInput = document.getElementById('loginPassword');
-  const btnSubmit = document.getElementById('btnLoginSubmit');
+  const form = document.getElementById('loginForm');
+  const emailInput = document.getElementById('input-email');
+  const pwdInput = document.getElementById('input-password');
   const togglePwdBtn = document.getElementById('btnTogglePassword');
-  const errorAlert = document.getElementById('errorAlert');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const btnReenviar = document.getElementById('btnReenviar');
+  const btnOlvide = document.getElementById('btnOlvide');
+  const formError = document.getElementById('formError');
+  const formInfo = document.getElementById('formInfo');
 
-  function showError(message) {
-    errorAlert.textContent = message;
-    errorAlert.style.display = 'block';
+  function mostrarError(msg) {
+    formInfo.classList.remove('active');
+    formError.textContent = msg;
+    formError.classList.add('active');
   }
-  function clearError() {
-    errorAlert.textContent = '';
-    errorAlert.style.display = 'none';
+
+  function mostrarInfo(msg) {
+    formError.classList.remove('active');
+    formInfo.textContent = msg;
+    formInfo.classList.add('active');
   }
 
-  // Si ya hay sesión abierta, pasa directo a la central
-  onAuthStateChanged(auth, (user) => {
-    if (user) window.location.href = '/central';
-  });
+  function limpiar() {
+    formError.classList.remove('active');
+    formInfo.classList.remove('active');
+  }
 
-  // Alternar visibilidad de contraseña
+  // Aviso si la sesión se cerró por inactividad
+  if (new URLSearchParams(location.search).get('motivo') === 'inactividad') {
+    mostrarInfo('Tu sesión se cerró por inactividad. Ingresa de nuevo.');
+  }
+
   togglePwdBtn.addEventListener('click', () => {
     const isPwd = pwdInput.type === 'password';
     pwdInput.type = isPwd ? 'text' : 'password';
     togglePwdBtn.textContent = isPwd ? 'Ocultar' : 'Ver';
   });
 
-  function mensajeDeError(code) {
-    switch (code) {
-      case 'auth/invalid-credential':
-      case 'auth/user-not-found':
-      case 'auth/wrong-password':
-        return 'El correo electrónico o la contraseña son incorrectos.';
-      case 'auth/invalid-email':
-        return 'El correo no tiene un formato válido.';
-      case 'auth/user-disabled':
-        return 'Esta cuenta está deshabilitada.';
-      case 'auth/too-many-requests':
-        return 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.';
-      case 'auth/network-request-failed':
-        return 'Sin conexión. Revisa tu internet.';
-      default:
-        return 'No se pudo iniciar sesión. Inténtalo de nuevo.';
-    }
-  }
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    clearError();
+    limpiar();
+    btnReenviar.classList.add('hidden');
 
     if (!form.checkValidity()) {
       form.reportValidity();
@@ -360,23 +408,52 @@
     }
 
     btnSubmit.disabled = true;
-    btnSubmit.textContent = 'AUTENTICANDO...';
+    btnSubmit.textContent = 'VERIFICANDO...';
 
     try {
-      const cred = await signInWithEmailAndPassword(
-        auth, emailInput.value.trim(), pwdInput.value
-      );
-      // Compatibilidad temporal con páginas que aún leen estos datos
-      sessionStorage.setItem('omnih_active_user', cred.user.uid);
-      sessionStorage.setItem('omnih_user_email', cred.user.email || '');
-      sessionStorage.setItem('omnih_auth_time', Date.now().toString());
-      window.location.href = '/central';
-    } catch (error) {
-      showError(mensajeDeError(error.code));
+      await ingresar(emailInput.value.trim().toLowerCase(), pwdInput.value);
+      window.location.replace('central.html');
+    } catch (err) {
+      console.error('Error de acceso:', err);
+      mostrarError(mensajeError(err));
+      if (err && err.message === 'correo_no_verificado') {
+        btnReenviar.classList.remove('hidden');
+      }
       btnSubmit.disabled = false;
-      btnSubmit.textContent = 'INICIAR SESIÓN';
+      btnSubmit.textContent = 'INGRESAR';
+    }
+  });
+
+  btnReenviar.addEventListener('click', async () => {
+    limpiar();
+    const correo = emailInput.value.trim().toLowerCase();
+    if (!correo || !pwdInput.value) {
+      mostrarError('Escribe tu correo y tu contraseña para reenviar el mensaje.');
+      return;
+    }
+    try {
+      await reenviarVerificacion(correo, pwdInput.value);
+      mostrarInfo('Te enviamos un nuevo correo de verificación. Revisa también el spam.');
+    } catch (err) {
+      mostrarError(mensajeError(err));
+    }
+  });
+
+  btnOlvide.addEventListener('click', async () => {
+    limpiar();
+    const correo = emailInput.value.trim().toLowerCase();
+    if (!correo) {
+      mostrarError('Escribe tu correo arriba y pulsa de nuevo "Olvidé mi contraseña".');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(getAuth(getApp()), correo);
+      mostrarInfo('Si ese correo está registrado, recibirás un mensaje para restablecer tu contraseña.');
+    } catch (err) {
+      mostrarError(mensajeError(err));
     }
   });
 </script>
+
 </body>
-  </html>
+</html>
