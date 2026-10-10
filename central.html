@@ -2,12 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>OMNIH | Taller Operativo del Preservador</title>
   <style>
     :root {
       --bg-light: #ffffff;
-      --bg-canvas: #edf2f7;
       --panel-bg: #f8fafc;
       --accent-gold: #c5a059;
       --accent-blue: #0284c7;
@@ -15,196 +14,113 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       --border-color: #e2e8f0;
-      --btn-gray: #f1f5f9;
-      --btn-gray-text: #334155;
       --alert-red: #b91c1c;
       --success-green: #15803d;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    [hidden] { display: none !important; }
+    body { background-color: var(--bg-light); color: var(--text-main); min-height: 100dvh; display: flex; flex-direction: column; }
+    button, select, textarea { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 2px; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg-light);
-      color: var(--text-main);
-      min-height: 100dvh;
-    }
-
-    /* Oculto hasta confirmar la sesión (evita parpadeos) */
-    body.pendiente { visibility: hidden; }
-
-    /* MARCO: pantalla completa en móvil */
-    .app-shell {
-      width: 100%;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-light);
-    }
-
-    /* MARCO: tarjeta centrada en escritorio */
-    @media (min-width: 768px) {
-      body { background-color: var(--bg-canvas); }
-      .app-shell {
-        width: calc(100% - 32px);
-        max-width: 880px;
-        min-height: calc(100dvh - 48px);
-        margin: 24px auto;
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        overflow: clip;
-      }
-    }
-
-    /* HEADER SUPERIOR */
+    /* ENCABEZADO: identidad a la izquierda, menú a la derecha */
     header { background: #ffffff; border-bottom: 1px solid var(--border-color); padding: 10px 20px; position: sticky; top: 0; z-index: 20; }
     .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 850px; margin: 0 auto; width: 100%; }
-
     .brand-logo-link { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
     .dna-box { width: 28px; height: 38px; display: flex; justify-content: center; align-items: center; }
     .dna-icon { width: 28px; height: 38px; transform: rotate(45deg); display: block; }
     .text-omnih { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hamburger-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); padding: 8px 10px; }
 
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .hamburger-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-main); padding: 6px; }
+    main { flex: 1; max-width: 850px; width: 100%; margin: 0 auto; padding: 20px 20px 110px 20px; display: flex; flex-direction: column; gap: 20px; }
 
-    /* CONTENEDOR PRINCIPAL */
-    main { flex: 1; max-width: 850px; width: 100%; margin: 0 auto; padding: 20px 20px 100px 20px; display: flex; flex-direction: column; gap: 20px; }
+    .aviso { padding: 12px 14px; border-radius: 8px; font-size: 0.85rem; background: var(--accent-blue-light); border: 1px solid #bae6fd; color: #0369a1; }
+    .aviso.error { background: #fef2f2; border-color: #fecaca; color: var(--alert-red); }
 
-    /* PERFIL DEL PRESERVADOR */
-    .profile-hero { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    /* BLOQUE DEL PRESERVADOR: carrusel, foto, categoría */
+    .profile-hero { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 
-    /* CARRUSEL DE ANEXOS */
     .carousel-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-    .carousel-container {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      padding: 4px;
-      scrollbar-width: none;
-      width: 100%;
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x mandatory;
-    }
+    .carousel-container { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding: 4px; scrollbar-width: none; width: 100%; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
     .carousel-container::-webkit-scrollbar { display: none; }
-
-    .carousel-item {
-      width: 84px;
-      height: 84px;
-      border-radius: 8px;
-      border: 1px dashed var(--border-color);
-      flex-shrink: 0;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      scroll-snap-align: start;
-      overflow: hidden;
-      position: relative;
-    }
-    .carousel-item.btn-add { border-style: dashed; border-color: var(--accent-blue); color: var(--accent-blue); font-weight: 700; }
-    .carousel-item img { width: 100%; height: 100%; object-fit: cover; }
-
-    .carousel-nav-btn {
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid var(--border-color);
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      z-index: 5;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+    .carousel-item { width: 84px; height: 84px; border-radius: 8px; border: 1px dashed var(--border-color); flex-shrink: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.72rem; color: var(--text-muted); cursor: pointer; scroll-snap-align: start; overflow: hidden; position: relative; text-align: center; padding: 4px; }
+    .carousel-item.btn-add { border-color: var(--accent-blue); color: var(--accent-blue); font-weight: 700; }
+    .carousel-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .carousel-item .marca { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.92); color: var(--text-muted); font-size: 0.6rem; font-weight: 700; padding: 2px; }
+    .carousel-nav-btn { background: rgba(255,255,255,0.95); border: 1px solid var(--border-color); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .carousel-nav-btn.prev { left: -8px; }
     .carousel-nav-btn.next { right: -8px; }
+    .carousel-vacio { font-size: 0.8rem; color: var(--text-muted); align-self: center; padding-left: 4px; }
 
     .user-info { display: flex; align-items: center; gap: 14px; }
-    .user-avatar-badge { width: 50px; height: 50px; border-radius: 10px; background: #e2e8f0; border: 2px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
-    .user-details { display: flex; flex-direction: column; gap: 4px; }
+    .foto-perfil { width: 72px; height: 72px; flex-shrink: 0; border-radius: 50%; border: 2px dashed var(--accent-gold); background: #fffbeb; color: #92741f; font-size: 0.7rem; font-weight: 700; line-height: 1.15; cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .foto-perfil.con-foto { border-style: solid; }
+    .foto-perfil img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .user-details { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .user-name { font-weight: 700; font-size: 1.05rem; color: var(--text-main); }
+    .estado-foto { font-size: 0.72rem; color: var(--text-muted); }
+    .rank-tag { align-self: flex-start; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: var(--accent-blue-light); color: var(--accent-blue); border: 1px solid #bae6fd; }
 
-    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .rank-tag { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: var(--accent-blue-light); color: var(--accent-blue); border: 1px solid #bae6fd; }
-    .vinculo-tag { display: flex; align-items: center; gap: 4px; background: #ffffff; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
-    .vinculo-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
-    .vinculo-select { background: transparent; border: none; font-size: 0.72rem; font-weight: 700; color: var(--accent-blue); outline: none; cursor: pointer; }
+    .categoria-fila { display: flex; flex-direction: column; gap: 6px; }
+    .categoria-fila label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+    select { width: 100%; padding: 12px; font-size: 0.95rem; color: var(--text-main); background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; }
 
     /* ÁREA DE REDACCIÓN */
     .editor-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .editor-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .editor-title { font-size: 0.82rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.5px; text-transform: uppercase; }
-
-    textarea {
-      width: 100%;
-      min-height: 240px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 1rem;
-      line-height: 1.6;
-      outline: none;
-      resize: vertical;
-      background: #fafafa;
-    }
+    .tabs { display: inline-flex; border: 1px solid var(--border-color); border-radius: 999px; padding: 3px; background: var(--panel-bg); }
+    .tab { border: none; background: transparent; padding: 7px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+    .tab.activa { background: #ffffff; color: var(--text-main); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+    textarea { width: 100%; min-height: 260px; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; font-size: 1rem; line-height: 1.6; outline: none; resize: vertical; background: #fafafa; }
     textarea:focus { background: #ffffff; border-color: var(--accent-blue); }
+    .conversar-vacio { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; padding: 14px; border: 1px dashed var(--border-color); border-radius: 8px; background: #fafafa; }
+    .adjuntos { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+    .adjuntos li { background: #fffbeb; border: 1px solid #f3e3b0; color: #7a5b12; padding: 5px 12px; border-radius: 999px; font-size: 0.78rem; }
 
-    .attachment-bar { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; }
-    .action-btns { display: flex; gap: 8px; }
+    /* COMANDOS */
+    .comandos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px; }
+    .btn-cmd { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 46px; padding: 8px 10px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; cursor: pointer; background: var(--panel-bg); color: var(--text-main); border: 1px solid var(--border-color); text-decoration: none; }
+    .btn-cmd:hover { background: var(--accent-blue-light); border-color: #bae6fd; }
+    .btn-cmd.grabando { background: #fef2f2; border-color: #fecaca; color: var(--alert-red); }
+    .btn-cmd.ia { background: var(--accent-blue-light); color: var(--accent-blue); border-color: #bae6fd; }
 
-    .btn-action {
-      padding: 10px 16px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s ease;
-    }
+    .attachment-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 12px; }
+    .btn-action { padding: 10px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s ease; }
     .btn-capsule { background: var(--panel-bg); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
     .btn-capsule:hover { background: #fef9c3; }
 
-    /* GUÍA DE IA ASISTENTE */
-    .ai-guidance-floating { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 810px; background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid var(--accent-blue); border-radius: 8px; font-size: 0.78rem; color: #0369a1; box-shadow: 0 4px 12px rgba(0,0,0,0.06); z-index: 15; }
+    /* ORIENTACIÓN IA */
+    .ai-guidance-floating { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 810px; background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid var(--accent-blue); border-radius: 8px; font-size: 0.8rem; color: #0369a1; box-shadow: 0 4px 12px rgba(0,0,0,0.06); z-index: 15; }
     .ai-guidance-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #e0f2fe; cursor: pointer; font-weight: 700; user-select: none; }
-    .ai-guidance-content { padding: 12px 14px; display: none; line-height: 1.5; background: #f0f9ff; border-top: 1px solid #bae6fd; }
+    .ai-guidance-content { padding: 12px 14px; display: none; line-height: 1.5; background: #f0f9ff; border-top: 1px solid #bae6fd; max-height: 50dvh; overflow-y: auto; }
     .ai-guidance-floating.open .ai-guidance-content { display: block; }
+    .ai-guidance-content ol { margin: 8px 0 10px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .ai-guidance-content ol span { display: block; color: #0c4a6e; opacity: 0.85; }
 
-    /* DRAWER OVERLAY & PANEL */
-    .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.4); z-index: 25; }
+    /* MENÚ LATERAL */
+    .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 25; }
     .drawer-overlay.active { display: block; }
-    .drawer-panel { position: fixed; top: 0; right: -100%; width: 280px; height: 100dvh; background: #ffffff; border-left: 1px solid var(--border-color); transition: right 0.3s ease; z-index: 30; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+    .drawer-panel { position: fixed; top: 0; right: -100%; width: 280px; max-width: 86vw; height: 100dvh; background: #ffffff; border-left: 1px solid var(--border-color); transition: right 0.3s ease; z-index: 30; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
     .drawer-panel.active { right: 0; }
     .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 14px; }
     .drawer-title { font-size: 1.1rem; font-weight: 800; color: var(--accent-gold); }
-    .btn-close-drawer { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+    .btn-close-drawer { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-muted); padding: 4px 10px; }
     .drawer-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .drawer-menu li a { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; display: block; padding: 8px 10px; border-radius: 6px; }
+    .drawer-menu li a { text-decoration: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; display: block; padding: 10px; border-radius: 6px; }
     .drawer-menu li a:hover { background-color: var(--accent-blue-light); color: var(--accent-blue); }
-    .btn-logout { display: block; width: 100%; padding: 10px; text-align: center; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px; color: var(--alert-red); font-size: 0.85rem; font-weight: 700; text-decoration: none; }
+    .btn-logout { display: block; width: 100%; padding: 12px; text-align: center; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px; color: var(--alert-red); font-size: 0.85rem; font-weight: 700; cursor: pointer; }
 
-    /* FOOTER */
-    footer { padding: 14px 20px; background: #ffffff; border-top: 1px solid var(--border-color); text-align: center; }
-    .hash-badge { font-family: ui-monospace, monospace; background: var(--panel-bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 3px; align-items: center; }
-    .human-cert { color: var(--success-green); font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
-    .hash-title { font-size: 0.72rem; color: var(--text-muted); }
-    .hash-value { font-weight: 700; color: var(--text-main); font-size: 0.76rem; word-break: break-all; }
+    footer { padding: 14px 20px; background: #ffffff; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+
+    @media (min-width: 720px) {
+      .comandos { grid-template-columns: repeat(5, 1fr); }
+      .foto-perfil { width: 84px; height: 84px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
   </style>
 </head>
-<body class="pendiente">
+<body>
 
   <div class="drawer-overlay" id="drawer-overlay"></div>
 
@@ -214,327 +130,393 @@
         <span class="drawer-title">OMNIH TALLER</span>
         <button type="button" class="btn-close-drawer" id="btnCloseDrawer" aria-label="Cerrar menú">&times;</button>
       </div>
-
       <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Módulos del Sistema</div>
       <ul class="drawer-menu">
-        <li><a href="/">1. Portal y Blog (Raíz)</a></li>
-        <li><a href="/capsula">2. Cápsula del Tiempo (Resguardo)</a></li>
-        <li><a href="/carga">3. Módulo Corporativo (Convenios)</a></li>
+        <li><a href="index.html">1. Portal y Blog (Raíz)</a></li>
+        <li><a href="capsula.html">2. Cápsula del Tiempo (Resguardo)</a></li>
+        <li><a href="carga.html">3. Certificar documentos</a></li>
       </ul>
     </div>
-
     <div>
-      <a href="/login" class="btn-logout" id="btnLogout">Cerrar Sesión Soberana</a>
+      <button type="button" class="btn-logout" data-salir>Cerrar Sesión Soberana</button>
     </div>
   </aside>
 
-  <div class="app-shell">
-
-    <header>
-      <div class="header-content">
-        <a href="/" class="brand-logo-link" title="Ir a la Raíz">
-          <div class="dna-box">
-            <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#b03a8a" />
-                  <stop offset="35%" stop-color="#704fa0" />
-                  <stop offset="70%" stop-color="#3b7cb3" />
-                  <stop offset="100%" stop-color="#4aa47a" />
-                </linearGradient>
-                <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#d95438" />
-                  <stop offset="100%" stop-color="#eab308" />
-                </linearGradient>
-              </defs>
-              <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
-              <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
-            </svg>
-          </div>
-          <span class="text-omnih">OMNIH</span>
-        </a>
-
-        <div class="header-right">
-          <button class="hamburger-btn" id="btnOpenDrawer" type="button" aria-label="Abrir menú">☰</button>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="brand-logo-link" title="Ir a la Raíz">
+        <div class="dna-box">
+          <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b03a8a" />
+                <stop offset="35%" stop-color="#704fa0" />
+                <stop offset="70%" stop-color="#3b7cb3" />
+                <stop offset="100%" stop-color="#4aa47a" />
+              </linearGradient>
+              <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d95438" />
+                <stop offset="100%" stop-color="#eab308" />
+              </linearGradient>
+            </defs>
+            <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+            <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+          </svg>
         </div>
+        <span class="text-omnih">OMNIH</span>
+      </a>
+      <button class="hamburger-btn" id="btnOpenDrawer" type="button" aria-label="Abrir menú">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <p class="aviso" id="aviso" role="status" aria-live="polite" hidden></p>
+
+    <div class="profile-hero">
+      <!-- 1. Carrusel del archivo -->
+      <div class="carousel-wrapper">
+        <button class="carousel-nav-btn prev" id="btnPrevCarousel" type="button" aria-label="Anteriores">&#10094;</button>
+        <div class="carousel-container" id="photo-carousel">
+          <div class="carousel-item btn-add" id="btnTriggerUpload" role="button" tabindex="0"><span>+ Tesela</span></div>
+          <span class="carousel-vacio" id="carousel-vacio">Aquí aparecerán sus documentos certificados, en orden de ingreso.</span>
+        </div>
+        <button class="carousel-nav-btn next" id="btnNextCarousel" type="button" aria-label="Siguientes">&#10095;</button>
+        <input type="file" id="carousel-upload" accept="image/*" style="display: none;">
       </div>
-    </header>
 
-    <main>
-      <div class="profile-hero">
-        <div class="carousel-wrapper">
-          <button class="carousel-nav-btn prev" id="btnPrevCarousel" type="button">&#10094;</button>
-          <div class="carousel-container" id="photo-carousel">
-            <div class="carousel-item btn-add" id="btnTriggerUpload">
-              <span>+ Tesela</span>
-            </div>
-          </div>
-          <button class="carousel-nav-btn next" id="btnNextCarousel" type="button">&#10095;</button>
-          <input type="file" id="carousel-upload" accept="image/*" style="display: none;">
-        </div>
-
-        <div class="user-info">
-          <div class="user-avatar-badge">🏛️</div>
-          <div class="user-details">
-            <div class="user-name">Preservador: <span id="user-display-name">Activo</span></div>
-            <div class="tags-container">
-              <div class="rank-tag">Genehistoriador V2</div>
-              <div class="vinculo-tag">
-                <span class="vinculo-label">Vínculo:</span>
-                <select class="vinculo-select" id="vinculo-select">
-                  <option value="Soberano / Testimonio Propio">Soberano / Propio</option>
-                  <option value="Familiar Directo">Familiar Directo</option>
-                  <option value="Institucional">Institucional</option>
-                  <option value="Comunitario">Comunitario</option>
-                </select>
-              </div>
-            </div>
-          </div>
+      <!-- 2. Foto de perfil real y nombre -->
+      <div class="user-info">
+        <button type="button" class="foto-perfil" id="btnFoto" aria-label="Subir o cambiar su foto de perfil">
+          <img id="fotoImg" alt="Su foto de perfil" hidden>
+          <span id="fotoVacia">Subir<br>foto</span>
+        </button>
+        <input type="file" id="inputFoto" accept="image/jpeg,image/png,image/webp" style="display: none;">
+        <div class="user-details">
+          <div class="user-name">Preservador: <span id="user-display-name">Activo</span></div>
+          <div class="estado-foto" id="estadoFoto">Sin foto de perfil</div>
+          <div class="rank-tag">Genehistoriador V2</div>
         </div>
       </div>
 
-      <div class="editor-card">
-        <div class="editor-title">Taller de Formalización de Teselas</div>
-        <textarea
-          id="relato-text"
-          placeholder="Escribe el testimonio, concepto u ontología histórica para someter a resguardo duradero..."
-        ></textarea>
-
-        <div class="attachment-bar">
-              <div style="border:1px dashed var(--accent-blue); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px; background:#f0f9ff;">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-          <button class="btn-action" id="btnPickDoc" type="button" style="background:var(--accent-blue-light); color:var(--accent-blue); border:1px solid #bae6fd;">+ Adjuntar documento</button>
-          <span id="doc-name" style="font-size:0.75rem; color:var(--text-muted);">Ningún documento adjunto</span>
-        </div>
-        <div id="doc-hash" style="font-family:ui-monospace,monospace; font-size:0.7rem; color:var(--text-main); word-break:break-all;"></div>
-        <input type="file" id="doc-upload" style="display:none;">
-        <div style="font-size:0.7rem; color:var(--text-muted);">El documento no sale de tu dispositivo: solo se calcula su huella (SHA-256).</div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <label for="visibilidad-select" style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Visibilidad:</label>
-        <select id="visibilidad-select" style="border:1px solid var(--border-color); border-radius:6px; padding:6px 8px; font-size:0.78rem; font-weight:700; color:var(--accent-blue); background:#ffffff;">
-          <option value="privado">Privado (solo el sello)</option>
-          <option value="publico">Público (contenido visible)</option>
+      <!-- 3. Categoría del relato -->
+      <div class="categoria-fila">
+        <label for="categoria">Categoría del relato</label>
+        <select id="categoria">
+          <optgroup label="Relatos">
+            <option value="autobiografia">Autobiografía</option>
+            <option value="genehistoria">Genehistoria filial (padres, abuelos; hijos hasta los 16 años)</option>
+            <option value="omnihistoria">Omnihistorias (relatos entre varios usuarios)</option>
+          </optgroup>
+          <optgroup label="Aparte">
+            <option value="mascotas">Mascotas</option>
+          </optgroup>
         </select>
       </div>
+    </div>
 
-      <label style="display:flex; align-items:flex-start; gap:8px; font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
-        <input type="checkbox" id="chk-responsable" style="margin-top:2px;">
-        <span>Declaro ser el emisor y asumo la responsabilidad exclusiva por la información que certifico.</span>
-      </label>
+    <!-- 4. Escribir y conversar -->
+    <div class="editor-card">
+      <div class="editor-head">
+        <div class="editor-title">Taller de Formalización de Teselas</div>
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab activa" id="tabEscribir" role="tab" aria-selected="true">Escribir</button>
+          <button type="button" class="tab" id="tabConversar" role="tab" aria-selected="false">Conversar</button>
+        </div>
+      </div>
+
+      <div id="panelEscribir">
+        <textarea id="relato-text" placeholder="Escribe el testimonio, concepto u ontología histórica para someter a resguardo duradero..."></textarea>
+      </div>
+      <div id="panelConversar" hidden>
+        <p class="conversar-vacio">Su lista de contactos está vacía. Cuando agregue familiares y amigos reales (con fecha de nacimiento, mayores de 16 años) podrá concertar una jornada omnihistórica a una hora determinada. No hay "me gusta" ni seguidores: solo contactos.</p>
+      </div>
+
+      <ul class="adjuntos" id="adjuntos" aria-label="Archivos adjuntos"></ul>
+
+      <!-- 5. Comandos -->
+      <div class="comandos">
+        <button type="button" class="btn-cmd" id="btnAdjuntar">Adjuntar archivo</button>
+        <button type="button" class="btn-cmd" id="btnVoz">Dictar por voz</button>
+        <a class="btn-cmd" href="carga.html">Certificar folio</a>
+        <a class="btn-cmd" href="carga.html">Verificar integridad</a>
+        <button type="button" class="btn-cmd ia" id="btnIA">Orientación IA</button>
+      </div>
+      <input type="file" id="inputAdjunto" multiple style="display: none;">
 
       <div class="attachment-bar">
-        <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Borrador local disponible</span>
-        <div class="action-btns">
-          <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo →</button>
-        </div>
-                                                               </div>
+        <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Borrador vacío</span>
+        <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo</button>
       </div>
-    </main>
-
-    <footer>
-      <div class="hash-badge">
-        <div class="human-cert">✓ Certificación de Presencia Humana Digital</div>
-        <div class="hash-title">
-          <strong>Hash de Sesión Tesela:</strong> <span class="hash-value" id="user-hash-display">Calculando...</span>
-        </div>
-      </div>
-    </footer>
-
-  </div>
+    </div>
+  </main>
 
   <aside class="ai-guidance-floating" id="ai-guidance-box">
-    <div class="ai-guidance-header" id="btnToggleAi">
-      <span>🤖 Asistente Ontológico IA (Protocolo de Registro)</span>
+    <div class="ai-guidance-header" id="btnToggleAi" role="button" tabindex="0">
+      <span>🤖 Orientación IA: cómo desarrollar su relato</span>
       <span id="ai-toggle-icon">▲</span>
     </div>
     <div class="ai-guidance-content">
-      <p><strong>Criterios Historiográficos de Validación:</strong></p>
-      <ol style="margin-left: 18px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
-        <li>Sitúa temporalmente el acontecimiento o concepto.</li>
-        <li>Indica las entidades o individuos copartícipes.</li>
-        <li>Asocia los anexos visuales antes de transferir el registro a la Cápsula.</li>
+      <p>Le sugiero este orden:</p>
+      <ol>
+        <li><strong>Su autobiografía.</strong><span>Empiece por su propia historia, con calma.</span></li>
+        <li><strong>Sus contactos.</strong><span>Familiares, amigos o colegas reales, con fecha de nacimiento. No se admiten menores de 16 años.</span></li>
+        <li><strong>La Raíz (en el orden que prefiera).</strong><span>Padres, abuelos y bisabuelos, vivos o fallecidos.</span></li>
+        <li><strong>Sus hijos, si los tiene.</strong><span>Un relato por hijo, primero uno y después otro, hasta los 16 años.</span></li>
       </ol>
+      <button type="button" class="btn-cmd" id="btnIrAuto">Empezar por mi autobiografía</button>
     </div>
   </aside>
 
-  <script type="module">
-    import "./js/firebase-init.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  <footer>OMNIH, la historia escrita por la gente</footer>
 
-    const auth = getAuth();
-    let iniciado = false;
+    <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var uid = null;          // se llena cuando Firebase confirma la sesión
+    var firebase = null;     // { db, doc, setDoc, getDoc, ... } cuando hay conexión
 
-    // 1. Control de sesión con Firebase
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        sessionStorage.clear();
-        window.location.replace('/login');
-        return;
+    /* ---------- Avisos ---------- */
+    var avisoT;
+    function avisar(msg, error) {
+      var el = $('aviso');
+      el.textContent = msg;
+      el.className = 'aviso' + (error ? ' error' : '');
+      el.hidden = false;
+      clearTimeout(avisoT);
+      avisoT = setTimeout(function () { el.hidden = true; }, 9000);
+      el.scrollIntoView({ block: 'nearest' });
+    }
+
+    /* ---------- Menú lateral ---------- */
+    var drawer = $('drawer-menu'), overlay = $('drawer-overlay');
+    function abrirMenu() { drawer.classList.add('active'); overlay.classList.add('active'); }
+    function cerrarMenu() { drawer.classList.remove('active'); overlay.classList.remove('active'); }
+    $('btnOpenDrawer').addEventListener('click', abrirMenu);
+    $('btnCloseDrawer').addEventListener('click', cerrarMenu);
+    overlay.addEventListener('click', cerrarMenu);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarMenu(); });
+
+    /* ---------- Orientación IA ---------- */
+    var aiBox = $('ai-guidance-box');
+    function alternarIA(abrir) {
+      var open = (typeof abrir === 'boolean') ? abrir : !aiBox.classList.contains('open');
+      aiBox.classList.toggle('open', open);
+      $('ai-toggle-icon').textContent = open ? '▼' : '▲';
+    }
+    $('btnToggleAi').addEventListener('click', function () { alternarIA(); });
+    $('btnToggleAi').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternarIA(); } });
+    $('btnIA').addEventListener('click', function () { alternarIA(); });
+
+    /* ---------- Carrusel ---------- */
+    var carousel = $('photo-carousel');
+    $('btnPrevCarousel').addEventListener('click', function () { carousel.scrollBy({ left: -160 }); });
+    $('btnNextCarousel').addEventListener('click', function () { carousel.scrollBy({ left: 160 }); });
+
+    function agregarPieza(dataUrl, titulo, sinCertificar) {
+      $('carousel-vacio').hidden = true;
+      var d = document.createElement('div');
+      d.className = 'carousel-item';
+      if (dataUrl) {
+        var img = document.createElement('img');
+        img.src = dataUrl; img.alt = titulo || 'Documento';
+        d.appendChild(img);
+      } else {
+        var s = document.createElement('span'); s.textContent = titulo || 'Documento'; d.appendChild(s);
       }
-      if (iniciado) return;
-      iniciado = true;
-      iniciar(user);
+      if (sinCertificar) {
+        var m = document.createElement('span'); m.className = 'marca'; m.textContent = 'sin certificar'; d.appendChild(m);
+      }
+      carousel.appendChild(d);
+    }
+    var subirTesela = function () { $('carousel-upload').click(); };
+    $('btnTriggerUpload').addEventListener('click', subirTesela);
+    $('btnTriggerUpload').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); subirTesela(); } });
+    $('carousel-upload').addEventListener('change', function (e) {
+      var f = e.target.files[0]; e.target.value = '';
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function (ev) {
+        agregarPieza(ev.target.result, f.name, true);
+        avisar('La imagen quedó en el carrusel como "sin certificar". Para certificarla use "Certificar folio".');
+      };
+      r.readAsDataURL(f);
     });
 
-    function iniciar(user) {
-      // Datos de sesión para el resto de las páginas
-      const activeUser = user.uid;
-      sessionStorage.setItem('omnih_active_user', user.uid);
-      sessionStorage.setItem('omnih_user_email', user.email || '');
+    /* ---------- Foto de perfil: controles ---------- */
+    var TIPOS = ['image/jpeg', 'image/png', 'image/webp'];
+    var TXT_ESTADO = {
+      rostro_detectado: 'Foto con rostro detectado. Revisión de la IA pendiente',
+      pendiente_revision: 'Foto recibida. Revisión de la IA pendiente'
+    };
+    function rechazo(m) { var e = new Error(m); e.rechazo = true; return e; }
 
-      // 2. Nombre visible
-      let displayName = user.displayName || '';
-      if (!displayName) {
-        try {
-          const parsed = JSON.parse(localStorage.getItem('omnih_user_session') || '{}');
-          if (parsed.username) displayName = parsed.username;
-        } catch (e) {}
-      }
-      if (!displayName && user.email) displayName = user.email.split('@')[0];
-      if (!displayName) displayName = 'Preservador Soberano';
-
-      document.getElementById('user-display-name').textContent = displayName;
-      document.getElementById('user-hash-display').textContent = activeUser;
-
-      // Mostrar la página (ya hay sesión confirmada)
-      document.body.classList.remove('pendiente');
-
-      // 3. Menú lateral (Drawer)
-      const drawer = document.getElementById('drawer-menu');
-      const overlay = document.getElementById('drawer-overlay');
-      const openDrawer = () => { drawer.classList.add('active'); overlay.classList.add('active'); };
-      const closeDrawer = () => { drawer.classList.remove('active'); overlay.classList.remove('active'); };
-
-      document.getElementById('btnOpenDrawer').addEventListener('click', openDrawer);
-      document.getElementById('btnCloseDrawer').addEventListener('click', closeDrawer);
-      overlay.addEventListener('click', closeDrawer);
-
-      // Cerrar sesión (de verdad, en Firebase)
-      document.getElementById('btnLogout').addEventListener('click', async (e) => {
-        e.preventDefault();
-        try { await signOut(auth); } catch (err) { console.error(err); }
-        sessionStorage.clear();
-        window.location.replace('/login');
-      });
-
-      // 4. Guía de IA desplegable
-      const aiBox = document.getElementById('ai-guidance-box');
-      const aiToggleIcon = document.getElementById('ai-toggle-icon');
-      document.getElementById('btnToggleAi').addEventListener('click', () => {
-        const isOpen = aiBox.classList.toggle('open');
-        aiToggleIcon.textContent = isOpen ? '▼' : '▲';
-      });
-
-      // 5. Carrusel de teselas
-      const carousel = document.getElementById('photo-carousel');
-      document.getElementById('btnPrevCarousel').addEventListener('click', () => {
-        carousel.scrollBy({ left: -100, behavior: 'smooth' });
-      });
-      document.getElementById('btnNextCarousel').addEventListener('click', () => {
-        carousel.scrollBy({ left: 100, behavior: 'smooth' });
-      });
-
-      const uploadTrigger = document.getElementById('btnTriggerUpload');
-      const fileInput = document.getElementById('carousel-upload');
-      const uploadedImages = [];
-
-      uploadTrigger.addEventListener('click', () => fileInput.click());
-
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const dataUrl = event.target.result;
-            uploadedImages.push(dataUrl);
-
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'carousel-item';
-            const img = document.createElement('img');
-            img.src = dataUrl;
-            img.alt = 'Tesela cargada';
-            itemDiv.appendChild(img);
-            carousel.appendChild(itemDiv);
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
-      // 6. Documento adjunto (huella SHA-256 local) y puente a la Cápsula
-      const relatoText = document.getElementById('relato-text');
-      const vinculoSelect = document.getElementById('vinculo-select');
-      const visibilidadSelect = document.getElementById('visibilidad-select');
-      const chkResponsable = document.getElementById('chk-responsable');
-      const btnSendToCapsule = document.getElementById('btnSendToCapsule');
-      const docInput = document.getElementById('doc-upload');
-      const docName = document.getElementById('doc-name');
-      const docHash = document.getElementById('doc-hash');
-      let docInfo = null;
-
-      async function sha256Hex(buffer) {
-        const digest = await crypto.subtle.digest('SHA-256', buffer);
-        return Array.from(new Uint8Array(digest))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('');
-      }
-
-      document.getElementById('btnPickDoc').addEventListener('click', () => docInput.click());
-
-      docInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        docName.textContent = 'Calculando huella...';
-        docHash.textContent = '';
-        try {
-          const buffer = await file.arrayBuffer();
-          const hash = await sha256Hex(buffer);
-          docInfo = {
-            nombre: file.name,
-            tipo: file.type || 'desconocido',
-            tamano: file.size,
-            sha256: hash
-          };
-          docName.textContent = file.name;
-          docHash.textContent = 'SHA-256: ' + hash;
-        } catch (err) {
-          console.error('Error calculando huella:', err);
-          docInfo = null;
-          docName.textContent = 'No se pudo leer el documento';
-        }
-      });
-
-      btnSendToCapsule.addEventListener('click', () => {
-        const texto = relatoText.value.trim();
-        if (!texto && !docInfo) {
-          alert('Escribe un testimonio o adjunta un documento antes de sellar.');
-          return;
-        }
-        if (!chkResponsable.checked) {
-          alert('Debes aceptar la declaración de responsabilidad del emisor.');
-          return;
-        }
-
-        const payloadCapsula = {
-          autor: displayName,
-          hash: activeUser,
-          vinculo: vinculoSelect.value,
-          visibilidad: visibilidadSelect.value,
-          testimonio: texto,
-          documento: docInfo,
-          fecha_sellado: new Date().toISOString(),
-          imagenes_count: uploadedImages.length
-        };
-
-        sessionStorage.setItem('omnih_capsula_activa', JSON.stringify(payloadCapsula));
-        window.location.href = '/capsula';
+    function leerImagen(archivo) {
+      return new Promise(function (ok, fallo) {
+        var url = URL.createObjectURL(archivo), img = new Image();
+        img.onload = function () { URL.revokeObjectURL(url); ok(img); };
+        img.onerror = function () { fallo(rechazo('No se pudo leer la imagen. Pruebe con otra fotografía.')); };
+        img.src = url;
       });
     }
+
+    function prepararFoto(archivo) {
+      if (TIPOS.indexOf(archivo.type) < 0) return Promise.reject(rechazo('Use una fotografía en formato JPG, PNG o WebP.'));
+      if (archivo.size > 10 * 1024 * 1024) return Promise.reject(rechazo('La fotografía pesa más de 10 MB. Elija una más liviana.'));
+      return leerImagen(archivo).then(function (img) {
+        var w = img.naturalWidth, h = img.naturalHeight;
+        if (Math.min(w, h) < 300) throw rechazo('La fotografía es muy pequeña. Debe medir al menos 300 píxeles por lado.');
+        if (w / h > 2 || w / h < 0.5) throw rechazo('La imagen es demasiado alargada para ser un retrato. Elija una fotografía de su rostro.');
+        var lado = Math.min(w, h), salida = Math.min(480, lado), c = document.createElement('canvas');
+        c.width = c.height = salida;
+        c.getContext('2d').drawImage(img, (w - lado) / 2, (h - lado) / 2, lado, lado, 0, 0, salida, salida);
+        var estado = 'pendiente_revision';
+        var final = function () { return { dataUrl: c.toDataURL('image/jpeg', 0.82), estado: estado }; };
+        if (!('FaceDetector' in window)) return final();
+        return new window.FaceDetector({ fastMode: true, maxDetectedFaces: 3 }).detect(c).then(function (caras) {
+          if (!caras.length) throw rechazo('No se detecta un rostro en la imagen. Suba una fotografía suya, de frente y bien iluminada.');
+          estado = 'rostro_detectado'; return final();
+        }, function () { return final(); });
+      });
+    }
+
+    function mostrarFoto(dataUrl, estado) {
+      if (dataUrl) {
+        $('fotoImg').src = dataUrl; $('fotoImg').hidden = false; $('fotoVacia').hidden = true;
+        $('btnFoto').classList.add('con-foto');
+        $('estadoFoto').textContent = TXT_ESTADO[estado] || 'Foto recibida';
+      }
+    }
+
+    $('btnFoto').addEventListener('click', function () { $('inputFoto').click(); });
+    $('inputFoto').addEventListener('change', function (e) {
+      var archivo = e.target.files[0]; e.target.value = '';
+      if (!archivo) return;
+      prepararFoto(archivo).then(function (r) {
+        mostrarFoto(r.dataUrl, r.estado);
+        if (!firebase || !uid) { avisar('Vista previa: la foto se muestra aquí pero no se guarda. Se guardará cuando abra la página desde su sitio con sesión iniciada.'); return; }
+        return firebase.setDoc(firebase.doc(firebase.db, 'perfiles', uid), {
+          foto: r.dataUrl, estadoFoto: r.estado, fotoFecha: new Date().toISOString()
+        }, { merge: true }).then(function () {
+          avisar('Foto guardada. La revisión de la IA queda pendiente.');
+        });
+      }).catch(function (err) {
+        if (err && err.rechazo) avisar(err.message, true);
+        else if (err && err.code === 'permission-denied') avisar('Firestore no permitió guardar la foto. Hay que ajustar las reglas de la colección perfiles.', true);
+        else avisar('No se pudo guardar la foto. Revise su conexión e intente de nuevo.', true);
+      });
+    });
+
+    /* ---------- Borrador por categoría ---------- */
+    var texto = $('relato-text'), categoria = $('categoria'), tBorrador;
+    function clave() { return 'omnih_borrador_' + (uid || 'local') + '_' + categoria.value; }
+    function cargarBorrador() {
+      try { texto.value = localStorage.getItem(clave()) || ''; } catch (e) { texto.value = ''; }
+      $('status-autosave').textContent = texto.value ? 'Borrador recuperado de este dispositivo' : 'Borrador vacío';
+    }
+    function guardarBorrador() {
+      clearTimeout(tBorrador);
+      tBorrador = setTimeout(function () {
+        try { localStorage.setItem(clave(), texto.value); $('status-autosave').textContent = 'Borrador guardado en este dispositivo'; }
+        catch (e) { $('status-autosave').textContent = 'No se pudo guardar el borrador'; }
+      }, 500);
+    }
+    texto.addEventListener('input', guardarBorrador);
+    categoria.addEventListener('change', cargarBorrador);
+
+    /* ---------- Escribir / Conversar ---------- */
+    function pestana(escribir) {
+      $('panelEscribir').hidden = !escribir; $('panelConversar').hidden = escribir;
+      $('tabEscribir').classList.toggle('activa', escribir); $('tabEscribir').setAttribute('aria-selected', String(escribir));
+      $('tabConversar').classList.toggle('activa', !escribir); $('tabConversar').setAttribute('aria-selected', String(!escribir));
+    }
+    $('tabEscribir').addEventListener('click', function () { pestana(true); });
+    $('tabConversar').addEventListener('click', function () { pestana(false); });
+
+    /* ---------- Adjuntar ---------- */
+    $('btnAdjuntar').addEventListener('click', function () { $('inputAdjunto').click(); });
+    $('inputAdjunto').addEventListener('change', function (e) {
+      Array.prototype.forEach.call(e.target.files, function (a) {
+        var kb = a.size < 1048576 ? Math.max(1, Math.round(a.size / 1024)) + ' KB' : (a.size / 1048576).toFixed(1) + ' MB';
+        var li = document.createElement('li'); li.textContent = a.name + ' (' + kb + '), sin certificar';
+        $('adjuntos').appendChild(li);
+      });
+      e.target.value = '';
+    });
+
+    /* ---------- Dictado por voz ---------- */
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null;
+    $('btnVoz').addEventListener('click', function () {
+      if (!SR) { avisar('Este navegador no permite dictar por voz. Pruebe con Chrome.', true); return; }
+      if (rec) { rec.stop(); return; }
+      pestana(true);
+      rec = new SR(); rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = false;
+      rec.onresult = function (e) {
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            texto.value += (texto.value && !/\s$/.test(texto.value) ? ' ' : '') + e.results[i][0].transcript.trim();
+          }
+        }
+        guardarBorrador();
+      };
+      rec.onerror = function () { avisar('El dictado se interrumpió. Revise el permiso del micrófono.', true); };
+      rec.onend = function () { rec = null; $('btnVoz').classList.remove('grabando'); $('btnVoz').textContent = 'Dictar por voz'; };
+      rec.start();
+      $('btnVoz').classList.add('grabando'); $('btnVoz').textContent = 'Detener dictado';
+    });
+
+    /* ---------- Orientación: ir a la autobiografía ---------- */
+    $('btnIrAuto').addEventListener('click', function () {
+      categoria.value = 'autobiografia'; cargarBorrador(); pestana(true); alternarIA(false); texto.focus();
+    });
+
+    /* ---------- Sellar en la Cápsula (se conserva el puente original) ---------- */
+    $('btnSendToCapsule').addEventListener('click', function () {
+      var t = texto.value.trim();
+      if (!t) { avisar('Escriba su testimonio antes de enviarlo a la Cápsula.', true); texto.focus(); return; }
+      try {
+        sessionStorage.setItem('omnih_capsula_activa', JSON.stringify({
+          autor: $('user-display-name').textContent, categoria: categoria.value,
+          testimonio: t, fecha_sellado: new Date().toISOString()
+        }));
+      } catch (e) {}
+      location.href = 'capsula.html';
+    });
+
+    /* ---------- Conexión con Firebase (no se intenta al abrir el archivo directo) ---------- */
+    cargarBorrador();
+    if (location.protocol === 'file:') {
+      avisar('Vista previa: está viendo la página sin conexión. Los botones de pantalla funcionan, pero nada se guarda en su cuenta.');
+      return;
+    }
+    Promise.all([
+      import('./js/firebase-init.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js')
+    ]).then(function (m) {
+      var app = m[1].getApp(), auth = m[2].getAuth(app), fs = m[3];
+      firebase = { db: fs.getFirestore(app), doc: fs.doc, setDoc: fs.setDoc };
+      m[2].onAuthStateChanged(auth, function (u) {
+        if (!u || !u.emailVerified) { location.href = 'login.html'; return; }
+        uid = u.uid;
+        var nombre = u.displayName || (u.email || '').split('@')[0] || 'Preservador';
+        $('user-display-name').textContent = nombre;
+        cargarBorrador();
+        fs.getDoc(fs.doc(firebase.db, 'perfiles', uid)).then(function (s) {
+          if (!s.exists()) return;
+          var p = s.data();
+          $('user-display-name').textContent = p.nombre || p.nombres || p.displayName || nombre;
+          if (p.foto) mostrarFoto(p.foto, p.estadoFoto);
+        }).catch(function () {});
+        fs.getDocs(fs.query(fs.collection(firebase.db, 'perfiles', uid, 'archivo'), fs.orderBy('fecha')))
+          .then(function (q) { q.docs.forEach(function (d) { var p = d.data(); agregarPieza(p.miniatura, p.titulo, false); }); })
+          .catch(function () {});
+      });
+    }).catch(function () {
+      avisar('No se pudo conectar con Firebase desde esta página. Revise que existan js/firebase-init.js y su conexión.', true);
+    });
+  })();
   </script>
+  <script type="module" src="js/sesion.js"></script>
 </body>
 </html>
