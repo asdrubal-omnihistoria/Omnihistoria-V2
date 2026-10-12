@@ -671,5 +671,43 @@ async function buildPdf(rec,name,size,hash){
     para(L.how);
     para(L.prevail);
   };
+     writeLang(PDF_TXT.en,PDF_TXT.en.title);
+  doc.addPage();y=TOP;
+  writeLang(PDF_TXT.es,PDF_TXT.es.title+' (versión en español, informativa)');
+  // Cabecera y pie con el sello OMNIH en TODAS las páginas
+  const N=doc.getNumberOfPages();
+  for(let i=1;i<=N;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(197,160,89);doc.text('OMNIH',M,16);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,116,139);
+    doc.text('Certificate of Document Integrity',W-M,16,{align:'right'});
+    doc.setDrawColor(197,160,89);doc.setLineWidth(0.5);doc.line(M,19,W-M,19);
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);doc.line(M,283,W-M,283);
+    doc.setFontSize(7.5);doc.setTextColor(100,116,139);
+    doc.text('OMNIH | SHA-256 '+huella.substring(0,14)+'...'+huella.slice(-8)+' | opentimestamps.org',M,288);
+    doc.text('Page '+i+' of '+N,W-M,288,{align:'right'});
+  }
+  return doc.output('blob');
+}
+
+/* ================= EXPORTACIÓN / COPIA / COMPARTIR / NUBE ================= */
+function miniBtn(txt,style,fn){
+  const b=document.createElement('button');
+  b.type='button';b.className='action-mini-btn';
+  if(style)b.style.cssText=style;
+  b.textContent=txt;
+  b.addEventListener('click',()=>fn(b));
+  return b;
+}
+function actaTexto(rec,name,hash){
+  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
+  return ['OMNIH | Certificado de Integridad Documental',
+    'Documento: '+name,
+    'SHA-256: 0x'+hash,
+    'Fecha (UTC): '+fechaCert(rec),
+    'Emisor: '+(c.signer||'OMNIH')+(c.signature_algo?' ['+c.signature_algo+']':''),
+    'Anclaje Bitcoin (OpenTimestamps): '+(o.status||'pendiente'),
+    'Verificación independiente: https://opentimestamps.org'].join('\n');
+}
 
    
