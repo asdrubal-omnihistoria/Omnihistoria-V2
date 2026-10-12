@@ -790,7 +790,55 @@ function addExtras(rec,file,hash){
     const t=b.textContent;b.disabled=true;b.textContent=busy;st.textContent='';
     try{await fn();}catch(e){setSt('⚠️ '+e.message,false);}
     finally{b.disabled=false;b.textContent=t;}
-  };
-     
+}
+
+     const actions=document.createElement('div');
+  actions.className='banner-actions';
+
+  actions.append(
+    miniBtn('📦 Paquete de certificación (.zip)','font-weight:800;color:#854d0e;background:#fffdf5;border-color:#c5a059;',(b)=>run(b,'Preparando paquete...',async()=>{
+      await loadScript(JSZIP_URL);
+      const zip=new window.JSZip();
+      zip.file(base+'.certificate.pdf',await getPdf());
+      zip.file(base+'.proof.json',jsonBlob());
+      zip.file(base+'.ledger.json',bitacoraBlob());
+      const ob=otsBlob();if(ob)zip.file(base+'.ots',ob);
+      const incluido=file.size<=PACK_MAX_ORIGINAL;
+      if(incluido)zip.file(file.name,file);
+      zip.file('README.txt',packReadme(rec,base,hash,file.name,incluido));
+      const out=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+      downloadBlob(out,base+'.omnih-package.zip');
+      setSt('✓ Paquete descargado ('+(out.size/1024).toFixed(0)+' KB).'+(incluido?'':' El original no se incluyó por su tamaño.'),true);
+    })),
+    miniBtn('📄 Certificado (.pdf)','font-weight:700;color:var(--text-blue);',(b)=>run(b,'Generando PDF...',async()=>{
+      downloadBlob(await getPdf(),base+'.certificado.pdf');
+    })),
+    miniBtn('📥 Acta Legal (.json)','font-weight:700;color:var(--text-blue);',()=>{
+      downloadBlob(jsonBlob(),base+'.proof.json');
+    }),
+    miniBtn('⚓ Recibo Bitcoin (.ots)','font-weight:700;color:var(--success-green);background:#f0fdf4;border-color:#bbf7d0;',()=>{
+      const blob=(()=>{try{return otsBlob();}catch(e){return null;}})();
+      if(!blob){setSt('⚠️ El recibo OTS no está disponible en este ciclo.',false);return;}
+      downloadBlob(blob,base+'.ots');
+    }),
+    miniBtn('📋 Copiar acta','font-weight:700;',async(b)=>{
+      const txt=actaTexto(rec,base,hash);
+      try{await navigator.clipboard.writeText(txt);}
+      catch(e){
+        const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;';
+        document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+      }
+      const t=b.textContent;b.textContent='✓ Copiado';setTimeout(()=>{b.textContent=t;},1600);
+    }),
+    miniBtn('📤 Compartir / Guardar','font-weight:700;',(b)=>run(b,'Preparando...',async()=>{
+      const pdf=await getPdf();
+      const lista=[new File([pdf],base+'.certificado.pdf',{type:'application/pdf'}),new File([jsonBlob()],base+'.proof.json',{type:'application/json'})];
+      const ob=otsBlob();if(ob)lista.push(new File([ob],base+'.ots',{type:'application/octet-stream'}));
+      let files=lista.concat([file]);
+      if(!(navigator.canShare&&navigator.canShare({files:files})))files=lista;
+      if(!(navigator.share&&navigator.canShare&&navigator.canShare({files:files})))throw new Error('Este navegador no permite compartir archivos; use los botones de descarga.');
+      try{await navigator.share({files:files,title:'Certificación OMNIH'});}
+      catch(e){if(e.name==='AbortError')return;if(e.name==='NotAllowedError')throw new Error('El sistema pidió un nuevo toque: pulse de nuevo el botón.');throw e;}
+    })),  
 
    
