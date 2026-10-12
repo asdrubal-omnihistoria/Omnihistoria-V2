@@ -464,3 +464,41 @@ function cleanDocNode(node){
     cleanDocNode(ch);
   });
      }
+async function showDocx(file,myId){
+  const info=document.createElement('div');info.className='doc-note';info.textContent='Cargando vista del documento Word...';
+  whiteScreen.appendChild(info);
+  try{
+    await loadScript(MAMMOTH_URL);
+    const res=await window.mammoth.convertToHtml({arrayBuffer:await file.arrayBuffer()});
+    if(myId!==analysisId)return;
+    const parsed=new DOMParser().parseFromString('<div>'+res.value+'</div>','text/html');
+    const root=parsed.body.firstChild;
+    cleanDocNode(root);
+    const box=document.createElement('div');box.className='doc-html';
+    while(root.firstChild)box.appendChild(root.firstChild);
+    if(!box.textContent.trim()&&!box.querySelector('img'))throw new Error('el documento no tiene contenido legible');
+    whiteScreen.appendChild(box);
+    info.textContent='Vista de lectura del Word (formato simplificado). La huella SHA-256 corresponde al archivo original.';
+  }catch(err){
+    if(myId!==analysisId)return;
+    previewFail(info,err);
+  }
+}
+
+/* ================= RENDER DE ARCHIVO IMPORTADO ================= */
+async function renderFile(file){
+  if(!file)return;
+  const ok=await analyze(file);
+  if(!ok)return;
+  clearDisplayZone();
+  displayMode='file';
+  whiteScreen.contentEditable='false';   // el documento mostrado no se edita
+  removeHint();
+  const myId=analysisId;
+
+  const fType=file.type||'';
+  const fName=file.name.toLowerCase();
+  const isPdf=fType.includes('pdf')||fName.endsWith('.pdf');
+  const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg|heic)$/i);
+  const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg|mov)$/i);
+  const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/i);
