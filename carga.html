@@ -840,5 +840,29 @@ function addExtras(rec,file,hash){
       try{await navigator.share({files:files,title:'Certificación OMNIH'});}
       catch(e){if(e.name==='AbortError')return;if(e.name==='NotAllowedError')throw new Error('El sistema pidió un nuevo toque: pulse de nuevo el botón.');throw e;}
     })),  
+       miniBtn('☁️ Archivar en nube (Drive)','font-weight:700;color:var(--text-blue);',(b)=>run(b,'Archivando...',async()=>{
+      const token=await driveToken();
+      const folder=await driveFolder(token);
+      const pre=hash.substring(0,10)+'_';
+      const paquete=[[file.name,file],[base+'.proof.json',jsonBlob()],[base+'.bitacora.json',bitacoraBlob()],[base+'.certificado.pdf',await getPdf()]];
+      const ob=otsBlob();if(ob)paquete.push([base+'.ots',ob]);
+      for(const p of paquete)await driveUpload(token,folder,pre+p[0],p[1]);
+      rec.archivo={drive:true,carpeta:OMNIH_CONFIG.DRIVE_FOLDER,fecha:new Date().toISOString()};
+      saveRec(hash,rec);
+      setSt('✓ Archivados '+paquete.length+' archivos en Drive, carpeta "'+OMNIH_CONFIG.DRIVE_FOLDER+'".',true);
+    }))
+  );
+  const note=document.createElement('small');
+  note.style.cssText='color:var(--text-muted);display:block;margin-top:6px;';
+  note.append('Auditable independientemente en ');
+  const link=document.createElement('a');
+  link.href='https://opentimestamps.org';link.target='_blank';link.rel='noopener';
+  link.style.color='var(--text-blue)';link.textContent='opentimestamps.org';
+  note.appendChild(link);
+  resultBanner.append(actions,st,note);
+  // Precarga el SDK de Google para que el popup de autorización no se bloquee.
+  if(OMNIH_CONFIG.GOOGLE_CLIENT_ID)loadScript('https://accounts.google.com/gsi/client').catch(()=>{});
+}
+
 
    
