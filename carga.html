@@ -897,4 +897,39 @@ btnCertificar.addEventListener('click',async()=>{
         timestamp_local:new Date().toISOString(),signer:'OMNIH (modo local)',signature:null,signature_algo:null,
         anchors:[{type:'opentimestamps',status:'pendiente',calendar:ots.calendar,ots_receipt_base64:ots.base64}]};
     }
-   
+   const otsInfo=(cert.anchors&&cert.anchors[0])||{};
+    const ts=new Date().toISOString();
+    const led=await ledgerAppend(hashSnap,fileSnap.name,ts);
+    registrarHash(hashSnap,fileSnap.name);
+    registrado=true;
+    const rec={cert:cert,timestamp:ts,modo:modo,ledger:led};
+    saveRec(hashSnap,rec);
+    if(currentHash!==hashSnap)return;   // el usuario cargó otro documento mientras tanto
+
+    const sig=(cert.signature||'');
+    const sigPreview=sig?sig.substring(0,28)+'...'+sig.substring(sig.length-12):'(no firmado)';
+    const lineas=[
+      {strong:true,text:modo==='servidor'?'✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO':'✓ SELLO DE TIEMPO EMITIDO (modo local, sin firma OMNIH-CA)',br:true},
+      {text:'Documento: '+(cert.filename||fileSnap.name)+' ('+(cert.size||fileSnap.size)+' bytes)',br:true},
+      {text:'Fecha y hora (UTC): '+fechaCert(rec),br:true},
+      {text:'Emisor: '+(cert.signer||'OMNIH-CA')+' ['+(cert.signature_algo||(modo==='servidor'?'Ed25519':'sin firma'))+']',br:true},
+      {text:'Estado Blockchain: '+(otsInfo.status||'pendiente'),br:true},
+      {text:'Firma JWS: '+sigPreview,br:true}
+    ];
+    if(modo==='local')lineas.push({text:'Aviso: '+avisoServidor+'. Se selló directamente en OpenTimestamps; vuelva a certificar con el servidor para obtener la firma OMNIH-CA.',br:true});
+    showBanner('success',lineas);
+    addExtras(rec,fileSnap,hashSnap);
+    btnCertificar.classList.remove('btn-highlight-certify');
+    btnVerificar.disabled=false;
+    btnVerificar.classList.add('btn-highlight-verify');
+  }catch(err){
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ERROR EN EL ANCLAJE',br:true},
+      {text:'No se pudo completar el sellado: '+err.message+'.'}
+    ]);
+  }finally{
+    btnCertificar.textContent=LABEL_CERTIFICAR;
+    btnCertificar.disabled=registrado||!currentHash;   // ya certificado: no se vuelve a certificar
+    if(!registrado)refreshButtons();
+  }
+});
