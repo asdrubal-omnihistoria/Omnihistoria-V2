@@ -550,3 +550,55 @@ btnLimpiar.addEventListener('click',()=>{
   fileCard.classList.remove('active');
   hideBanner();refreshButtons();
 });
+
+ // Galería (image/*,video/*: selector de fotos del teléfono)
+btnGaleria.addEventListener('click',()=>galleryInput.click());
+[fileInput,galleryInput].forEach((inp)=>{
+  inp.addEventListener('change',async(e)=>{
+    const f=e.target.files&&e.target.files[0];
+    if(f)await renderFile(f);
+    inp.value='';   // permite volver a elegir el mismo archivo
+  });
+});
+['dragenter','dragover'].forEach(evt=>{
+  btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--accent-gold)';btnDropzone.style.backgroundColor='#fdfbf7';});
+  whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--accent-gold)';});
+});
+['dragleave','drop'].forEach(evt=>{
+  btnDropzone.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();btnDropzone.style.borderColor='var(--btn-border)';btnDropzone.style.backgroundColor='#ffffff';});
+  whiteScreen.addEventListener(evt,(e)=>{e.preventDefault();e.stopPropagation();whiteScreen.style.borderColor='var(--border-color)';});
+});
+const handleDrop=async(e)=>{
+  e.preventDefault();e.stopPropagation();
+  if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length)await renderFile(e.dataTransfer.files[0]);
+};
+btnDropzone.addEventListener('drop',handleDrop);
+whiteScreen.addEventListener('drop',handleDrop);
+// Soltar fuera de las zonas no debe abrir el archivo y sacar al usuario de la página.
+['dragover','drop'].forEach(evt=>window.addEventListener(evt,(e)=>e.preventDefault()));
+
+/* ================= OPENTIMESTAMPS (directo a calendarios públicos) ================= */
+const OTS_MAGIC=Uint8Array.of(0x00,0x4f,0x70,0x65,0x6e,0x54,0x69,0x6d,0x65,0x73,0x74,0x61,0x6d,0x70,0x73,0x00,0x00,0x50,0x72,0x6f,0x6f,0x66,0x00,0xbf,0x89,0xe2,0xe8,0x84,0xe8,0x92,0x94);
+async function stampOTS(hashHex){
+  const digest=hexToBytes(hashHex);
+  let lastErr=null;
+  for(const cal of OMNIH_CONFIG.OTS_CALENDARS){
+    try{
+      const ctrl=new AbortController();
+      const t=setTimeout(()=>ctrl.abort(),15000);
+      const r=await fetch(cal+'/digest',{method:'POST',headers:{'Accept':'application/vnd.opentimestamps.v1','Content-Type':'application/x-www-form-urlencoded'},body:digest,signal:ctrl.signal});
+      clearTimeout(t);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const ts=new Uint8Array(await r.arrayBuffer());
+      // Archivo .ots = cabecera + versión 1 + op SHA256 (0x08) + digest + árbol de timestamp del calendario
+      const out=new Uint8Array(OTS_MAGIC.length+34+ts.length);
+      out.set(OTS_MAGIC,0);
+      out[OTS_MAGIC.length]=0x01;
+      out[OTS_MAGIC.length+1]=0x08;
+      out.set(digest,OTS_MAGIC.length+2);
+      out.set(ts,OTS_MAGIC.length+34);
+      return{calendar:cal,base64:bytesToB64(out)};
+    }catch(e){lastErr=e;}
+  }
+  throw new Error('Ningún calendario OpenTimestamps respondió'+(lastErr?' ('+lastErr.message+')':''));
+}                         
