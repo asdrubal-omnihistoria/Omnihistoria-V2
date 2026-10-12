@@ -502,3 +502,51 @@ async function renderFile(file){
   const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg|heic)$/i);
   const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg|mov)$/i);
   const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/i);
+
+     refreshButtons();   // la huella ya está calculada: se puede certificar aunque la vista tarde
+  if(isPdf){
+    await showPdf(file,myId);
+  }else if(isDocx){
+    await showDocx(file,myId);
+  }else if(isImg){
+    currentObjectUrl=URL.createObjectURL(file);
+    const img=document.createElement('img');
+    img.src=currentObjectUrl;
+    whiteScreen.appendChild(img);
+  }else if(isVid){
+    currentObjectUrl=URL.createObjectURL(file);
+    const vid=document.createElement('video');
+    vid.src=currentObjectUrl;vid.controls=true;
+    whiteScreen.appendChild(vid);
+  }else if(isTxt){
+    try{whiteScreen.innerText=await file.text();}
+    catch(errText){whiteScreen.innerText=`Archivo de texto: ${file.name}\nTamaño: ${(file.size/1024).toFixed(1)} KB`;}
+  }else{
+    const ext=(fName.split('.').pop()||'doc').toUpperCase();
+    const box=document.createElement('div');
+    box.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-dark);text-align:center;padding:24px;';
+    const big=document.createElement('div');
+    big.style.cssText='font-size:48px;opacity:0.06;font-weight:800;';
+    big.textContent=ext;
+    const nm=document.createElement('div');
+    nm.style.cssText='font-weight:800;font-size:0.95rem;';
+    nm.textContent=file.name;
+    const tp=document.createElement('div');
+    tp.style.cssText='color:var(--text-muted);font-size:0.85rem;';
+    tp.textContent='Tipo: '+(fType||'Desconocido');
+    box.append(big,nm,tp);
+    whiteScreen.appendChild(box);
+  }
+  refreshButtons();   // estado "ya certificado" SOLO por hash SHA-256
+}
+
+btnLimpiar.addEventListener('click',()=>{
+  analysisId++;
+  clearDisplayZone();
+  displayMode='empty';
+  whiteScreen.contentEditable='true';
+  restoreHint();
+  currentFile=null;currentHash='';
+  fileCard.classList.remove('active');
+  hideBanner();refreshButtons();
+});
