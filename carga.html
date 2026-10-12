@@ -365,4 +365,42 @@ async function analyze(file){
     return false;
   }
      }
+
+/* ================= PANTALLA BLANCA: NOTAS ================= */
+whiteScreen.addEventListener('focus',removeHint);
+// Pegar siempre como texto plano (evita HTML ajeno dentro de la pantalla).
+whiteScreen.addEventListener('paste',(e)=>{
+  if(displayMode==='file')return;
+  e.preventDefault();
+  const t=(e.clipboardData||window.clipboardData).getData('text/plain');
+  document.execCommand('insertText',false,t);
+});
+// Las notas escritas también pueden certificarse (se tratan como nota-tecnica.txt).
+async function syncNotes(){
+  if(displayMode==='file')return;
+  if(screenHint&&screenHint.parentNode===whiteScreen)return;
+  const txt=whiteScreen.innerText.replace(/\r\n/g,'\n').trim();
+  if(!txt){
+    displayMode='empty';analysisId++;
+    currentFile=null;currentHash='';fileCard.classList.remove('active');refreshButtons();
+    return;
+  }
+  displayMode='notes';
+  const f=new File([txt],'nota-tecnica.txt',{type:'text/plain'});
+  if(await analyze(f))refreshButtons();
+}
+whiteScreen.addEventListener('input',()=>{
+  if(displayMode==='file')return;
+  clearTimeout(notesTimer);notesTimer=setTimeout(syncNotes,500);
+});
+
+/* ================= VISTAS PREVIAS: PDF Y WORD ================= */
+// La vista previa es solo de lectura. La huella SHA-256 siempre se calcula del archivo original.
+const PDFJS_URL='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const MAMMOTH_URL='https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
+const PDF_MAX_PAGES=40;
+function previewFail(info,err){
+  info.textContent='No se pudo mostrar la vista previa ('+((err&&err.message)||'error')+'). El documento sí fue analizado: su huella SHA-256 es válida y puede certificarse.';
+     }
      
