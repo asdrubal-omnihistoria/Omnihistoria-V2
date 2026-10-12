@@ -709,5 +709,42 @@ function actaTexto(rec,name,hash){
     'Anclaje Bitcoin (OpenTimestamps): '+(o.status||'pendiente'),
     'Verificación independiente: https://opentimestamps.org'].join('\n');
 }
+    // Driver de Google Drive (token OAuth con alcance mínimo drive.file)
+async function driveToken(){
+  if(!OMNIH_CONFIG.GOOGLE_CLIENT_ID)throw new Error('Falta configurar GOOGLE_CLIENT_ID en OMNIH_CONFIG (Google Cloud > Credenciales).');
+  await loadScript('https://accounts.google.com/gsi/client');
+  return new Promise((res,rej)=>{
+    const tc=window.google.accounts.oauth2.initTokenClient({
+      client_id:OMNIH_CONFIG.GOOGLE_CLIENT_ID,
+      scope:'https://www.googleapis.com/auth/drive.file',
+      callback:(r)=>r.error?rej(new Error(r.error)):res(r.access_token),
+      error_callback:(e)=>rej(new Error((e&&e.type)||'Autorización cancelada'))
+    });
+    tc.requestAccessToken({prompt:''});
+  });
+}
+async function driveFetch(token,url,opts){
+  const o=opts||{};
+  const r=await fetch(url,{method:o.method||'GET',body:o.body,headers:Object.assign({Authorization:'Bearer '+token},o.headers||{})});
+  if(!r.ok)throw new Error('Drive respondió HTTP '+r.status);
+  return r.json();
+}
+async function driveFolder(token){
+  const q=encodeURIComponent("name='"+OMNIH_CONFIG.DRIVE_FOLDER+"' and mimeType='application/vnd.google-apps.folder' and trashed=false");
+  const l=await driveFetch(token,'https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name)&spaces=drive');
+  if(l.files&&l.files.length)return l.files[0].id;
+  const c=await driveFetch(token,'https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:OMNIH_CONFIG.DRIVE_FOLDER,mimeType:'application/vnd.google-apps.folder'})});
+  return c.id;
+}
+async function driveUpload(token,folderId,name,blob){
+  const b='omnih'+Math.random().toString(36).slice(2);
+  const meta=JSON.stringify({name:name,parents:[folderId]});
+  const body=new Blob(['--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+b+'\r\nContent-Type: '+(blob.type||'application/octet-stream')+'\r\n\r\n',blob,'\r\n--'+b+'--']);
+  return driveFetch(token,'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:body});
+}
+
+function packReadme(rec,base,hash,origName,incluido){
+  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
+  return [ 
 
    
