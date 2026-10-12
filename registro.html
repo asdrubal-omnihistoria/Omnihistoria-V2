@@ -442,6 +442,7 @@
   const togglePwdBtn = document.getElementById('btnTogglePassword');
   const entityButtons = document.querySelectorAll('.btn-entity');
   const labelIdentificador = document.getElementById('label-identificador');
+  const inputIdentificador = document.getElementById('input-identificador');
   const entityTypeInput = document.getElementById('entity-type');
   const formError = document.getElementById('formError');
 
@@ -459,6 +460,7 @@
     formError.classList.remove('active');
   }
 
+  // Sincronización del Selector de Entidad: Individual vs Colectivo (clubes, promociones, gremios)
   entityButtons.forEach(button => {
     button.addEventListener('click', () => {
       entityButtons.forEach(btn => {
@@ -470,9 +472,14 @@
 
       const type = button.getAttribute('data-type');
       entityTypeInput.value = type;
-      labelIdentificador.textContent = type === 'colectivo'
-        ? 'Identificador del Colectivo / Organización'
-        : 'Identificador de Usuario';
+
+      if (type === 'colectivo') {
+        labelIdentificador.textContent = 'Nombre del Colectivo / Club / Organización';
+        inputIdentificador.placeholder = 'Ej: Club Náutico, Promoción 2026, Asociación Civil';
+      } else {
+        labelIdentificador.textContent = 'Identificador de Usuario';
+        inputIdentificador.placeholder = 'Ej: usuario123';
+      }
     });
   });
 
@@ -494,22 +501,32 @@
     btnSubmit.disabled = true;
     btnSubmit.textContent = 'ESTABLECIENDO REGISTRO...';
 
+    const tipoSeleccionado = entityTypeInput.value;
+    const nombreEntidad = inputIdentificador.value.trim();
+
     const payload = {
-      username: document.getElementById('input-identificador').value.trim(),
+      username: nombreEntidad,
       email: document.getElementById('input-email').value.trim().toLowerCase(),
       territorio: document.getElementById('select-territorio').value,
-      entidad: entityTypeInput.value,
+      tipo: tipoSeleccionado,
+      // Si es colectivo, la entidad asume el nombre del colectivo para que viaje a 'central'
+      entidad: tipoSeleccionado === 'colectivo' ? nombreEntidad.toUpperCase() : 'INDIVIDUAL',
       password: pwdInput.value
     };
 
     try {
+      // Registrar en Firebase y Firestore guardando tipo y entidad institucional
       await registrarPersona(payload.email, payload.password, {
         username: payload.username,
         territorio: payload.territorio,
+        tipo: payload.tipo,
         entidad: payload.entidad
       });
 
-      try { localStorage.setItem('omnih_user_residence', payload.territorio); } catch (_) {}
+      try { 
+        localStorage.setItem('omnih_user_residence', payload.territorio);
+        localStorage.setItem('omnih_last_entity_type', payload.tipo);
+      } catch (_) {}
 
       pwdInput.value = '';
       modalEmailDisplay.textContent = payload.email;
@@ -517,7 +534,7 @@
       btnContinuar.focus();
     } catch (err) {
       console.error('Error registrando entidad:', err);
-      mostrarError(mensajeError(err));
+      mostrarError(mensajeError ? mensajeError(err) : (err.message || 'Error al procesar el registro'));
       btnSubmit.disabled = false;
       btnSubmit.textContent = 'ESTABLECER REGISTRO';
     }
@@ -525,4 +542,4 @@
 </script>
 
 </body>
-  </html>
+</html>
