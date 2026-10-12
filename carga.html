@@ -864,5 +864,37 @@ function addExtras(rec,file,hash){
   if(OMNIH_CONFIG.GOOGLE_CLIENT_ID)loadScript('https://accounts.google.com/gsi/client').catch(()=>{});
 }
 
-
+/* ================= CERTIFICACIÓN ================= */
+btnCertificar.addEventListener('click',async()=>{
+  if(!currentFile||!currentHash)return;
+  const fileSnap=currentFile,hashSnap=currentHash;
+  let registrado=false;
+  btnCertificar.disabled=true;
+  btnCertificar.textContent='Anclando en Bitcoin y OMNIH-CA...';
+  hideBanner();
+  try{
+    let cert=null,modo='servidor',avisoServidor='';
+    try{
+      const response=await fetch('/api/certify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          hash:`0x${hashSnap}`,
+          filename:fileSnap.name,
+          size:fileSnap.size,
+          entidad:sesion.entidad||null,       // valores completos, no el texto recortado del encabezado
+          convenio:sesion.convenio||null
+        })
+      });
+      if(!response.ok)throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
+      cert=await response.json();
+    }catch(errSrv){
+      // Respaldo: sello de tiempo OpenTimestamps directo, SIN firma de OMNIH-CA.
+      avisoServidor=errSrv.message;modo='local';
+      const ots=await stampOTS(hashSnap);
+      cert={version:'omnih-local-1',hash:'0x'+hashSnap,filename:fileSnap.name,size:fileSnap.size,
+        entidad:sesion.entidad||null,convenio:sesion.convenio||null,
+        timestamp_local:new Date().toISOString(),signer:'OMNIH (modo local)',signature:null,signature_algo:null,
+        anchors:[{type:'opentimestamps',status:'pendiente',calendar:ots.calendar,ots_receipt_base64:ots.base64}]};
+    }
    
