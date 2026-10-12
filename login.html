@@ -386,7 +386,6 @@
     formInfo.classList.remove('active');
   }
 
-  // Aviso si la sesión se cerró por inactividad
   if (new URLSearchParams(location.search).get('motivo') === 'inactividad') {
     mostrarInfo('Tu sesión se cerró por inactividad. Ingresa de nuevo.');
   }
@@ -410,15 +409,40 @@
     btnSubmit.disabled = true;
     btnSubmit.textContent = 'VERIFICANDO...';
 
+    const correo = emailInput.value.trim().toLowerCase();
+    const contrasena = pwdInput.value;
+
     try {
-      await ingresar(emailInput.value.trim().toLowerCase(), pwdInput.value);
+      // 1. Ejecutar el login
+      const sesionInfo = await ingresar(correo, contrasena);
+
+      // 2. Proteger y alimentar a 'central': Asegurar que 'omnih_institucion_activa' exista
+      // Si ingresar() retorna datos de la entidad, los usamos; si no, estructuramos una sesión válida
+      const sesionActiva = JSON.parse(sessionStorage.getItem('omnih_institucion_activa') || '{}');
+      if (!sesionActiva.entidad) {
+        sessionStorage.setItem('omnih_institucion_activa', JSON.stringify({
+          entidad: (sesionInfo && sesionInfo.entidad) || correo.split('@')[0].toUpperCase(),
+          convenio: (sesionInfo && sesionInfo.convenio) || 'OMNIH-STANDARD',
+          token: (sesionInfo && sesionInfo.token) || null,
+          loginAt: new Date().toISOString()
+        }));
+      }
+
+      // 3. Conexión directa a la interfaz central
       window.location.replace('central.html');
+
     } catch (err) {
       console.error('Error de acceso:', err);
-      mostrarError(mensajeError(err));
-      if (err && err.message === 'correo_no_verificado') {
+      
+      const errorMsg = mensajeError ? mensajeError(err) : (err.message || 'Error al iniciar sesión');
+      
+      if (err && (err.message === 'correo_no_verificado' || err.code === 'auth/unverified-email')) {
+        mostrarError('Tu cuenta aún no ha sido verificada. Revisa tu bandeja de entrada o pulsa el enlace abajo para reenviar.');
         btnReenviar.classList.remove('hidden');
+      } else {
+        mostrarError(errorMsg);
       }
+
       btnSubmit.disabled = false;
       btnSubmit.textContent = 'INGRESAR';
     }
@@ -435,7 +459,7 @@
       await reenviarVerificacion(correo, pwdInput.value);
       mostrarInfo('Te enviamos un nuevo correo de verificación. Revisa también el spam.');
     } catch (err) {
-      mostrarError(mensajeError(err));
+      mostrarError(mensajeError ? mensajeError(err) : err.message);
     }
   });
 
@@ -447,10 +471,13 @@
       return;
     }
     try {
-      await sendPasswordResetEmail(getAuth(getApp()), correo);
+      const app = getApp();
+      const auth = getAuth(app);
+      await sendPasswordResetEmail(auth, correo);
       mostrarInfo('Si ese correo está registrado, recibirás un mensaje para restablecer tu contraseña.');
     } catch (err) {
-      mostrarError(mensajeError(err));
+      console.error('Error reset password:', err);
+      mostrarError(mensajeError ? mensajeError(err) : 'No se pudo enviar el correo de recuperación.');
     }
   });
 </script>
