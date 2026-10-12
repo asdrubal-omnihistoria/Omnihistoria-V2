@@ -315,4 +315,54 @@ if(paramEntidad||paramConvenio){
   if(paramConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${paramConvenio.substring(0,8)}...`;
   sessionStorage.setItem('omnih_institucion_activa',JSON.stringify({entidad:paramEntidad,convenio:paramConvenio,token:paramToken}));
   // El token no debe quedarse en la barra de direcciones / historial.
-  try{history.replaceState(null,'',window.location.pa
+  try{history.replaceState(null,'',window.location.pathname);}catch(e){}
+}else{
+  const s=JSON.parse(sessionStorage.getItem('omnih_institucion_activa')||'{}');
+  if(s.entidad){sesion.entidad=s.entidad;document.getElementById('topNombreEntidad').textContent=s.entidad.substring(0,24).toUpperCase();}
+  if(s.convenio){sesion.convenio=s.convenio;sesion.token=s.token||null;document.getElementById('topHashConvenio').textContent=`CONV: 0x${s.convenio.substring(0,8)}...`;}
+  else{
+    const queue=JSON.parse(localStorage.getItem('omnih_convenios_queue')||'[]');
+    if(queue.length>0&&queue[0].entidad){
+      sesion.entidad=queue[0].entidad;
+      document.getElementById('topNombreEntidad').textContent=queue[0].entidad.substring(0,24).toUpperCase();
+     if(queue[0].folioConvenio){sesion.convenio=queue[0].folioConvenio;document.getElementById('topHashConvenio').textContent=`CONV: 0x${queue[0].folioConvenio.substring(0,8)}...`;}
+    }
+  }
+}
+}catch(e){}
+     /* ================= ESTADO DE BOTONES / ANÁLISIS ================= */
+function refreshButtons(){
+  btnCertificar.classList.remove('btn-highlight-certify');
+  btnVerificar.classList.remove('btn-highlight-verify');
+  if(!currentFile||!currentHash){btnCertificar.disabled=true;btnVerificar.disabled=true;return;}
+  if(!hashEstaCertificado(currentHash)){
+    btnCertificar.disabled=false;btnVerificar.disabled=true;
+    btnCertificar.classList.add('btn-highlight-certify');
+  }else{
+    btnCertificar.disabled=true;btnVerificar.disabled=false;
+    btnVerificar.classList.add('btn-highlight-verify');
+  }
+}
+async function analyze(file){
+  const myId=++analysisId;
+  currentFile=file;currentHash='';
+  docName.textContent=file.name;
+  docSize.textContent=`${(file.size/1024).toFixed(1)} KB`;
+  fileCard.classList.add('active');
+  docHash.textContent='Calculando matriz binaria SHA-256...';
+  hideBanner();refreshButtons();
+  try{
+    const hex=await sha256Hex(await file.arrayBuffer());
+    if(myId!==analysisId)return false;
+    currentHash=hex;
+    docHash.textContent=`SHA-256: 0x${hex}`;
+    return true;
+  }catch(err){
+    if(myId!==analysisId)return false;
+    currentHash='';
+    docHash.textContent='Error al calcular hash binario.';
+    showBanner('alert',[{strong:true,text:'No se pudo calcular el SHA-256 del documento.'}]);
+    return false;
+  }
+     }
+     
