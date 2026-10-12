@@ -746,5 +746,51 @@ async function driveUpload(token,folderId,name,blob){
 function packReadme(rec,base,hash,origName,incluido){
   const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
   return [ 
+       'OMNIH CERTIFICATION PACKAGE / PAQUETE DE CERTIFICACIÓN OMNIH',
+    '==========================================================',
+    '',
+    'Document / Documento: '+(c.filename||origName),
+    'SHA-256: 0x'+hash,
+    'Date (UTC) / Fecha (UTC): '+fechaCert(rec),
+    'Bitcoin anchor / Anclaje Bitcoin: '+(o.status||'pending / pendiente'),
+    '',
+    'FILES / ARCHIVOS',
+    '- '+base+'.certificate.pdf : certificate, English prevails / certificado, prevalece el inglés',
+    '- '+base+'.proof.json     : machine-readable proof / prueba legible por máquina',
+    '- '+base+'.ledger.json    : chained ledger entry / entrada de la bitácora encadenada',
+    '- '+base+'.ots            : OpenTimestamps receipt (pending until Bitcoin confirms) / recibo OpenTimestamps (pendiente hasta que Bitcoin confirme)',
+    '- '+(incluido?origName+' : original document, unmodified / documento original, sin modificar':'(the original is not included because of its size / el original no se incluye por su tamaño)'),
+    '',
+    'HOW TO VERIFY / CÓMO VERIFICAR',
+    '1. Compute the SHA-256 of the original file (for example: sha256sum "'+origName+'") and compare it with the fingerprint above.',
+    '   Calcule el SHA-256 del archivo original y compárelo con la huella indicada.',
+    '2. Upload the .ots receipt and the original file at https://opentimestamps.org to validate the Bitcoin anchoring.',
+    '   Suba el recibo .ots y el original en https://opentimestamps.org para validar el anclaje en Bitcoin.',
+    '',
+    'The original document is never modified by OMNIH: any change to its bytes changes its fingerprint.',
+    'OMNIH nunca modifica el documento original: cualquier cambio en sus bytes cambia su huella.',
+    ''
+  ].join('\n');
+}
+
+function addExtras(rec,file,hash){
+  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
+  const base=c.filename||file.name;
+  const size=c.size||file.size;
+  let pdfBlob=null;
+  const getPdf=async()=>{if(!pdfBlob)pdfBlob=await buildPdf(rec,base,size,hash);return pdfBlob;};
+  const jsonBlob=()=>new Blob([JSON.stringify(c,null,2)],{type:'application/json'});
+  const bitacoraBlob=()=>new Blob([JSON.stringify({hash:'0x'+hash,timestamp:rec.timestamp,modo:rec.modo,bitacora:rec.ledger||null},null,2)],{type:'application/json'});
+  const otsBlob=()=>o.ots_receipt_base64?new Blob([b64ToBytes(o.ots_receipt_base64)],{type:'application/octet-stream'}):null;
+
+  const st=document.createElement('div');
+  st.style.cssText='margin-top:8px;font-size:0.78rem;';
+  const setSt=(text,ok)=>{st.textContent=text;st.style.color=ok?'#166534':'#991b1b';};
+  const run=async(b,busy,fn)=>{
+    const t=b.textContent;b.disabled=true;b.textContent=busy;st.textContent='';
+    try{await fn();}catch(e){setSt('⚠️ '+e.message,false);}
+    finally{b.disabled=false;b.textContent=t;}
+  };
+     
 
    
