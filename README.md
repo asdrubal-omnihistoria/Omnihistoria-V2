@@ -1,5 +1,5 @@
 # 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA.
-### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Descentralizado (DAO), para la Preservación Histórica y testimonial de la existencia de las personas  humanas, sin distinciones por derecho de unicidad, en formato digital, certificado.
+### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Descentralizado (DAO), para la Preservación Histórica y testimonial de la existencia de las personas  humanas, sin distinciones y por derecho de unicidad, en formato digital certificado.
 
 En un sentido general.
 > *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital humano frente al paso del tiempo, en un contexto tecnológico signado por la inteligencia artificial, en consecuencia:"la historia del futuro se escribe en tiempo presente".
@@ -16,7 +16,7 @@ La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo históric
 ## 🎯 MISIÓN
 Proporcionar una plataforma interactiva, segura y descentralizada que transforme archivos valiosos, muchas veces dispersos, en obras  estructurada bajo los estándares clásicos usuales, con información y compendios permanentemente actualizados tecnológicamente y de accesibilidad controlada.
 
-La misión central para este nuestro tiempo, ante la falta de propiedad real de la data generada en redes sociales y la arbitrariedad de las grandes tecnologías, que destruyen al bloquear cuentas individiales o de emprendimiento, historias completas de logros, aportes filosóficos, ontológico e historiograficos, es garantizar la preservación y difusión de **fuentes Omnihistóricas (historia, tecnología y comunidad)** elaboradas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades (**teselas**) que constituye la humanidad.
+La misión central para este nuestro tiempo, ante la falta de propiedad real de la data generada en redes sociales y la arbitrariedad de las grandes tecnologías, que destruyen al bloquear cuentas individiales o de emprendimiento, historias completas de logros, aportes filosóficos, ontológico e historiograficos, es garantizar la preservación y difusión de las fuentes Omnihistoricas (historia, tecnología y comunidad) elaboradas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades (**teselas**) que constituye la humanidad.
 
 ---
 
