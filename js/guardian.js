@@ -1,17 +1,13 @@
-import "./firebase-init.js";
-import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { auth, db } from "./firebase-init.js";
 import {
-  getAuth, createUserWithEmailAndPassword, sendEmailVerification,
+  createUserWithEmailAndPassword, sendEmailVerification,
   signInWithEmailAndPassword, signOut, setPersistence,
   browserSessionPersistence, updateProfile, deleteUser,
   sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, serverTimestamp
+  doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-
-const auth = getAuth(getApp());
-const db = getFirestore(getApp());
 
 export async function registrarPersona(correo, clave, datos = {}) {
   const cred = await createUserWithEmailAndPassword(auth, correo, clave);
@@ -21,7 +17,7 @@ export async function registrarPersona(correo, clave, datos = {}) {
     }
     await setDoc(doc(db, "perfiles", cred.user.uid), {
       correo: correo.toLowerCase(),
-      tipo: datos.tipo || "persona",
+      tipo: datos.tipo || "individual",
       convenioId: datos.convenioId || null,
       username: datos.username || "",
       territorio: datos.territorio || "",
@@ -65,7 +61,7 @@ export async function ingresar(correo, clave) {
     }
   }
 
-  // Empaquetar sesión para la consola central
+  // Estructura de sesión lista para que 'central' muestre la institución/usuario
   const sesionActiva = {
     uid: cred.user.uid,
     correo: cred.user.email,
@@ -110,4 +106,4 @@ export function mensajeError(e) {
     "auth/too-many-requests": "Demasiados intentos fallidos. Intenta más tarde."
   };
   return m[code] || (e && e.message) || "Error al procesar la solicitud.";
-    }
+      }
