@@ -1,22 +1,22 @@
 # 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA.
-### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Criptográfico y Descentralizado (DAO), para la Preservación Histórica en formato digital, certificado.
+### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Descentralizado (DAO), para la Preservación Histórica y testimonial de la existencia de las personas  humanas, sin distinciones por derecho de unicidad, en formato digital, certificado.
 
-> *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital humano."*
+En un sentido general.
+> *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital humano frente al paso del tiempo, en un contexto tecnológico signado por la inteligencia artificial, en consecuencia:"la historia del futuro se escribe en tiempo presente".
+> ."*
 
 ---
 
 ## 📜 DEFINICIÓN Y PROPÓSITO GENERAL
 
-La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, inmutable, criptográfico, descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases**, diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general individual, familiar o social, armonizado desde la compilación de relatos y testimonios documentales e iconografico,en las diferentes etapas de la vida, constituyendo en forma permanente (presente) un legado de orden intelectual, ontológico, filosófico e historiográfico.
-
-El sistema actúa como **custodio digital certificado de alta fidelidad hermenéutica**, que salvaguarda obras, documentos, fotos, videos, registros históricos colectivos y memorias familiares frente al paso del tiempo, en un contexto tecnológico asignado por la inteligencia artificial, "la historia del futuro se escribe en tiempo presente".
+La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, inmutable, multinodal, criptográfico, descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases en 5 años**,diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general individual, familiar o social, armonizado desde la compilación de relatos y testimonios documentales e iconografico,en las diferentes etapas de la vida, constituyendo en forma permanente (presente) un legado de orden intelectual, ontológico, filosófico e historiográfico.
 
 ---
 
 ## 🎯 MISIÓN
-Proporcionar una plataforma interactiva, segura y descentralizada que transforme archivos valiosos, muchas veces dispersos, en una obra estructurada bajo los estándares clásicos usuales, con información y compendios permanentemente actualizados y de accesibilidad controlada.
+Proporcionar una plataforma interactiva, segura y descentralizada que transforme archivos valiosos, muchas veces dispersos, en obras  estructurada bajo los estándares clásicos usuales, con información y compendios permanentemente actualizados tecnológicamente y de accesibilidad controlada.
 
-La misión central para este nuestro tiempo, ante la cultura de lo efímero, la falta de propiedad real de la data generada en redes sociales y la arbitrariedad de las grandes tecnologías, es garantizar la preservación y difusión de **fuentes Omnihistóricas (historia, tecnología y comunidad)** elaboradas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades (**teselas**) que constituye la humanidad.
+La misión central para este nuestro tiempo, ante la falta de propiedad real de la data generada en redes sociales y la arbitrariedad de las grandes tecnologías, que destruyen al bloquear cuentas individiales o de emprendimiento, historias completas de logros, aportes filosóficos, ontológico e historiograficos, es garantizar la preservación y difusión de **fuentes Omnihistóricas (historia, tecnología y comunidad)** elaboradas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades (**teselas**) que constituye la humanidad.
 
 ---
 
