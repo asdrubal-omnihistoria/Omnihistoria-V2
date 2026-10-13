@@ -330,7 +330,8 @@ if(paramEntidad||paramConvenio){
   }
 }
 }catch(e){}
-     /* ================= ESTADO DE BOTONES / ANÁLISIS ================= */
+     
+/* ================= ESTADO DE BOTONES / ANÁLISIS ================= */
 function refreshButtons(){
   btnCertificar.classList.remove('btn-highlight-certify');
   btnVerificar.classList.remove('btn-highlight-verify');
@@ -959,6 +960,7 @@ btnVerificar.addEventListener('click',()=>{
     ]);
   }
 });
+
 /* ================= DICTADO POR VOZ ================= */
 let recognition=null,escuchando=false;
 if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
@@ -975,4 +977,23 @@ if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
       whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
       syncNotes();
     };
-       
+       recognition.onend=()=>{escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
+    recognition.onerror=(e)=>{
+      escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';
+      if(e&&e.error==='not-allowed')showBanner('alert',[{strong:true,text:'El navegador no tiene permiso para usar el micrófono.'}]);
+    };
+  }catch(e){}
+}
+btnVoice.addEventListener('click',()=>{
+  if(displayMode==='file'){
+    showBanner('alert',[{strong:true,text:'Hay un documento cargado.',br:true},{text:'Pulse "Quitar documento" para dictar notas en la pantalla.'}]);
+    return;
+  }
+  if(!recognition){whiteScreen.focus();return;}
+  if(escuchando){try{recognition.stop();}catch(e){}return;}
+  try{recognition.start();}catch(e){whiteScreen.focus();}
+});
+});
+</script>
+</body>
+</html>
