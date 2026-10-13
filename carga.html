@@ -933,3 +933,46 @@ btnCertificar.addEventListener('click',async()=>{
     if(!registrado)refreshButtons();
   }
 });
+
+   /* ================= VERIFICACIÓN ================= */
+btnVerificar.addEventListener('click',()=>{
+  if(!currentFile||!currentHash)return;
+  // Solo criptográfica: el hash se compara contra el registro, nunca por nombre de archivo.
+  if(hashEstaCertificado(currentHash)){
+    const rec=getRec(currentHash);
+    const lineas=[
+      {strong:true,text:'✓ DOCUMENTO ÍNTEGRO Y VÁLIDO',br:true},
+      {text:'La matriz SHA-256 de '+currentFile.name+' coincide con el registro original de la OMNIHISTORIA.'}
+    ];
+    if(rec){
+      lineas.push({br:true,text:''});
+      lineas.push({text:'Certificado el: '+fechaCert(rec)+(rec.modo==='local'?' (reloj del dispositivo + OpenTimestamps)':'')});
+      const o=(rec.cert.anchors&&rec.cert.anchors[0])||{};
+      lineas.push({text:'Estado Blockchain: '+(o.status||'pendiente')});
+    }
+    showBanner('success',lineas);
+    if(rec)addExtras(rec,currentFile,currentHash);
+  }else{
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO',br:true},
+      {text:'No se encontró registro de la matriz SHA-256 para '+currentFile.name+'. Proceda a certificarlo.'}
+    ]);
+  }
+});
+/* ================= DICTADO POR VOZ ================= */
+let recognition=null,escuchando=false;
+if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+  try{
+    const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+    recognition=new Speech();
+    recognition.lang='es-ES';
+    recognition.continuous=false;
+    recognition.onstart=()=>{escuchando=true;btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
+    recognition.onresult=(evt)=>{
+      const frase=evt.results[0][0].transcript;
+      if(displayMode==='file')return;
+      removeHint();
+      whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
+      syncNotes();
+    };
+       
