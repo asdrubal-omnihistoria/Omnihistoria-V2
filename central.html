@@ -889,4 +889,113 @@ btnCertificar.addEventListener('click',async()=>{
           convenio:sesion.convenio||null
         })
       });
+               if(!response.ok)throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
+      cert=await response.json();
+    }catch(errSrv){
+      // Respaldo: sello de tiempo OpenTimestamps directo, SIN firma de OMNIH-CA.
+      avisoServidor=errSrv.message;modo='local';
+      const ots=await stampOTS(hashSnap);
+      cert={version:'omnih-local-1',hash:'0x'+hashSnap,filename:fileSnap.name,size:fileSnap.size,
+        entidad:sesion.entidad||null,convenio:sesion.convenio||null,
+        timestamp_local:new Date().toISOString(),signer:'OMNIH (modo local)',signature:null,signature_algo:null,
+        anchors:[{type:'opentimestamps',status:'pendiente',calendar:ots.calendar,ots_receipt_base64:ots.base64}]};
+    }
+    const otsInfo=(cert.anchors&&cert.anchors[0])||{};
+    const ts=new Date().toISOString();
+    const led=await ledgerAppend(hashSnap,fileSnap.name,ts);
+    registrarHash(hashSnap,fileSnap.name);
+    registrado=true;
+    const rec={cert:cert,timestamp:ts,modo:modo,ledger:led};
+    saveRec(hashSnap,rec);
+    if(currentHash!==hashSnap)return;   // el usuario cargó otro documento mientras tanto
+
+    const sig=(cert.signature||'');
+    const sigPreview=sig?sig.substring(0,28)+'...'+sig.substring(sig.length-12):'(no firmado)';
+    const lineas=[
+      {strong:true,text:modo==='servidor'?'✓ CERTIFICACIÓN Y ANCLAJE REAL EMITIDO':'✓ SELLO DE TIEMPO EMITIDO (modo local, sin firma OMNIH-CA)',br:true},
+      {text:'Documento: '+(cert.filename||fileSnap.name)+' ('+(cert.size||fileSnap.size)+' bytes)',br:true},
+      {text:'Fecha y hora (UTC): '+fechaCert(rec),br:true},
+      {text:'Emisor: '+(cert.signer||'OMNIH-CA')+' ['+(cert.signature_algo||(modo==='servidor'?'Ed25519':'sin firma'))+']',br:true},
+      {text:'Estado Blockchain: '+(otsInfo.status||'pendiente'),br:true},
+      {text:'Firma JWS: '+sigPreview,br:true}
+    ];
+    if(modo==='local')lineas.push({text:'Aviso: '+avisoServidor+'. Se selló directamente en OpenTimestamps; vuelva a certificar con el servidor para obtener la firma OMNIH-CA.',br:true});
+    showBanner('success',lineas);
+    addExtras(rec,fileSnap,hashSnap);
+    btnCertificar.classList.remove('btn-highlight-certify');
+    btnVerificar.disabled=false;
+    btnVerificar.classList.add('btn-highlight-verify');
+  }catch(err){
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ERROR EN EL ANCLAJE',br:true},
+      {text:'No se pudo completar el sellado: '+err.message+'.'}
+    ]);
+  }finally{
+    btnCertificar.textContent=LABEL_CERTIFICAR;
+    btnCertificar.disabled=registrado||!currentHash;   // ya certificado: no se vuelve a certificar
+    if(!registrado)refreshButtons();
+  }
+});
+
+/* ================= VERIFICACIÓN ================= */
+btnVerificar.addEventListener('click',()=>{
+  if(!currentFile||!currentHash)return;
+  // Solo criptográfica: el hash se compara contra el registro, nunca por nombre de archivo.
+  if(hashEstaCertificado(currentHash)){
+    const rec=getRec(currentHash);
+    const lineas=[
+      {strong:true,text:'✓ DOCUMENTO ÍNTEGRO Y VÁLIDO',br:true},
+      {text:'La matriz SHA-256 de '+currentFile.name+' coincide con el registro original de la OMNIHISTORIA.'}
+    ];
+    if(rec){
+      lineas.push({br:true,text:''});
+      lineas.push({text:'Certificado el: '+fechaCert(rec)+(rec.modo==='local'?' (reloj del dispositivo + OpenTimestamps)':'')});
+      const o=(rec.cert.anchors&&rec.cert.anchors[0])||{};
+      lineas.push({text:'Estado Blockchain: '+(o.status||'pendiente')});
+    }
+    showBanner('success',lineas);
+    if(rec)addExtras(rec,currentFile,currentHash);
+  }else{
+    showBanner('alert',[
+      {strong:true,text:'⚠️ ALERTA FORENSE: DOCUMENTO NO CERTIFICADO O ALTERADO',br:true},
+      {text:'No se encontró registro de la matriz SHA-256 para '+currentFile.name+'. Proceda a certificarlo.'}
+    ]);
+  }
+});
+/* ================= DICTADO POR VOZ ================= */
+let recognition=null,escuchando=false;
+if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+  try{
+    const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+    recognition=new Speech();
+    recognition.lang='es-ES';
+    recognition.continuous=false;
+    recognition.onstart=()=>{escuchando=true;btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
+    recognition.onresult=(evt)=>{
+      const frase=evt.results[0][0].transcript;
+      if(displayMode==='file')return;
+      removeHint();
+      whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
+      syncNotes();
+    };
+    recognition.onend=()=>{escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
+    recognition.onerror=(e)=>{
+      escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';
+      if(e&&e.error==='not-allowed')showBanner('alert',[{strong:true,text:'El navegador no tiene permiso para usar el micrófono.'}]);
+    };
+  }catch(e){}
+}
+btnVoice.addEventListener('click',()=>{
+  if(displayMode==='file'){
+    showBanner('alert',[{strong:true,text:'Hay un documento cargado.',br:true},{text:'Pulse "Quitar documento" para dictar notas en la pantalla.'}]);
+    return;
+  }
+  if(!recognition){whiteScreen.focus();return;}
+  if(escuchando){try{recognition.stop();}catch(e){}return;}
+  try{recognition.start();}catch(e){whiteScreen.focus();}
+});
+});
+</script>
+</body>
+</html>
      
