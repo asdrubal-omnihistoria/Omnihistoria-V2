@@ -506,3 +506,242 @@
     </div>
 
           </div>
+
+      <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let paisesRegistrados = [];
+
+      // 1. Reloj UTC Oficial
+      function actualizarRelojUTC() {
+        const ahora = new Date();
+        const h = String(ahora.getUTCHours()).padStart(2, '0');
+        const m = String(ahora.getUTCMinutes()).padStart(2, '0');
+        const s = String(ahora.getUTCSeconds()).padStart(2, '0');
+        const clockElem = document.getElementById('utc-clock');
+        if (clockElem) clockElem.textContent = `TIEMPO UTC: ${h}:${m}:${s} UTC`;
+      }
+      setInterval(actualizarRelojUTC, 1000);
+      actualizarRelojUTC();
+
+      // 2. DIBUJO VECTORIAL EXACTO DE LA ROSA DE LOS VIENTOS (SU FUNCIÓN CANÓNICA)
+      function dibujarRosa(anguloOffset = 0) {
+        const canvas = document.getElementById('miRosa');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const r = (canvas.width * 0.38) * 0.70;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = '#c5a059';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(anguloOffset);
+
+        ctx.save();
+        ctx.rotate(Math.PI / 4);
+        dibujarPuntas(ctx, 4, r * 0.2, r * 0.65, '#cbd5e1', '#94a3b8');
+        ctx.restore();
+
+        dibujarPuntas(ctx, 4, r * 0.25, r * 0.9, '#d4af37', '#997a15');
+
+        ctx.font = 'bold 8px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('N', 0, -r * 0.73);
+        ctx.fillText('S', 0, r * 0.73);
+        ctx.fillText('E', r * 0.73, 0);
+        ctx.fillText('O', -r * 0.73, 0);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function dibujarPuntas(ctx, cant, rInt, rExt, cClaro, cOscuro) {
+        const paso = (Math.PI * 2) / cant;
+        for (let i = 0; i < cant; i++) {
+          const a = i * paso - Math.PI / 2;
+          const aMitad = a + paso / 2;
+          const aSig = a + paso;
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(a) * rExt, Math.sin(a) * rExt);
+          ctx.lineTo(Math.cos(aMitad) * rInt, Math.sin(aMitad) * rInt);
+          ctx.closePath();
+          ctx.fillStyle = cClaro;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(aSig) * rExt, Math.sin(aSig) * rExt);
+          ctx.lineTo(Math.cos(aMitad) * rInt, Math.sin(aMitad) * rInt);
+          ctx.closePath();
+          ctx.fillStyle = cOscuro;
+          ctx.fill();
+        }
+      }
+
+      let anguloRosa = 0;
+      dibujarRosa(0);
+      const canvasRosa = document.getElementById('miRosa');
+      if (canvasRosa) {
+        canvasRosa.addEventListener('click', () => {
+          anguloRosa += Math.PI / 4;
+          dibujarRosa(anguloRosa);
+        });
+      }
+
+      // 3. DATOS REALES: contenido.json (métricas y blog) y cartografía (globos), cada uno por separado
+      function crearEl(tag, clase, texto) {
+        const el = document.createElement(tag);
+        if (clase) el.className = clase;
+        if (texto) el.textContent = String(texto);
+        return el;
+      }
+
+      function aplicarContenido(data) {
+        // Verdad estricta: solo países reales desde contenido.json
+        if (data && data.metricas) {
+          if (Array.isArray(data.metricas.paisesParticipantes)) {
+            paisesRegistrados = data.metricas.paisesParticipantes.map(p => {
+              return typeof p === 'object' ? p : { id: String(p) };
+            });
+          }
+          if (data.metricas.almacenamientoGB) {
+            document.getElementById('val-storage').textContent = `${data.metricas.almacenamientoGB} GB`;
+          }
+          if (data.metricas.interaccionesMes) {
+            document.getElementById('val-interact').textContent = data.metricas.interaccionesMes;
+          }
+        }
+
+        // Actualizar contador del DOM
+        let userRes = null;
+        try { userRes = localStorage.getItem('omnih_user_residence'); } catch (e) {}
+        const numPaisesElem = document.getElementById('num-paises');
+        if (numPaisesElem) numPaisesElem.textContent = paisesRegistrados.length;
+        const listaSub = document.getElementById('lista-paises');
+        if (listaSub) {
+          listaSub.textContent = userRes
+            ? `Señal activa desde nodo custodio: ${userRes}`
+            : `Señales vivas en ${paisesRegistrados.length} territorios soberanos.`;
+        }
+
+        // RENDERIZADO DEL BLOG DINÁMICO (texto seguro, sin HTML inyectado)
+        const blogFeed = document.getElementById('blogFeed');
+        if (blogFeed && data && Array.isArray(data.articulos)) {
+          blogFeed.innerHTML = '';
+          data.articulos.forEach(art => {
+            const card = document.createElement('article');
+            card.className = 'blog-card';
+
+            const meta = crearEl('div', 'blog-meta-row');
+            meta.appendChild(crearEl('span', 'blog-badge-cat', art.categoria || 'FILOSOFÍA'));
+            meta.appendChild(crearEl('span', '', art.fecha || ''));
+            card.appendChild(meta);
+            card.appendChild(crearEl('h3', 'blog-card-h3', art.titulo || ''));
+            card.appendChild(crearEl('p', 'blog-card-p', art.extracto || ''));
+
+            card.addEventListener('click', () => {
+              document.getElementById('readerCategory').textContent = art.categoria || 'DOCUMENTO';
+              document.getElementById('readerTitle').textContent = art.titulo || '';
+              document.getElementById('readerDate').textContent = `Publicado: ${art.fecha || ''}`;
+              document.getElementById('readerBody').textContent = art.cuerpo || art.extracto || '';
+              document.getElementById('modalReader').classList.add('active');
+            });
+            blogFeed.appendChild(card);
+          });
+        }
+      }
+
+      // RENDERIZADO D3 CON SU EXACTA GEOMETRÍA ORIGINAL
+      function dibujarGlobos(world) {
+        const countries = topojson.feature(world, world.objects.countries);
+
+        function renderGlobe(containerId, centerLon) {
+          const width = 210, height = 210;
+          const radius = 100;
+          const projection = d3.geoOrthographic()
+            .scale(radius)
+            .translate([width / 2, height / 2])
+            .rotate([-centerLon, 0, 0]);
+
+          const path = d3.geoPath().projection(projection);
+
+          const svg = d3.select(containerId).append("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("width", "100%")
+            .attr("height", "100%");
+
+          svg.append("circle")
+            .attr("cx", width / 2).attr("cy", height / 2).attr("r", radius)
+            .attr("class", "sphere");
+
+          svg.append("path")
+            .datum(d3.geoGraticule()())
+            .attr("class", "graticule")
+            .attr("d", path);
+
+          svg.selectAll("path.land")
+            .data(countries.features)
+            .enter().append("path")
+            .attr("class", d => {
+              const dIdStr = String(d.id).padStart(3, '0');
+              const estaActivo = paisesRegistrados.some(p => {
+                const pidStr = String(p.id).padStart(3, '0');
+                return pidStr === dIdStr || String(p.id) === String(d.id);
+              });
+              return `land ${estaActivo ? 'country-active' : ''}`;
+            })
+            .attr("id", d => `country-${d.id}`)
+            .attr("d", path)
+            .append("title")
+            .text(d => d.properties?.name || `Territorio #${d.id}`);
+        }
+
+        renderGlobe("#map-west", -85);
+        renderGlobe("#map-east", 30);
+      }
+
+      // Primero el contenido (blog y métricas), después el mapa: si el mapa falla, el blog igual aparece
+      const cargarContenido = fetch('/json/contenido.json').then(r => r.json()).catch(() => null);
+      const cargarMapa = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(r => r.json());
+
+      cargarContenido
+        .then(data => { aplicarContenido(data); return cargarMapa; })
+        .then(world => dibujarGlobos(world))
+        .catch(err => { console.error('Error en carga cartográfica:', err); });
+
+      // 4. CERRAR MODAL LECTOR (botón y tecla Escape)
+      const modal = document.getElementById('modalReader');
+      const btnClose = document.getElementById('btnCloseReader');
+      if (btnClose) btnClose.addEventListener('click', () => modal.classList.remove('active'));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') modal.classList.remove('active');
+      });
+
+    });
+  </script>
+</body>
+</html>
