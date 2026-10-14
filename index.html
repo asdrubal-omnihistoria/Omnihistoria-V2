@@ -380,3 +380,129 @@
     }
   </style>
   </head>
+
+  <body>
+
+  <div class="app-frame">
+
+    <!-- CABECERA PRINCIPAL CON IDENTIDAD VECTORIAL OMNIH -->
+    <header class="top-navbar">
+      <a href="/" class="brand-logo-link" title="Portal Omnihistoria">
+        <div class="dna-box">
+          <svg viewBox="0 0 120 240" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b03a8a" />
+                <stop offset="35%" stop-color="#704fa0" />
+                <stop offset="70%" stop-color="#3b7cb3" />
+                <stop offset="100%" stop-color="#4aa47a" />
+              </linearGradient>
+              <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d95438" />
+                <stop offset="100%" stop-color="#eab308" />
+              </linearGradient>
+            </defs>
+            <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+            <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span class="text-omnih">OMNIH</span>
+      </a>
+
+      <div class="nav-actions">
+        <a href="/login" class="btn-top gold">Ingresar</a>
+        <a href="/registro" class="btn-top">Registro</a>
+      </div>
+    </header>
+
+    <div class="hud-header">
+      <span class="hud-badge">RED: <span class="status-ok">ÓPTIMA</span></span>
+      <span class="hud-badge" id="utc-clock">TIEMPO UTC: --:--:-- UTC</span>
+    </div>
+
+    <!-- ESTRUCTURA EXACTA DE LOS HEMISFERIOS -->
+    <div class="hemisphere-titles">
+      <span>HEMISFERIO OCCIDENTAL</span>
+      <span>HEMISFERIO ORIENTAL</span>
+    </div>
+
+    <div class="maps-container">
+      <div id="map-west" class="map-globe"></div>
+      <div id="map-east" class="map-globe"></div>
+    </div>
+
+    <!-- ESTRUCTURA EXACTA DE LA ROSA DE LOS VIENTOS -->
+    <div class="compass-wrapper">
+      <canvas id="miRosa" width="84" height="84" title="Rosa de los Vientos"></canvas>
+    </div>
+
+    <!-- FICHA Y MANIFIESTO -->
+    <section class="info-card">
+      <h2 class="card-title">
+        COBERTURA GLOBAL OMNIHISTORIA:<br>
+        <span id="num-paises" class="counter-number">0</span> PAÍSES INCORPORADOS
+      </h2>
+      <p class="card-sub" id="lista-paises">Esperando señales de registro...</p>
+
+      <div class="manifesto">
+        <strong>MANIFIESTO PROVISIONAL</strong><br>
+        OMNIH es un protocolo para el resguardo de la memoria digital de interés Omnihistórico y de manera inmutable, conectando personas (teselas) georreferenciadas y garantizando procesos de preservación integral, con migración tecnológica continua.
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-unit">
+          <span class="metric-lbl">Almacenamiento</span>
+          <span class="metric-val" id="val-storage">0.00 GB</span>
+          <span class="metric-lbl">(Resguardados)</span>
+        </div>
+        <div class="metric-unit">
+          <span class="metric-lbl">Inmutabilidad</span>
+          <span class="metric-val">100%</span>
+          <span class="metric-lbl">(SHA-256)</span>
+        </div>
+        <div class="metric-unit">
+          <span class="metric-lbl">Interacciones</span>
+          <span class="metric-val" id="val-interact">0</span>
+          <span class="metric-lbl">(Mes)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÁREA DE BLOG DINÁMICO -->
+    <section class="blog-section">
+      <div class="blog-title" id="blog-section-title">Aportes Filosóficos y Ontológicos</div>
+      <div class="blog-feed" id="blogFeed">
+        <!-- Renderizado dinámico desde contenido.json -->
+      </div>
+    </section>
+
+    <!-- ACCESOS INFERIORES -->
+    <div class="bottom-cta">
+      <a href="/convenio" class="btn-cta-main">Solicitud institucional de convenio</a>
+      <!-- INICIO ATAJO TEMPORAL A CARGA (borrar hasta FIN) -->
+      <a href="/carga" class="corporate-link">Acceso Corporativo e Institucional (Convenios) →</a>
+      <!-- FIN ATAJO TEMPORAL A CARGA -->
+    </div>
+
+    <!-- PIE DE PÁGINA GLOBAL -->
+    <footer>
+      <p id="footer-derechos">© 2026 Repositorio de Legado de la OMNIHISTORIA. Servicio Público Global.</p>
+      <div class="footer-links">
+        <a href="https://omnihistoria.org" target="_blank" rel="noopener">Portal Principal (.ORG)</a>
+        <a href="https://omnihistoria.io" target="_blank" rel="noopener">Recursos (.IO)</a>
+        <a href="/administrador" style="opacity: 0.6;">Consola</a>
+      </div>
+    </footer>
+
+    <!-- MODAL DE LECTURA DE ARTÍCULOS -->
+    <div class="modal-reader" id="modalReader" role="dialog" aria-modal="true">
+      <div class="reader-header">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-gold);" id="readerCategory">Categoría</span>
+        <button type="button" class="btn-close-reader" id="btnCloseReader">&times;</button>
+      </div>
+      <h3 style="font-size: 1.1rem; color: var(--text-dark); margin-bottom: 8px;" id="readerTitle">Título</h3>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px;" id="readerDate">Fecha</div>
+      <p style="font-size: 0.9rem; line-height: 1.6; color: #334155; white-space: pre-wrap;" id="readerBody">Cuerpo del artículo...</p>
+    </div>
+
+          </div>
