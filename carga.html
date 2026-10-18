@@ -20,7 +20,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .link-return{color:var(--text-blue);text-decoration:none;font-size:0.8rem;font-weight:700;}
 .link-login{color:var(--accent-gold);text-decoration:none;font-size:0.8rem;font-weight:700;}
 .link-return:hover,.link-login:hover{text-decoration:underline;}
-.convenio-identity-box{background-colo or:#fcfbf7;border:1px solid #e2d2b4;border-radius:6px;padding:3px 8px;text-align:right;}
+.convenio-identity-box{background-color:#fcfbf7;border:1px solid #e2d2b4;border-radius:6px;padding:3px 8px;text-align:right;}
 .persona-juridica{font-size:0.72rem;font-weight:800;color:var(--text-dark);text-transform:uppercase;}
 .hash-convenio{font-size:0.65rem;font-weight:700;color:var(--accent-gold);font-family:ui-monospace,monospace;}
 .sub-header-gold{text-align:center;font-size:0.92rem;font-weight:800;letter-spacing:0.05em;color:var(--accent-gold);text-transform:uppercase;margin:2px 0 2px;}
@@ -503,7 +503,7 @@ async function renderFile(file){
   const isImg=fType.includes('image')||fName.match(/\.(jpg|jpeg|png|webp|gif|svg|heic)$/i);
   const isVid=fType.includes('video')||fName.match(/\.(mp4|webm|ogg|mov)$/i);
   const isTxt=fType.startsWith('text/')||fName.match(/\.(txt|json|csv|md)$/i);
-
+  const isDocx=fName.endsWith('.docx')||fType.includes('wordprocessingml');
      refreshButtons();   // la huella ya está calculada: se puede certificar aunque la vista tarde
   if(isPdf){
     await showPdf(file,myId);
