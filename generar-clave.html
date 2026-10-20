@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generar clave OMNIH</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #f4f6f8; color: #1a2b3c; }
+  .tarjeta { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+  h1 { font-size: 1.2rem; margin-top: 0; }
+  button { width: 100%; padding: 14px; margin: 8px 0; font-size: 1rem; border: 0; border-radius: 8px; background: #1b4f8a; color: #fff; }
+  button.sec { background: #e6edf5; color: #1b4f8a; }
+  textarea { width: 100%; height: 170px; font-family: monospace; font-size: 12px; box-sizing: border-box; }
+  .aviso { background: #fff4e5; border-left: 4px solid #e69500; padding: 10px; font-size: .9rem; margin: 10px 0; }
+  #estado { font-size: .95rem; margin: 6px 0; }
+  .oculto { display: none; }
+</style>
+</head>
+<body>
+<div class="tarjeta">
+  <h1>Generar clave de firma OMNIH</h1>
+  <div class="aviso">La clave se crea en este teléfono y no se envía a ningún servidor. Cuando termine, borre este archivo del repositorio.</div>
+  <button id="btnGenerar">Generar clave</button>
+  <div id="estado"></div>
+
+  <div id="resultado" class="oculto">
+    <h3>Clave privada (SECRETA)</h3>
+    <textarea id="privada" readonly></textarea>
+    <button id="btnPrivada">Copiar clave privada</button>
+
+    <h3>Clave pública (se puede mostrar)</h3>
+    <textarea id="publica" readonly></textarea>
+    <button class="sec" id="btnPublica">Copiar clave pública</button>
+  </div>
+</div>
+
+<script>
+  function aPem(buffer, etiqueta) {
+    var bytes = new Uint8Array(buffer);
+    var bin = '';
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    var b64 = btoa(bin);
+    var lineas = b64.match(/.{1,64}/g).join('\n');
+    return '-----BEGIN ' + etiqueta + '-----\n' + lineas + '\n-----END ' + etiqueta + '-----\n';
+  }
+
+  function copiar(id, aviso) {
+    var campo = document.getElementById(id);
+    campo.select();
+    campo.setSelectionRange(0, 99999);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    if (navigator.clipboard && !ok) {
+      navigator.clipboard.writeText(campo.value).then(function () {
+        document.getElementById('estado').textContent = aviso;
+      });
+      return;
+    }
+    document.getElementById('estado').textContent = ok ? aviso : 'No se pudo copiar solo: mantenga pulsado el texto y elija Copiar.';
+  }
+
+  document.getElementById('btnGenerar').addEventListener('click', async function () {
+    var estado = document.getElementById('estado');
+    try {
+      var par = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+      var priv = await crypto.subtle.exportKey('pkcs8', par.privateKey);
+      var pub = await crypto.subtle.exportKey('spki', par.publicKey);
+      document.getElementById('privada').value = aPem(priv, 'PRIVATE KEY');
+      document.getElementById('publica').value = aPem(pub, 'PUBLIC KEY');
+      document.getElementById('resultado').classList.remove('oculto');
+      estado.textContent = 'Clave generada. Copie la privada y péguela en Vercel.';
+    } catch (e) {
+      estado.textContent = 'Su navegador no soporta esta función (Ed25519). Actualice Chrome o avíseme.';
+    }
+  });
+
+  document.getElementById('btnPrivada').addEventListener('click', function () {
+    copiar('privada', 'Clave privada copiada. Péguela en Vercel.');
+  });
+  document.getElementById('btnPublica').addEventListener('click', function () {
+    copiar('publica', 'Clave pública copiada.');
+  });
+</script>
+</body>
+  </html>
