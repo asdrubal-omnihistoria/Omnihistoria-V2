@@ -887,7 +887,14 @@ btnCertificar.addEventListener('click',async()=>{
         })()
       });
       if(!response.ok)throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
-      cert=await response.json();
+      const data=await response.json();
+      const pr=data.proof||{};
+      cert={version:'omnih-ca-2',hash:data.hash,filename:data.filename,size:data.size,
+        entidad:sesion.entidad||null,convenio:sesion.convenio||null,
+        timestamp_local:pr.signed_at,signed_at:pr.signed_at,
+        signer:pr.signer,signature:pr.signature,signature_algo:pr.signature_algo,
+        public_key:pr.public_key,
+        anchors:[{type:'opentimestamps',status:'pendiente',calendar:'https://a.pool.opentimestamps.org',ots_receipt_base64:data.ots_receipt_base64}]};
     }catch(errSrv){
       // Respaldo: sello de tiempo OpenTimestamps directo, SIN firma de OMNIH-CA.
       avisoServidor=errSrv.message;modo='local';
