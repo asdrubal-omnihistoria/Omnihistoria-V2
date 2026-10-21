@@ -878,14 +878,13 @@ btnCertificar.addEventListener('click',async()=>{
     try{
       const response=await fetch('/api/certify',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          hash:`0x${hashSnap}`,
-          filename:fileSnap.name,
-          size:fileSnap.size,
-          entidad:sesion.entidad||null,       // valores completos, no el texto recortado del encabezado
-          convenio:sesion.convenio||null
-        })
+        body:(()=>{
+          const fd=new FormData();
+          fd.append('file',fileSnap,fileSnap.name);
+          fd.append('entidad',sesion.entidad||'');
+          fd.append('convenio',sesion.convenio||'');
+          return fd;
+        })()
       });
       if(!response.ok)throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
       cert=await response.json();
