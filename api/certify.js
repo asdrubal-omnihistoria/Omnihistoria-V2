@@ -2,7 +2,7 @@
 // Flujo: archivo real → hash recalculado por el servidor → sello OTS (Bitcoin)
 //        → acta firmada Ed25519 (JWS)
 // Variables de entorno (Vercel):
-//   OMNIH_PRIVATE_KEY   (PEM Ed25519 — OBLIGATORIA)
+//   OMNIH_PRIVATE_KEY   (PEM Ed25519 PKCS8 — OBLIGATORIA)
 //   OMNIH_PUBLIC_KEY    (PEM SPKI — opcional, se deriva de la privada)
 import crypto from 'node:crypto';
 
@@ -17,6 +17,21 @@ const OTS_HEADER = Buffer.from(
 );
 
 /* ---------------- Clave soberana Ed25519 ---------------- */
+// Reconstruye un PEM válido aunque Vercel/el teléfono hayan cambiado
+// los saltos de línea por espacios, o haya comillas, o falte la cabecera.
+function normalizePem(raw, defaultLabel) {
+  let s = String(raw).trim().replace(/^["']+|["']+$/g, '');
+  s = s.replace(/\\r/g, '').replace(/\\n/g, '\n');
+  const m = /-----BEGIN ([A-Z ]+)-----/.exec(s);
+  const label = m ? m[1].trim() : defaultLabel;
+  const body = s
+    .replace(/-----BEGIN [A-Z ]+-----/g, '')
+    .replace(/-----END [A-Z ]+-----/g, '')
+    .replace(/[^A-Za-z0-9+/=]/g, '');
+  if (!body) throw new Error('la variable está vacía o no contiene una clave');
+  return `-----BEGIN ${label}-----\n${body.match(/.{1,64}/g).join('\n')}\n-----END ${label}-----\n`;
+}
+
 let keyPair = null;
 function getKeyPair() {
   if (keyPair) return keyPair;
@@ -24,11 +39,31 @@ function getKeyPair() {
   if (!raw) {
     throw new Error('OMNIH_PRIVATE_KEY no configurada. Defínala en las variables de entorno de Vercel.');
   }
-  const pem = raw.replace(/\\n/g, '\n').trim();
-  const privateKey = crypto.createPrivateKey(pem);
-  const publicKey = process.env.OMNIH_PUBLIC_KEY
-    ? crypto.createPublicKey(process.env.OMNIH_PUBLIC_KEY.replace(/\\n/g, '\n').trim())
-    : crypto.createPublicKey(privateKey);
+
+  let privateKey;
+  try {
+    privateKey = crypto.createPrivateKey(normalizePem(raw, 'PRIVATE KEY'));
+  } catch (e) {
+    throw new Error(
+      'OMNIH_PRIVATE_KEY no se pudo leer (' + e.message +
+      '). Debe ser una clave privada Ed25519 en formato PEM PKCS8 ("BEGIN PRIVATE KEY").'
+    );
+  }
+  if (privateKey.asymmetricKeyType !== 'ed25519') {
+    throw new Error(
+      'OMNIH_PRIVATE_KEY es de tipo "' + privateKey.asymmetricKeyType + '"; se requiere Ed25519.'
+    );
+  }
+
+  let publicKey;
+  try {
+    publicKey = process.env.OMNIH_PUBLIC_KEY
+      ? crypto.createPublicKey(normalizePem(process.env.OMNIH_PUBLIC_KEY, 'PUBLIC KEY'))
+      : crypto.createPublicKey(privateKey);
+  } catch (e) {
+    publicKey = crypto.createPublicKey(privateKey);
+  }
+
   keyPair = { privateKey, publicKey };
   return keyPair;
 }
@@ -184,5 +219,4 @@ export default async function handler(req, res) {
     console.error('Fatal certify:', error);
     return res.status(500).json({ error: `Fallo crítico de backend: ${error.message}` });
   }
-   }
-
+    }
