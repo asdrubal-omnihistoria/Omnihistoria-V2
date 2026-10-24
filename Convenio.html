@@ -178,3 +178,213 @@ input:focus,select:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 2
 </fieldset>
 
 <!-- ===== FIN DE LA PARTE 1: la parte 2 se pega justo debajo de esta línea ===== -->
+<fieldset>
+<legend>3. Representante institucional</legend>
+
+<div class="campo">
+  <label for="rnombre">Nombre del representante</label>
+  <input type="text" id="rnombre" maxlength="120" autocomplete="name">
+  <p class="error">Escriba el nombre completo.</p>
+</div>
+
+<div class="campo">
+  <label for="rcargo">Cargo en la institución</label>
+  <input type="text" id="rcargo" maxlength="100" autocomplete="organization-title">
+  <p class="ayuda">Por ejemplo director, rector, secretario general.</p>
+  <p class="error">Escriba el cargo.</p>
+</div>
+
+<div class="campo">
+  <label for="rcorreo">Correo del representante</label>
+  <input type="email" id="rcorreo" maxlength="120">
+  <p class="ayuda">Debe ser del mismo dominio que el correo oficial de la institución.</p>
+  <p class="error">Use un correo del mismo dominio que el correo oficial.</p>
+</div>
+
+<div class="campo">
+  <label for="rtel">Teléfono del representante</label>
+  <input type="tel" id="rtel" placeholder="+58 412 0000000">
+  <p class="ayuda">Incluya el código de país, con el signo +.</p>
+  <p class="error">Escriba el teléfono con código de país.</p>
+</div>
+</fieldset>
+
+<fieldset>
+<legend>4. Compromisos</legend>
+
+<div class="juridico notranslate" translate="no">
+
+<div class="check" id="c_protocolo">
+  <input type="checkbox" id="protocolo">
+  <label for="protocolo">El representante se compromete a formar parte del protocolo OMNIH y a cumplirlo.</label>
+</div>
+
+<div class="check" id="c_facultad">
+  <input type="checkbox" id="facultad">
+  <label for="facultad">Declaro que tengo facultad para representar a la institución y que puedo acreditarlo si se me solicita.</label>
+</div>
+
+<div class="check" id="c_consent">
+  <input type="checkbox" id="consent">
+  <label for="consent">Solicito formalmente convenio para certificar documentos institucionales, para su inmutabilidad y verificación de integridad cuando se requiera, y declaro que los datos entregados son veraces.</label>
+</div>
+
+<div class="check" id="c_terminos">
+  <input type="checkbox" id="terminos">
+  <label for="terminos">Acepto los <a href="/terminos" target="_blank" rel="noopener">Términos de uso</a> y la <a href="/privacidad" target="_blank" rel="noopener">Política de privacidad</a>.</label>
+</div>
+
+</div>
+</fieldset>
+
+<button type="submit" class="boton" id="enviar">Enviar solicitud</button>
+<p class="aviso" id="aviso" role="status" aria-live="polite"></p>
+
+</form>
+</div>
+
+<div id="pantalla-exito" class="exito">
+  <h2>Solicitud recibida</h2>
+  <p>Enviamos un enlace de certificación a <strong id="correo-enviado"></strong>.</p>
+  <p>Abra ese enlace para certificar el correo. Revise también la carpeta de correo no deseado.</p>
+  <p>Cuando los administradores aprueben el convenio, recibirá en ese mismo correo su contraseña de convenios y el acceso.</p>
+  <a class="volver" href="/">← Volver al inicio</a>
+</div>
+
+<p class="pie">OMNIH · Omnihistoria</p>
+</main>
+
+</div>
+
+<!-- ===== FIN DE LA PARTE 2: la parte 3 (script) se pega justo debajo de esta línea ===== -->
+
+  <script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var t0 = Date.now();
+
+  /* ---- países: el valor guardado es un código fijo; el nombre lo pone el navegador ---- */
+  var CODIGOS = ('AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW').split(' ');
+  var nombres = null;
+  try { nombres = new Intl.DisplayNames(['es'], { type: 'region' }); } catch (e) {}
+  var lista = CODIGOS.map(function (c) {
+    var n = c;
+    try { if (nombres) { n = nombres.of(c) || c; } } catch (e) {}
+    return { c: c, n: n };
+  }).sort(function (a, b) { return a.n.localeCompare(b.n, 'es'); });
+  lista.forEach(function (p) {
+    var o = document.createElement('option');
+    o.value = p.c;
+    o.textContent = p.n;
+    $('pais').appendChild(o);
+  });
+
+  /* ---- reglas de validación ---- */
+  var LIBRES = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','outlook.com','outlook.es','live.com','yahoo.com','yahoo.es','icloud.com','aol.com','proton.me','protonmail.com','gmx.com','yandex.com','mail.com'];
+  var reCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var reTel = /^\+\d[\d\s().-]{6,18}$/;
+  var reWeb = /^https:\/\/[^\s\/]+\.[^\s\/]{2,}(\/\S*)?$/i;
+  function dominio(c) { return c.split('@')[1] || ''; }
+  function val(id) { return $(id).value.trim(); }
+  function marca(id, malo) {
+    var caja = $(id).closest('.campo') || $(id).closest('.check');
+    if (caja) { caja.classList.toggle('mal', malo); }
+    return !malo;
+  }
+  function revisar() {
+    var ok = true;
+    var primero = null;
+    var correo = val('correo').toLowerCase();
+    var rcorreo = val('rcorreo').toLowerCase();
+    var reglas = [
+      ['nombre', val('nombre').length < 3],
+      ['tipo', !val('tipo')],
+      ['idlegal', val('idlegal').length < 4],
+      ['web', !reWeb.test(val('web'))],
+      ['correo', !reCorreo.test(correo) || LIBRES.indexOf(dominio(correo)) > -1],
+      ['tel', !reTel.test(val('tel'))],
+      ['pais', !val('pais')],
+      ['region', val('region').length < 2],
+      ['ciudad', val('ciudad').length < 2],
+      ['direccion', val('direccion').length < 5],
+      ['rnombre', val('rnombre').length < 3],
+      ['rcargo', val('rcargo').length < 2],
+      ['rcorreo', !reCorreo.test(rcorreo) || dominio(rcorreo) !== dominio(correo)],
+      ['rtel', !reTel.test(val('rtel'))],
+      ['protocolo', !$('protocolo').checked],
+      ['facultad', !$('facultad').checked],
+      ['consent', !$('consent').checked],
+      ['terminos', !$('terminos').checked]
+    ];
+    reglas.forEach(function (r) {
+      if (!marca(r[0], r[1])) {
+        ok = false;
+        if (!primero) { primero = r[0]; }
+      }
+    });
+    if (primero) { $(primero).focus(); }
+    return ok;
+  }
+
+  /* ---- envío ---- */
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var aviso = $('aviso');
+    var boton = $('enviar');
+    aviso.className = 'aviso';
+    aviso.textContent = '';
+    if (!revisar()) {
+      aviso.className = 'aviso mal';
+      aviso.textContent = 'Revise los campos marcados.';
+      return;
+    }
+    var datos = {
+      institution: {
+        name: val('nombre'), type: val('tipo'), legalId: val('idlegal'),
+        website: val('web'), email: val('correo').toLowerCase(), phone: val('tel')
+      },
+      location: {
+        country: val('pais'), region: val('region'),
+        city: val('ciudad'), address: val('direccion')
+      },
+      representative: {
+        name: val('rnombre'), title: val('rcargo'),
+        email: val('rcorreo').toLowerCase(), phone: val('rtel')
+      },
+      consents: { protocol: true, authority: true, request: true, terms: true },
+      language: navigator.language || 'es',
+      trap: $('sitio_extra').value,
+      elapsed: Date.now() - t0
+    };
+    boton.disabled = true;
+    aviso.textContent = 'Enviando…';
+    fetch('/api/solicitar-convenio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          return { ok: r.ok, j: j };
+        });
+      })
+      .then(function (res) {
+        if (!res.ok) { throw new Error(res.j.message || 'No se pudo enviar la solicitud.'); }
+        $('correo-enviado').textContent = datos.institution.email;
+        $('pantalla-form').style.display = 'none';
+        $('pantalla-exito').style.display = 'block';
+        window.scrollTo(0, 0);
+      })
+      .catch(function (err) {
+        aviso.className = 'aviso mal';
+        aviso.textContent = err.message || 'Error de conexión. Intente de nuevo.';
+        boton.disabled = false;
+      });
+  });
+})();
+</script>
+
+<script src="/js/traductor.js" defer></script>
+</body>
+</html>
