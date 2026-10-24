@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solicitud institucional de convenio · OMNIH</title>
+<style>
+/* ===== COLORES Y LETRA (se igualan con login.html cuando lo pegue) ===== */
+:root{
+  --oro:#c9a84c;
+  --oro-osc:#8f741a;
+  --verde:#2f7d5b;
+  --azul:#1f4e8c;
+  --fondo:#0b1420;
+  --papel:#ffffff;
+  --tinta:#1d2733;
+  --suave:#5d6978;
+  --linea:#d9d2bf;
+  --campo:#faf8f2;
+  --error:#b3402f;
+  --fuente:Georgia,'Times New Roman',serif;
+}
+/* ===== FIN COLORES ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#05090f}
+body{font-family:var(--fuente);color:var(--tinta)}
+.marco{
+  width:100%;max-width:480px;min-height:100vh;margin:0 auto;
+  background:var(--papel);box-shadow:0 0 40px rgba(0,0,0,.6);
+}
+.cabecera{
+  background:var(--fondo);text-align:center;
+  padding:26px 18px 20px;border-bottom:3px solid var(--oro);
+}
+.cabecera .sello{color:var(--oro);font-size:2rem;letter-spacing:.35em;padding-left:.35em}
+.cabecera .lema{color:#a9b4c2;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;margin-top:4px}
+.cabecera .eslogan{color:var(--oro);font-style:italic;font-size:.95rem;line-height:1.4;margin-top:12px}
+.cuerpo{padding:20px 20px 44px}
+.volver{color:var(--azul);font-size:.82rem;text-decoration:none}
+h1{
+  color:var(--tinta);font-size:1.35rem;font-weight:normal;
+  margin:16px 0 8px;padding-bottom:10px;border-bottom:1px solid var(--linea);
+}
+.intro{color:var(--suave);font-size:.9rem;line-height:1.55;margin-bottom:22px}
+fieldset{border:1px solid var(--linea);border-radius:10px;padding:16px 14px 6px;margin-bottom:20px}
+legend{padding:0 8px;color:var(--oro-osc);font-size:.95rem;letter-spacing:.04em}
+.campo{margin-bottom:15px}
+label{display:block;font-size:.82rem;color:var(--tinta);margin-bottom:5px}
+input[type=text],input[type=email],input[type=url],input[type=tel],select{
+  width:100%;padding:11px 12px;background:var(--campo);color:var(--tinta);
+  border:1px solid var(--linea);border-radius:8px;font:inherit;font-size:.95rem;
+}
+input:focus,select:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 2px rgba(201,168,76,.3)}
+.ayuda{font-size:.74rem;color:var(--suave);margin-top:4px;line-height:1.4}
+.error{display:none;font-size:.76rem;color:var(--error);margin-top:4px}
+.campo.mal .error{display:block}
+.campo.mal input,.campo.mal select{border-color:var(--error)}
+.check{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;font-size:.86rem;line-height:1.5}
+.check input{margin-top:4px;accent-color:var(--verde);flex:0 0 auto}
+.check label{margin:0;font-size:.86rem}
+.check.mal label{color:var(--error)}
+.check a{color:var(--azul)}
+.boton{
+  width:100%;padding:14px;border:0;border-radius:10px;cursor:pointer;
+  background:linear-gradient(135deg,var(--verde),var(--azul));
+  color:#fff;font:inherit;font-size:1rem;letter-spacing:.05em;
+}
+.boton:disabled{opacity:.5;cursor:not-allowed}
+.aviso{margin-top:14px;font-size:.85rem;line-height:1.5;text-align:center}
+.aviso.mal{color:var(--error)}
+.trampa{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.exito{display:none;text-align:center;padding:36px 6px}
+.exito h2{color:var(--oro-osc);font-weight:normal;font-size:1.3rem;margin-bottom:14px}
+.exito p{color:var(--suave);line-height:1.6;font-size:.92rem;margin-bottom:12px}
+.pie{margin-top:28px;text-align:center;color:var(--suave);font-size:.72rem}
+</style>
+</head>
+<body>
+<div class="marco">
+
+<header class="cabecera">
+  <div class="sello">OMNIH</div>
+  <div class="lema">Protocolo · Omnihistoria</div>
+  <div class="eslogan notranslate" translate="no">From the present to the future, everyone's story</div>
+</header>
+
+<main class="cuerpo">
+<a class="volver" href="/">← Volver al inicio</a>
+
+<div id="pantalla-form">
+<h1>Solicitud institucional de convenio</h1>
+<p class="intro">Complete los datos de su institución. Recibirá un enlace en el correo oficial para certificarlo; sin ese paso el convenio no puede avanzar.</p>
+
+<form id="form" novalidate autocomplete="on">
+
+<div class="trampa" aria-hidden="true">
+  <label>No llenar<input type="text" id="sitio_extra" tabindex="-1" autocomplete="off"></label>
+</div>
+
+<fieldset>
+<legend>1. La institución</legend>
+
+<div class="campo">
+  <label for="nombre">Nombre de la institución</label>
+  <input type="text" id="nombre" maxlength="150" autocomplete="organization">
+  <p class="error">Escriba el nombre completo.</p>
+</div>
+
+<div class="campo">
+  <label for="tipo">Tipo de institución</label>
+  <select id="tipo">
+    <option value="">Seleccione…</option>
+    <option value="university">Universidad o centro educativo</option>
+    <option value="archive">Archivo, biblioteca o museo</option>
+    <option value="ngo">Organización sin fines de lucro (ONG)</option>
+    <option value="public">Entidad pública o gobierno</option>
+    <option value="company">Empresa privada</option>
+    <option value="guild">Colegio profesional o gremio</option>
+    <option value="other">Otra</option>
+  </select>
+  <p class="error">Elija un tipo.</p>
+</div>
+
+<div class="campo">
+  <label for="idlegal">Identificador legal o fiscal</label>
+  <input type="text" id="idlegal" maxlength="40">
+  <p class="ayuda">Por ejemplo RUC, NIT, RFC, RIF o el que use su país.</p>
+  <p class="error">Escriba el identificador.</p>
+</div>
+
+<div class="campo">
+  <label for="web">Web oficial</label>
+  <input type="url" id="web" placeholder="https://www.suinstitucion.org" autocomplete="url">
+  <p class="error">Escriba una dirección que empiece con https://</p>
+</div>
+
+<div class="campo">
+  <label for="correo">Correo oficial de la institución</label>
+  <input type="email" id="correo" maxlength="120" autocomplete="email">
+  <p class="ayuda">A este correo llegará el enlace de certificación. No use Gmail, Hotmail ni correos personales.</p>
+  <p class="error">Escriba un correo institucional válido.</p>
+</div>
+
+<div class="campo">
+  <label for="tel">Teléfono de la institución (referencial)</label>
+  <input type="tel" id="tel" placeholder="+58 212 0000000" autocomplete="tel">
+  <p class="ayuda">Incluya el código de país, con el signo +.</p>
+  <p class="error">Escriba el teléfono con código de país.</p>
+</div>
+</fieldset>
+
+<fieldset>
+<legend>2. Ubicación</legend>
+
+<div class="campo">
+  <label for="pais">País</label>
+  <select id="pais"><option value="">Seleccione…</option></select>
+  <p class="error">Elija el país.</p>
+</div>
+
+<div class="campo">
+  <label for="region">Región, estado o provincia</label>
+  <input type="text" id="region" maxlength="80">
+  <p class="error">Escriba la región.</p>
+</div>
+
+<div class="campo">
+  <label for="ciudad">Ciudad</label>
+  <input type="text" id="ciudad" maxlength="80" autocomplete="address-level2">
+  <p class="error">Escriba la ciudad.</p>
+</div>
+
+<div class="campo">
+  <label for="direccion">Dirección</label>
+  <input type="text" id="direccion" maxlength="200" autocomplete="street-address">
+  <p class="error">Escriba la dirección.</p>
+</div>
+</fieldset>
+
+<!-- ===== FIN DE LA PARTE 1: la parte 2 se pega justo debajo de esta línea ===== -->
