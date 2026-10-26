@@ -290,3 +290,169 @@
 </div>
 
 <!-- ===== FIN DE LA PARTE 2: la parte 3 (script y traductor) se pega justo debajo de esta línea ===== -->
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var t0 = Date.now();
+
+  /* ---- países: el valor guardado es un código fijo; el nombre lo pone el navegador ---- */
+  var CODIGOS = ('AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW').split(' ');
+  var nombres = null;
+  try { nombres = new Intl.DisplayNames(['es'], { type: 'region' }); } catch (e) {}
+  var lista = CODIGOS.map(function (c) {
+    var n = c;
+    try { if (nombres) { n = nombres.of(c) || c; } } catch (e) {}
+    return { c: c, n: n };
+  }).sort(function (a, b) { return a.n.localeCompare(b.n, 'es'); });
+  lista.forEach(function (p) {
+    var o = document.createElement('option');
+    o.value = p.c;
+    o.textContent = p.n;
+    $('pais').appendChild(o);
+  });
+
+  /* ---- reglas de validación ---- */
+  var LIBRES = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','outlook.com','outlook.es','live.com','yahoo.com','yahoo.es','icloud.com','aol.com','proton.me','protonmail.com','gmx.com','yandex.com','mail.com'];
+  LIBRES.length = 0; /* PRUEBA TEMPORAL: BORRAR ESTA LINEA DESPUES */
+  var reCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var reTel = /^\+\d[\d\s().-]{6,18}$/;
+  var reWeb = /^https:\/\/[^\s\/]+\.[^\s\/]{2,}(\/\S*)?$/i;
+  function dominio(c) { return c.split('@')[1] || ''; }
+  function coincide(web, correo) {
+    try {
+      var h = new URL(web).hostname.toLowerCase().replace(/^www\./, '');
+      var d = dominio(correo);
+      return h === d || h.endsWith('.' + d) || d.endsWith('.' + h);
+    } catch (e) { return false; }
+  }
+  function val(id) { return $(id).value.trim(); }
+  function marca(id, malo) {
+    var caja = $(id).closest('.form-group') || $(id).closest('.check');
+    if (caja) { caja.classList.toggle('mal', malo); }
+    return !malo;
+  }
+  function revisar() {
+    var ok = true;
+    var primero = null;
+    var correo = val('correo').toLowerCase();
+    var rcorreo = val('rcorreo').toLowerCase();
+    var reglas = [
+      ['nombre', val('nombre').length < 3],
+      ['tipo', !val('tipo')],
+      ['idlegal', val('idlegal').length < 4],
+      ['web', !reWeb.test(val('web'))],
+      ['correo', !reCorreo.test(correo) || LIBRES.indexOf(dominio(correo)) > -1 || !coincide(val('web'), correo)],
+      ['tel', !reTel.test(val('tel'))],
+      ['pais', !val('pais')],
+      ['region', val('region').length < 2],
+      ['ciudad', val('ciudad').length < 2],
+      ['direccion', val('direccion').length < 5],
+      ['rnombre', val('rnombre').length < 3],
+      ['rcargo', val('rcargo').length < 2],
+      ['rcorreo', !reCorreo.test(rcorreo) || dominio(rcorreo) !== dominio(correo)],
+      ['rtel', !reTel.test(val('rtel'))],
+      ['clave', $('clave').value.length < 10],
+      ['clave2', $('clave2').value !== $('clave').value],
+      ['protocolo', !$('protocolo').checked],
+      ['facultad', !$('facultad').checked],
+      ['consent', !$('consent').checked],
+      ['terminos', !$('terminos').checked]
+    ];
+    reglas.forEach(function (r) {
+      if (!marca(r[0], r[1])) {
+        ok = false;
+        if (!primero) { primero = r[0]; }
+      }
+    });
+    if (primero) { $(primero).focus(); }
+    return ok;
+  }
+
+  function mostrarError(msg) {
+    $('formInfo').classList.remove('active');
+    $('formError').textContent = msg;
+    $('formError').classList.add('active');
+  }
+  function mostrarInfo(msg) {
+    $('formError').classList.remove('active');
+    $('formInfo').textContent = msg;
+    $('formInfo').classList.add('active');
+  }
+
+  /* ---- envío ---- */
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var boton = $('enviar');
+    $('formError').classList.remove('active');
+    $('formInfo').classList.remove('active');
+    if (!revisar()) {
+      mostrarError('Revise los campos marcados.');
+      return;
+    }
+    var datos = {
+      institution: {
+        name: val('nombre'), type: val('tipo'), legalId: val('idlegal'),
+        website: val('web'), email: val('correo').toLowerCase(), phone: val('tel')
+      },
+      location: {
+        country: val('pais'), region: val('region'),
+        city: val('ciudad'), address: val('direccion')
+      },
+      representative: {
+        name: val('rnombre'), title: val('rcargo'),
+        email: val('rcorreo').toLowerCase(), phone: val('rtel')
+      },
+      consents: { protocol: true, authority: true, request: true, terms: true },
+      language: navigator.language || 'es',
+      password: $('clave').value,
+      trap: $('sitio_extra').value,
+      elapsed: Date.now() - t0
+    };
+    boton.disabled = true;
+    boton.textContent = 'ENVIANDO...';
+    mostrarInfo('Enviando…');
+    fetch('/api/solicitar-convenio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          return { ok: r.ok, j: j };
+        });
+      })
+      .then(function (res) {
+        if (!res.ok) { throw new Error(res.j.message || 'No se pudo enviar la solicitud.'); }
+        $('correo-enviado').textContent = datos.institution.email;
+        $('clave').value = '';
+        $('clave2').value = '';
+        $('pantalla-form').style.display = 'none';
+        $('pantalla-exito').style.display = 'block';
+        window.scrollTo(0, 0);
+      })
+      .catch(function (err) {
+        mostrarError(err.message || 'Error de conexión. Intente de nuevo.');
+        boton.disabled = false;
+        boton.textContent = 'ENVIAR SOLICITUD';
+      });
+  });
+})();
+</script>
+
+<style>
+.gtranslate_wrapper{position:fixed;top:8px;right:8px;z-index:9999;}
+</style>
+<div class="gtranslate_wrapper"></div>
+<script>
+window.gtranslateSettings = {
+  "default_language": "es",
+  "native_language_names": true,
+  "detect_browser_language": true,
+  "languages": ["es","en","fr","pt","de","it","zh-CN","ar","ru","ja","hi","bn","ur","ko","tr","nl","pl","uk","qu","gn"],
+  "wrapper_selector": ".gtranslate_wrapper"
+}
+</script>
+<script src="https://cdn.gtranslate.net/widgets/latest/dropdown.js" defer></script>
+</body>
+  </html>
