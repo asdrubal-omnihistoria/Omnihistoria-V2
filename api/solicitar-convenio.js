@@ -16,6 +16,13 @@ function texto(v, max) {
   return typeof v === 'string' ? v.trim().slice(0, max) : '';
 }
 function dominio(c) {
+    function coincide(web, correo) {
+    try {
+      var h = new URL(web).hostname.toLowerCase().replace(/^www\./, '');
+      var d = dominio(correo);
+      return h === d || h.endsWith('.' + d) || d.endsWith('.' + h);
+    } catch (e) { return false; }
+  }
   return c.split('@')[1] || '';
 }
 
