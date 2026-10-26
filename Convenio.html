@@ -282,6 +282,7 @@ input:focus,select:focus{outline:none;border-color:var(--oro);box-shadow:0 0 0 2
 
   /* ---- reglas de validación ---- */
   var LIBRES = ['gmail.com','googlemail.com','hotmail.com','hotmail.es','outlook.com','outlook.es','live.com','yahoo.com','yahoo.es','icloud.com','aol.com','proton.me','protonmail.com','gmx.com','yandex.com','mail.com'];
+  LIBRES.length = 0; /* PRUEBA TEMPORAL: BORRAR ESTA LINEA DESPUES */
   var reCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   var reTel = /^\+\d[\d\s().-]{6,18}$/;
   var reWeb = /^https:\/\/[^\s\/]+\.[^\s\/]{2,}(\/\S*)?$/i;
