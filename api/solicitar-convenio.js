@@ -1,5 +1,3 @@
-const crypto = require('crypto');
-
 const PROYECTO = 'omnih-beta';
 const CLAVE = process.env.FIREBASE_API_KEY;
 const AUTH = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -7,6 +5,7 @@ const FS = 'https://firestore.googleapis.com/v1/projects/' + PROYECTO + '/databa
 
 const TIPOS = ['university', 'archive', 'ngo', 'public', 'company', 'guild', 'other'];
 const LIBRES = ['gmail.com', 'googlemail.com', 'hotmail.com', 'hotmail.es', 'outlook.com', 'outlook.es', 'live.com', 'yahoo.com', 'yahoo.es', 'icloud.com', 'aol.com', 'proton.me', 'protonmail.com', 'gmx.com', 'yandex.com', 'mail.com'];
+LIBRES.length = 0; // PRUEBA TEMPORAL: BORRAR ESTA LINEA DESPUES
 const reCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const reTel = /^\+\d[\d\s().-]{6,18}$/;
 const reWeb = /^https:\/\/[^\s\/]+\.[^\s\/]{2,}(\/\S*)?$/i;
@@ -15,15 +14,15 @@ const rePais = /^[A-Z]{2}$/;
 function texto(v, max) {
   return typeof v === 'string' ? v.trim().slice(0, max) : '';
 }
-function dominio(c) {return c.split('@')[1] || ''; }
-    function coincide(web, correo) {
-    try {
-      var h = new URL(web).hostname.toLowerCase().replace(/^www\./, '');
-      var d = dominio(correo);
-      return h === d || h.endsWith('.' + d) || d.endsWith('.' + h);
-    } catch (e) { return false; }
-  }
-  
+function dominio(c) {
+  return c.split('@')[1] || '';
+}
+function coincide(web, correo) {
+  try {
+    const h = new URL(web).hostname.toLowerCase().replace(/^www\./, '');
+    const d = dominio(correo);
+    return h === d || h.endsWith('.' + d) || d.endsWith('.' + h);
+  } catch (e) { return false; }
 }
 
 function limpiar(b) {
@@ -80,7 +79,7 @@ async function llamar(url, cuerpo, cabeceras) {
   return { ok: r.ok, j: j };
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ message: 'Método no permitido.' });
@@ -102,20 +101,23 @@ module.exports = async function handler(req, res) {
   if (!d) {
     return res.status(400).json({ message: 'Revise los datos del formulario.' });
   }
+  const clave = typeof b.password === 'string' ? b.password : '';
+  if (clave.length < 10 || clave.length > 128) {
+    return res.status(400).json({ message: 'La contraseña debe tener entre 10 y 128 caracteres.' });
+  }
   if (!CLAVE) {
     console.error('Falta la variable FIREBASE_API_KEY');
     return res.status(500).json({ message: 'Configuración incompleta. Avise a los administradores.' });
   }
 
-  /* 1. cuenta de la institución, con una clave aleatoria que nadie conoce */
-  const clave = crypto.randomBytes(24).toString('base64url');
+  /* 1. cuenta de la institución, con la contraseña que ella eligió */
   const alta = await llamar(AUTH + 'signUp?key=' + CLAVE, {
     email: d.institution.email, password: clave, returnSecureToken: true
   });
   if (!alta.ok) {
     const cod = (alta.j.error && alta.j.error.message) || '';
     if (cod.indexOf('EMAIL_EXISTS') === 0) {
-      return res.status(409).json({ message: 'Ese correo ya tiene una cuenta. Escriba a los administradores.' });
+      return res.status(409).json({ message: 'Ese correo ya tiene una cuenta. Entre por el inicio de sesión.' });
     }
     if (cod.indexOf('TOO_MANY_ATTEMPTS') === 0) {
       return res.status(429).json({ message: 'Demasiados intentos. Intente más tarde.' });
@@ -126,7 +128,7 @@ module.exports = async function handler(req, res) {
   const token = alta.j.idToken;
   const uid = alta.j.localId;
 
-  /* 2. guardar la solicitud en Firestore: convenios/<uid> */
+  /* 2. guardar la solicitud en Firestore: convenios/<uid> (sin la contraseña) */
   const registro = {
     status: 'pending',
     institution: d.institution,
@@ -145,10 +147,11 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ message: 'No se pudo guardar la solicitud. Intente más tarde.' });
   }
 
-  /* 3. correo de certificación (lo envía Firebase al correo oficial) */
+  /* 3. correo de certificación: lo envía Firebase y su enlace lleva a /login */
   const idioma = (d.language || 'es').slice(0, 2).toLowerCase();
   const correo = await llamar(AUTH + 'sendOobCode?key=' + CLAVE, {
-    requestType: 'VERIFY_EMAIL', idToken: token
+    requestType: 'VERIFY_EMAIL', idToken: token,
+    continueUrl: 'https://' + req.headers.host + '/login'
   }, { 'X-Firebase-Locale': idioma });
   if (!correo.ok) {
     console.error('Correo falló:', JSON.stringify(correo.j.error || {}));
@@ -156,4 +159,4 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({ ok: true });
-};
+      }
