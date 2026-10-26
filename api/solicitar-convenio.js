@@ -53,7 +53,7 @@ function limpiar(b) {
   const I = d.institution, L = d.location, R = d.representative, C = d.consents;
   const ok =
     I.name.length >= 3 && TIPOS.indexOf(I.type) > -1 && I.legalId.length >= 4 &&
-    reWeb.test(I.website) && reCorreo.test(I.email) && LIBRES.indexOf(dominio(I.email)) === -1 &&
+    reWeb.test(I.website) && reCorreo.test(I.email) && LIBRES.indexOf(dominio(I.email)) === -1 && coincide(I.website, I.email) &&
     reTel.test(I.phone) && rePais.test(L.country) && L.region.length >= 2 &&
     L.city.length >= 2 && L.address.length >= 5 && R.name.length >= 3 && R.title.length >= 2 &&
     reCorreo.test(R.email) && dominio(R.email) === dominio(I.email) && reTel.test(R.phone) &&
