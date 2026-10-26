@@ -189,7 +189,7 @@
   </fieldset>
 
   <!-- ===== FIN DE LA PARTE 1: la parte 2 se pega justo debajo de esta línea ===== -->
-  <fieldset>
+    <fieldset>
   <legend>3. REPRESENTANTE INSTITUCIONAL</legend>
 
   <div class="form-group">
@@ -213,4 +213,80 @@
   </div>
 
   <div class="form-group">
-    <label for="rtel">Teléfono del
+    <label for="rtel">Teléfono del representante</label>
+    <input type="tel" id="rtel" placeholder="+58 412 0000000">
+    <p class="ayuda">Incluya el código de país, con el signo +.</p>
+    <p class="error">Escriba el teléfono con código de país.</p>
+  </div>
+  </fieldset>
+
+  <fieldset>
+  <legend>4. ACCESO A SU CUENTA</legend>
+  <p class="aviso-j">Con el correo oficial de la institución y esta contraseña entrará después por el inicio de sesión.</p>
+
+  <div class="form-group">
+    <label for="clave">Contraseña</label>
+    <input type="password" id="clave" maxlength="128" autocomplete="new-password">
+    <p class="ayuda">Mínimo 10 caracteres.</p>
+    <p class="error">Use al menos 10 caracteres.</p>
+  </div>
+
+  <div class="form-group">
+    <label for="clave2">Repita la contraseña</label>
+    <input type="password" id="clave2" maxlength="128" autocomplete="new-password">
+    <p class="error">Las contraseñas no coinciden.</p>
+  </div>
+  </fieldset>
+
+  <fieldset>
+  <legend>5. COMPROMISOS</legend>
+  <p class="aviso-j">El texto jurídico es vinculante en inglés y no se traduce.</p>
+
+  <div class="juridico notranslate" translate="no" lang="en">
+
+    <div class="check">
+      <input type="checkbox" id="protocolo">
+      <label for="protocolo">The representative commits to join the OMNIH protocol and to abide by it.</label>
+    </div>
+
+    <div class="check">
+      <input type="checkbox" id="facultad">
+      <label for="facultad">I declare that I am authorized to represent the institution and that I can provide proof of this authority if requested.</label>
+    </div>
+
+    <div class="check">
+      <input type="checkbox" id="consent">
+      <label for="consent">I formally request an agreement to certify the institution's documents, for their immutability and for the verification of their integrity whenever required, and I declare that the data provided is true.</label>
+    </div>
+
+    <div class="check">
+      <input type="checkbox" id="terminos">
+      <label for="terminos">I accept the <a href="/terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
+    </div>
+
+  </div>
+  </fieldset>
+
+  <div id="formInfo" class="form-info" role="status"></div>
+  <div id="formError" class="form-error" role="alert"></div>
+
+  <button type="submit" id="enviar" class="btn-submit">ENVIAR SOLICITUD</button>
+
+  </form>
+  </div>
+
+  <div id="pantalla-exito" class="exito">
+    <h2>Solicitud recibida</h2>
+    <p>Enviamos un enlace de certificación a <strong id="correo-enviado"></strong>.</p>
+    <p>Abra ese enlace para certificar el correo. Revise también la carpeta de correo no deseado.</p>
+    <p>Después, entre por el inicio de sesión con ese correo y la contraseña que acaba de crear.</p>
+    <a class="btn-top-login" href="login.html">IR AL INICIO DE SESIÓN</a>
+  </div>
+
+  </main>
+
+  <p class="pie">OMNIH · Omnihistoria</p>
+
+</div>
+
+<!-- ===== FIN DE LA PARTE 2: la parte 3 (script y traductor) se pega justo debajo de esta línea ===== -->
