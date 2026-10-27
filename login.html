@@ -348,14 +348,13 @@
   </main>
 
   <aside class="quote-box">
-    <p class="quote-text">"La preservación de la identidad digital no es un derecho opcional; es la piedra angular del ecosistema de legado ontológico."</p>
-    <span class="quote-source">— Manual de Arquitectura OMNIH</span>
+    <p class="quote-text">Nuestra comunidad navega en la tormenta de bits generados, la misión: Salvar el Logos trascendente, nuestro derecho a ser parte de la Omnihistoria, preservarlo como testimonio de vida de tiempos históricos, con un horizonte a 1000 años, evitando desaparezcan ahogados en la intrascendencia del ruido digital.</p>
   </aside>
 
 </div>
 
 <script type="module">
-  import { ingresar, reenviarVerificacion, mensajeError } from "./js/guardian.js";
+  import { ingresar, reenviarVerificacion, mensajeError, rutaPorTipo } from "./js/guardian.js";
   import { getApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
   import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
@@ -413,29 +412,21 @@
     const contrasena = pwdInput.value;
 
     try {
-      // 1. Ejecutar el login
+      // ingresar() valida la cuenta y guarda la sesión completa (incluido el tipo)
       const sesionInfo = await ingresar(correo, contrasena);
 
-      // 2. Proteger y alimentar a 'central': Asegurar que 'omnih_institucion_activa' exista
-      // Si ingresar() retorna datos de la entidad, los usamos; si no, estructuramos una sesión válida
-      const sesionActiva = JSON.parse(sessionStorage.getItem('omnih_institucion_activa') || '{}');
-      if (!sesionActiva.entidad) {
-        sessionStorage.setItem('omnih_institucion_activa', JSON.stringify({
-          entidad: (sesionInfo && sesionInfo.entidad) || correo.split('@')[0].toUpperCase(),
-          convenio: (sesionInfo && sesionInfo.convenio) || 'OMNIH-STANDARD',
-          token: (sesionInfo && sesionInfo.token) || null,
-          loginAt: new Date().toISOString()
-        }));
+      // Particulares -> central.html | Convenios institucionales -> carga.html
+      const destino = rutaPorTipo(sesionInfo.tipo);
+      if (!destino) {
+        throw new Error('tipo_desconocido');
       }
-
-      // 3. Conexión directa a la interfaz central
-      window.location.replace('central.html');
+      window.location.replace(destino);
 
     } catch (err) {
       console.error('Error de acceso:', err);
-      
+
       const errorMsg = mensajeError ? mensajeError(err) : (err.message || 'Error al iniciar sesión');
-      
+
       if (err && (err.message === 'correo_no_verificado' || err.code === 'auth/unverified-email')) {
         mostrarError('Tu cuenta aún no ha sido verificada. Revisa tu bandeja de entrada o pulsa el enlace abajo para reenviar.');
         btnReenviar.classList.remove('hidden');
