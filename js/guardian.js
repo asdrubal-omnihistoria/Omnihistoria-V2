@@ -9,6 +9,12 @@ import {
   doc, getDoc, setDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
+export function rutaPorTipo(tipo) {
+  if (tipo === "individual") return "central.html";
+  if (tipo === "convenio") return "carga.html";
+  return null;
+}
+
 export async function registrarPersona(correo, clave, datos = {}) {
   const cred = await createUserWithEmailAndPassword(auth, correo, clave);
   try {
@@ -40,7 +46,7 @@ export async function ingresar(correo, clave) {
   await setPersistence(auth, browserSessionPersistence);
   const cred = await signInWithEmailAndPassword(auth, correo, clave);
   await cred.user.reload();
-  
+
   if (!cred.user.emailVerified) {
     await signOut(auth);
     throw new Error("correo_no_verificado");
@@ -53,7 +59,18 @@ export async function ingresar(correo, clave) {
   }
 
   const perfil = snap.data();
-  if (perfil.tipo === "convenio" && perfil.convenioId) {
+  const tipo = perfil.tipo;
+
+  if (tipo !== "individual" && tipo !== "convenio") {
+    await signOut(auth);
+    throw new Error("tipo_desconocido");
+  }
+
+  if (tipo === "convenio") {
+    if (!perfil.convenioId) {
+      await signOut(auth);
+      throw new Error("sin_convenio");
+    }
     const c = await getDoc(doc(db, "convenios", perfil.convenioId));
     if (!c.exists() || c.data().activo !== true) {
       await signOut(auth);
@@ -61,17 +78,17 @@ export async function ingresar(correo, clave) {
     }
   }
 
-  // Estructura de sesión lista para que 'central' muestre la institución/usuario
   const sesionActiva = {
     uid: cred.user.uid,
     correo: cred.user.email,
-    entidad: perfil.entidad || (perfil.username ? perfil.username.toUpperCase() : "INSTITUCIÓN VINCULADA"),
-    convenio: perfil.convenioId || "CONV-OMNIH-001",
+    tipo: tipo,
+    entidad: perfil.entidad || (perfil.username ? perfil.username.toUpperCase() : (tipo === "convenio" ? "INSTITUCIÓN VINCULADA" : "INDIVIDUAL")),
+    convenio: tipo === "convenio" ? perfil.convenioId : null,
     token: await cred.user.getIdToken(),
     loginAt: new Date().toISOString()
   };
 
-  sessionStorage.setItem('omnih_institucion_activa', JSON.stringify(sesionActiva));
+  sessionStorage.setItem("omnih_institucion_activa", JSON.stringify(sesionActiva));
 
   return sesionActiva;
 }
@@ -98,6 +115,8 @@ export function mensajeError(e) {
     "auth/unverified-email": "Revisa tu correo y confirma tu cuenta antes de ingresar.",
     ya_verificado: "Tu correo ya está verificado. Puedes ingresar.",
     sin_perfil: "Cuenta no reconocida. Regístrate de nuevo.",
+    tipo_desconocido: "Tu cuenta no tiene un tipo válido. Contacta a OMNIH.",
+    sin_convenio: "Tu cuenta institucional no tiene un convenio asociado.",
     convenio_inactivo: "Tu institución no tiene un convenio activo.",
     "permission-denied": "No se pudo guardar tu perfil. Revisa las reglas de Firestore.",
     "auth/invalid-credential": "Correo o contraseña incorrectos.",
@@ -106,4 +125,4 @@ export function mensajeError(e) {
     "auth/too-many-requests": "Demasiados intentos fallidos. Intenta más tarde."
   };
   return m[code] || (e && e.message) || "Error al procesar la solicitud.";
-      }
+}
