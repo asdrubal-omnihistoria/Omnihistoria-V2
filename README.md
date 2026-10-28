@@ -1,15 +1,15 @@
-# 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA.
+# 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA (Año 1).
 ### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Descentralizado (DAO), para la Preservación Histórica y testimonial de la existencia de las personas  humanas, sin distinciones y por derecho de unicidad, en formato digital certificado.
 
 En un sentido general.
-> *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital humano frente al paso del tiempo, en un contexto tecnológico signado por la inteligencia artificial, en consecuencia:"la historia del futuro se escribe en tiempo presente".
+> *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital frente a la obsolescencia de formatos, en un contexto tecnológico signado por la inteligencia artificial y en consecuencia:"la historia del futuro se escribe en tiempo presente".
 > ."*
 
 ---
 
 ## 📜 DEFINICIÓN Y PROPÓSITO GENERAL
 
-La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, inmutable, multinodal, criptográfico, descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases en 5 años**,diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general individual, familiar o social, armonizado desde la compilación de relatos y testimonios documentales e iconografico,en las diferentes etapas de la vida, constituyendo en forma permanente (presente) un legado de orden intelectual, ontológico, filosófico e historiográfico.
+La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo histórico, memoria viva en tiempo presente, inmutable, multinodal, criptográfico, descentralizado en comunidad DAO, con un horizonte de implementación en **cinco (5) fases en 5 años**,diseñado para resguardar, organizar y poner en valor las vivencias, creatividad, percepción y anecdotario en general, individual, familiar o social, armonizado desde la compilación de relatos y testimonios documentales e iconografico, contextualizados en las diferentes etapas de la vida, compilando en forma permanente (presente) un legado de orden intelectual, ontológico, filosófico e historiográfico.
 
 ---
 
