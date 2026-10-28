@@ -79,7 +79,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 .pure-white-screen .doc-html img{width:auto;height:auto;min-height:0;max-width:100%;display:inline-block;object-fit:initial;}
 </style>
 </head>
-<body>
+<body data-tipo="convenio">
 <div class="container">
 <header class="header-bar">
 <a href="index.html" class="brand-identity" title="Ir a la Portada">
@@ -102,7 +102,7 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 </div>
 <div class="convenio-identity-box">
 <div class="persona-juridica" id="topNombreEntidad">INSTITUCIÓN VINCULADA</div>
-<div class="hash-convenio" id="topHashConvenio">CONVENIO: 0x8F3a...C912</div>
+<div class="hash-convenio" id="topHashConvenio">CONVENIO: verificando…</div>
 </div>
 </div>
 </header>
@@ -111,16 +111,6 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <!-- ZONA 1: pantalla de visualización. -->
 <div class="pure-white-screen" id="whiteScreen" contenteditable="true" spellcheck="false" title="Pantalla íntegra: Toque para escribir o visualizar">
 <div style="color:var(--text-muted);font-size:0.85rem;" id="screenHint">Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.</div>
-</div>
-
-<!-- ZONA 3: panel de asistencia IA, fuera de la pantalla blanca -->
-<div class="ai-screen-controls" id="aiScreenPanel">
-<div style="font-size:0.8rem;font-weight:700;color:var(--text-blue);">🎙️ Asistencia Gémini IA Activa en Pantalla:</div>
-<div class="ai-voice-row">
-<button type="button" class="btn-voice" id="btnVoiceToggle">🎤 <span id="voiceLabel">Dictar por Voz</span></button>
-<button type="button" class="btn-light" style="flex:1;padding:9px;" id="btnConsultarIA">Analizar Pantalla con Gémini</button>
-<button type="button" class="btn-voice" id="btnCloseAIPanel" style="padding:9px 12px;">✕</button>
-</div>
 </div>
 
 <label for="nativeFileInput" class="upload-label-native" id="btnDropzone">
@@ -154,26 +144,16 @@ body{background-color:var(--bg-canvas);color:var(--text-dark);display:flex;justi
 <button class="btn-light" type="button" id="btnCertificar" disabled>🔒 Certificar Documento (Sello OMNIH Recombinante)</button>
 <button class="btn-light" type="button" id="btnVerificar" disabled>🛡️ Verificar Integridad Criptográfica</button>
 </div>
-<div class="bottom-grid">
-<div class="card-blue inert">
-<h4>PROTOCOLO ACTIVO</h4>
-<p>Resguardo inmutable de fe pública.</p>
-</div>
-<div class="card-blue active-btn" id="btnSoporteTecnico">
-<h4>Asistencia Técnica IA</h4>
-<p>Activa el asistente en pantalla por escrito o por voz.</p>
-</div>
-</div>
+<div style="text-align:center;margin:20px 6px 6px;font-size:0.9rem;font-weight:700;color:var(--text-dark);line-height:1.5;">Misión: Salvar el Logos trascendente, nuestro derecho a ser parte de la OMNIHISTORIA, como testimonio de vida de nuestra civilización.</div>
+<div style="text-align:center;margin:4px 0 10px;font-size:1.2rem;font-weight:800;color:var(--accent-gold);line-height:1.3;">Con cada sello hacemos historia.</div>
+<div style="text-align:center;font-size:0.72rem;color:var(--text-muted);line-height:1.4;">Nota (fase beta): por ahora cada documento puede pesar hasta 4,5 MB.</div>
+<footer style="border-top:1px solid var(--border-color);margin-top:6px;padding-top:12px;text-align:center;font-size:0.75rem;color:var(--text-muted);line-height:1.5;">© 2026 Repositorio de Legado de la OMNIHISTORIA. Servicio Público Global.<br>Todos los derechos reservados.</footer>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
 
 /* ================= CONFIGURACIÓN ================= */
 const OMNIH_CONFIG={
-  // Client ID OAuth (tipo "Aplicación web") de Google Cloud, para "Archivar en nube (Drive)".
-  // Autoriza tu dominio de Vercel en "Orígenes JavaScript autorizados". Vacío = botón avisa.
-  GOOGLE_CLIENT_ID:'',
-  DRIVE_FOLDER:'OMNIH-Archivo',
   // Calendarios públicos de OpenTimestamps (se usan si /api/certify no responde).
   OTS_CALENDARS:[
     'https://alice.btc.calendar.opentimestamps.org',
@@ -182,6 +162,7 @@ const OMNIH_CONFIG={
   ]
 };
 const HINT_TEXT='Toca aquí para redactar notas técnicas con el teclado, o carga un documento abajo para desplegarlo íntegramente en esta pantalla.';
+const LIMITE_BETA_BYTES=4500000;   // límite de la función en Vercel durante la fase beta
 const LABEL_CERTIFICAR='🔒 Certificar Documento (Sello OMNIH Recombinante)';
 
 const fileInput=document.getElementById('nativeFileInput');
@@ -196,12 +177,6 @@ const docHash=document.getElementById('doc-hash');
 const btnCertificar=document.getElementById('btnCertificar');
 const btnVerificar=document.getElementById('btnVerificar');
 const resultBanner=document.getElementById('resultBanner');
-const aiPanel=document.getElementById('aiScreenPanel');
-const btnSoporte=document.getElementById('btnSoporteTecnico');
-const btnCloseAI=document.getElementById('btnCloseAIPanel');
-const btnVoice=document.getElementById('btnVoiceToggle');
-const voiceLabel=document.getElementById('voiceLabel');
-const btnConsultar=document.getElementById('btnConsultarIA');
 const btnGaleria=document.getElementById('btnGaleria');
 const btnLimpiar=document.getElementById('btnLimpiar');
 let currentFile=null,currentHash='',currentObjectUrl=null;
@@ -305,32 +280,14 @@ const fechaCert=(rec)=>rec.cert.timestamp||rec.cert.issued_at||rec.cert.timestam
 
 /* ================= SESIÓN / CONVENIO ================= */
 try{
-const urlParams=new URLSearchParams(window.location.search);
-const paramEntidad=urlParams.get('entidad');   // URLSearchParams ya decodifica
-const paramConvenio=urlParams.get('convenio');
-const paramToken=urlParams.get('token');
-if(paramEntidad||paramConvenio){
-  sesion={entidad:paramEntidad,convenio:paramConvenio,token:paramToken};
-  if(paramEntidad)document.getElementById('topNombreEntidad').textContent=paramEntidad.substring(0,24).toUpperCase();
-  if(paramConvenio)document.getElementById('topHashConvenio').textContent=`CONV: 0x${paramConvenio.substring(0,8)}...`;
-  sessionStorage.setItem('omnih_institucion_activa',JSON.stringify({entidad:paramEntidad,convenio:paramConvenio,token:paramToken}));
-  // El token no debe quedarse en la barra de direcciones / historial.
-  try{history.replaceState(null,'',window.location.pathname);}catch(e){}
-}else{
+  // La identidad viene SOLO de la sesión de login (guardian.js). Nunca de la dirección de la página.
+  const idCorto=(v)=>{v=String(v||'');return v.length>14?v.slice(0,8)+'…'+v.slice(-4):v;};
   const s=JSON.parse(sessionStorage.getItem('omnih_institucion_activa')||'{}');
-  if(s.entidad){sesion.entidad=s.entidad;document.getElementById('topNombreEntidad').textContent=s.entidad.substring(0,24).toUpperCase();}
-  if(s.convenio){sesion.convenio=s.convenio;sesion.token=s.token||null;document.getElementById('topHashConvenio').textContent=`CONV: 0x${s.convenio.substring(0,8)}...`;}
-  else{
-    const queue=JSON.parse(localStorage.getItem('omnih_convenios_queue')||'[]');
-    if(queue.length>0&&queue[0].entidad){
-      sesion.entidad=queue[0].entidad;
-      document.getElementById('topNombreEntidad').textContent=queue[0].entidad.substring(0,24).toUpperCase();
-     if(queue[0].folioConvenio){sesion.convenio=queue[0].folioConvenio;document.getElementById('topHashConvenio').textContent=`CONV: 0x${queue[0].folioConvenio.substring(0,8)}...`;}
-    }
-  }
-}
+  if(s.entidad){sesion.entidad=s.entidad;document.getElementById('topNombreEntidad').textContent=String(s.entidad).substring(0,24).toUpperCase();}
+  document.getElementById('topHashConvenio').textContent=s.convenio?('CONVENIO: '+idCorto(s.convenio)):'CONVENIO: sin asociar';
+  if(s.convenio)sesion.convenio=s.convenio;
 }catch(e){}
-     
+
 /* ================= ESTADO DE BOTONES / ANÁLISIS ================= */
 function refreshButtons(){
   btnCertificar.classList.remove('btn-highlight-certify');
@@ -700,49 +657,7 @@ function miniBtn(txt,style,fn){
   b.addEventListener('click',()=>fn(b));
   return b;
 }
-function actaTexto(rec,name,hash){
-  const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
-  return ['OMNIH | Certificado de Integridad Documental',
-    'Documento: '+name,
-    'SHA-256: 0x'+hash,
-    'Fecha (UTC): '+fechaCert(rec),
-    'Emisor: '+(c.signer||'OMNIH')+(c.signature_algo?' ['+c.signature_algo+']':''),
-    'Anclaje Bitcoin (OpenTimestamps): '+(o.status||'pendiente'),
-    'Verificación independiente: https://opentimestamps.org'].join('\n');
-}
-    // Driver de Google Drive (token OAuth con alcance mínimo drive.file)
-async function driveToken(){
-  if(!OMNIH_CONFIG.GOOGLE_CLIENT_ID)throw new Error('Falta configurar GOOGLE_CLIENT_ID en OMNIH_CONFIG (Google Cloud > Credenciales).');
-  await loadScript('https://accounts.google.com/gsi/client');
-  return new Promise((res,rej)=>{
-    const tc=window.google.accounts.oauth2.initTokenClient({
-      client_id:OMNIH_CONFIG.GOOGLE_CLIENT_ID,
-      scope:'https://www.googleapis.com/auth/drive.file',
-      callback:(r)=>r.error?rej(new Error(r.error)):res(r.access_token),
-      error_callback:(e)=>rej(new Error((e&&e.type)||'Autorización cancelada'))
-    });
-    tc.requestAccessToken({prompt:''});
-  });
-}
-async function driveFetch(token,url,opts){
-  const o=opts||{};
-  const r=await fetch(url,{method:o.method||'GET',body:o.body,headers:Object.assign({Authorization:'Bearer '+token},o.headers||{})});
-  if(!r.ok)throw new Error('Drive respondió HTTP '+r.status);
-  return r.json();
-}
-async function driveFolder(token){
-  const q=encodeURIComponent("name='"+OMNIH_CONFIG.DRIVE_FOLDER+"' and mimeType='application/vnd.google-apps.folder' and trashed=false");
-  const l=await driveFetch(token,'https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name)&spaces=drive');
-  if(l.files&&l.files.length)return l.files[0].id;
-  const c=await driveFetch(token,'https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:OMNIH_CONFIG.DRIVE_FOLDER,mimeType:'application/vnd.google-apps.folder'})});
-  return c.id;
-}
-async function driveUpload(token,folderId,name,blob){
-  const b='omnih'+Math.random().toString(36).slice(2);
-  const meta=JSON.stringify({name:name,parents:[folderId]});
-  const body=new Blob(['--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+b+'\r\nContent-Type: '+(blob.type||'application/octet-stream')+'\r\n\r\n',blob,'\r\n--'+b+'--']);
-  return driveFetch(token,'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:body});
-}
+
 
 function packReadme(rec,base,hash,origName,incluido){
   const c=rec.cert,o=(c.anchors&&c.anchors[0])||{};
@@ -793,7 +708,18 @@ function addExtras(rec,file,hash){
     finally{b.disabled=false;b.textContent=t;}
 }
 
-     const actions=document.createElement('div');
+     let listaCompartir=null,preparando=null;
+  const prepararCompartir=()=>{
+    if(!preparando)preparando=(async()=>{
+      const pdf=await getPdf();
+      const solo=[new File([pdf],base+'.certificado.pdf',{type:'application/pdf'})];
+      const todo=solo.concat([new File([jsonBlob()],base+'.proof.json',{type:'application/json'})]);
+      const ob=otsBlob();if(ob)todo.push(new File([ob],base+'.ots',{type:'application/octet-stream'}));
+      listaCompartir={solo:solo,todo:todo};
+    })().catch(()=>{preparando=null;});
+    return preparando;
+  };
+  const actions=document.createElement('div');
   actions.className='banner-actions';
 
   actions.append(
@@ -822,36 +748,29 @@ function addExtras(rec,file,hash){
       if(!blob){setSt('⚠️ El recibo OTS no está disponible en este ciclo.',false);return;}
       downloadBlob(blob,base+'.ots');
     }),
-    miniBtn('📋 Copiar acta','font-weight:700;',async(b)=>{
-      const txt=actaTexto(rec,base,hash);
-      try{await navigator.clipboard.writeText(txt);}
-      catch(e){
-        const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;';
-        document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    miniBtn('📤 Compartir / Guardar','font-weight:700;',async(b)=>{
+      st.textContent='';
+      const t=b.textContent;
+      // Los archivos se preparan antes (al mostrar el resultado) para abrir el menú al instante del toque.
+      if(!listaCompartir){
+        b.disabled=true;b.textContent='Preparando...';
+        await prepararCompartir();
+        b.disabled=false;b.textContent=t;
+        if(!listaCompartir){setSt('⚠️ No se pudieron preparar los archivos; use los botones de descarga.',false);return;}
+        setSt('✓ Archivos listos. Pulse una vez más «Compartir / Guardar».',true);
+        return;
       }
-      const t=b.textContent;b.textContent='✓ Copiado';setTimeout(()=>{b.textContent=t;},1600);
-    }),
-    miniBtn('📤 Compartir / Guardar','font-weight:700;',(b)=>run(b,'Preparando...',async()=>{
-      const pdf=await getPdf();
-      const lista=[new File([pdf],base+'.certificado.pdf',{type:'application/pdf'}),new File([jsonBlob()],base+'.proof.json',{type:'application/json'})];
-      const ob=otsBlob();if(ob)lista.push(new File([ob],base+'.ots',{type:'application/octet-stream'}));
-      let files=lista.concat([file]);
-      if(!(navigator.canShare&&navigator.canShare({files:files})))files=lista;
-      if(!(navigator.share&&navigator.canShare&&navigator.canShare({files:files})))throw new Error('Este navegador no permite compartir archivos; use los botones de descarga.');
+      const candidatos=[listaCompartir.todo.concat([file]),listaCompartir.todo,listaCompartir.solo];
+      let files=null;
+      if(navigator.share&&navigator.canShare){for(const c of candidatos){if(navigator.canShare({files:c})){files=c;break;}}}
+      if(!files){setSt('⚠️ Este navegador no permite compartir archivos; use los botones de descarga.',false);return;}
       try{await navigator.share({files:files,title:'Certificación OMNIH'});}
-      catch(e){if(e.name==='AbortError')return;if(e.name==='NotAllowedError')throw new Error('El sistema pidió un nuevo toque: pulse de nuevo el botón.');throw e;}
-    })),  
-       miniBtn('☁️ Archivar en nube (Drive)','font-weight:700;color:var(--text-blue);',(b)=>run(b,'Archivando...',async()=>{
-      const token=await driveToken();
-      const folder=await driveFolder(token);
-      const pre=hash.substring(0,10)+'_';
-      const paquete=[[file.name,file],[base+'.proof.json',jsonBlob()],[base+'.bitacora.json',bitacoraBlob()],[base+'.certificado.pdf',await getPdf()]];
-      const ob=otsBlob();if(ob)paquete.push([base+'.ots',ob]);
-      for(const p of paquete)await driveUpload(token,folder,pre+p[0],p[1]);
-      rec.archivo={drive:true,carpeta:OMNIH_CONFIG.DRIVE_FOLDER,fecha:new Date().toISOString()};
-      saveRec(hash,rec);
-      setSt('✓ Archivados '+paquete.length+' archivos en Drive, carpeta "'+OMNIH_CONFIG.DRIVE_FOLDER+'".',true);
-    }))
+      catch(e){
+        if(e&&e.name==='AbortError')return;
+        downloadBlob(await getPdf(),base+'.certificado.pdf');
+        setSt('El menú de compartir no se abrió ('+((e&&e.name)||'error')+'). Se descargó el certificado PDF; use «Paquete (.zip)» para el resto.',false);
+      }
+    })
   );
   const note=document.createElement('small');
   note.style.cssText='color:var(--text-muted);display:block;margin-top:6px;';
@@ -861,14 +780,20 @@ function addExtras(rec,file,hash){
   link.style.color='var(--text-blue)';link.textContent='opentimestamps.org';
   note.appendChild(link);
   resultBanner.append(actions,st,note);
-  // Precarga el SDK de Google para que el popup de autorización no se bloquee.
-  if(OMNIH_CONFIG.GOOGLE_CLIENT_ID)loadScript('https://accounts.google.com/gsi/client').catch(()=>{});
+  prepararCompartir();
 }
 
 /* ================= CERTIFICACIÓN ================= */
 btnCertificar.addEventListener('click',async()=>{
   if(!currentFile||!currentHash)return;
   const fileSnap=currentFile,hashSnap=currentHash;
+  if(fileSnap.size>LIMITE_BETA_BYTES){
+    showBanner('alert',[
+      {strong:true,text:'⚠️ Documento demasiado grande para la fase beta',br:true},
+      {text:'Pesa '+(fileSnap.size/1000000).toFixed(2)+' MB y el límite actual es de 4,5 MB por archivo.'}
+    ]);
+    return;
+  }
   let registrado=false;
   btnCertificar.disabled=true;
   btnCertificar.textContent='Anclando en Bitcoin y OMNIH-CA...';
@@ -876,26 +801,30 @@ btnCertificar.addEventListener('click',async()=>{
   try{
     let cert=null,modo='servidor',avisoServidor='';
     try{
+      let idToken;
+      try{idToken=await window.omnihToken();}
+      catch(e){const er=new Error('Sesión no válida: ingrese de nuevo.');er.fatal=true;throw er;}
       const response=await fetch('/api/certify',{
         method:'POST',
-        body:(()=>{
-          const fd=new FormData();
-          fd.append('file',fileSnap,fileSnap.name);
-          fd.append('entidad',sesion.entidad||'');
-          fd.append('convenio',sesion.convenio||'');
-          return fd;
-        })()
+        headers:{Authorization:'Bearer '+idToken},
+        body:(()=>{const fd=new FormData();fd.append('file',fileSnap,fileSnap.name);fd.append('entidad',sesion.entidad||'');fd.append('convenio',sesion.convenio||'');return fd;})()   /* el servidor nuevo ignora estos dos campos y usa los verificados */
       });
-      if(!response.ok)throw new Error(`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
+      if(!response.ok){
+        let det='';try{const j=await response.json();det=j.error||'';}catch(_){}
+        const er=new Error(det||`Servidor OMNIH-CA no disponible (HTTP ${response.status})`);
+        if(response.status===401||response.status===403||response.status===413)er.fatal=true;
+        throw er;
+      }
       const data=await response.json();
       const pr=data.proof||{};
       cert={version:'omnih-ca-2',hash:data.hash,filename:data.filename,size:data.size,
-        entidad:sesion.entidad||null,convenio:sesion.convenio||null,
+        entidad:data.entidad||sesion.entidad||null,convenio:data.convenio||sesion.convenio||null,
         timestamp_local:pr.signed_at,signed_at:pr.signed_at,
         signer:pr.signer,signature:pr.signature,signature_algo:pr.signature_algo,
         public_key:pr.public_key,
         anchors:[{type:'opentimestamps',status:'pendiente',calendar:'https://a.pool.opentimestamps.org',ots_receipt_base64:data.ots_receipt_base64}]};
     }catch(errSrv){
+      if(errSrv&&errSrv.fatal)throw errSrv;
       // Respaldo: sello de tiempo OpenTimestamps directo, SIN firma de OMNIH-CA.
       avisoServidor=errSrv.message;modo='local';
       const ots=await stampOTS(hashSnap);
@@ -967,39 +896,18 @@ btnVerificar.addEventListener('click',()=>{
   }
 });
 
-/* ================= DICTADO POR VOZ ================= */
-let recognition=null,escuchando=false;
-if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
-  try{
-    const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
-    recognition=new Speech();
-    recognition.lang='es-ES';
-    recognition.continuous=false;
-    recognition.onstart=()=>{escuchando=true;btnVoice.classList.add('listening');voiceLabel.textContent='Escuchando...';};
-    recognition.onresult=(evt)=>{
-      const frase=evt.results[0][0].transcript;
-      if(displayMode==='file')return;
-      removeHint();
-      whiteScreen.innerText+=(whiteScreen.innerText?'\n':'')+'• '+frase;
-      syncNotes();
-    };
-       recognition.onend=()=>{escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';};
-    recognition.onerror=(e)=>{
-      escuchando=false;btnVoice.classList.remove('listening');voiceLabel.textContent='Dictar por Voz';
-      if(e&&e.error==='not-allowed')showBanner('alert',[{strong:true,text:'El navegador no tiene permiso para usar el micrófono.'}]);
-    };
-  }catch(e){}
-}
-btnVoice.addEventListener('click',()=>{
-  if(displayMode==='file'){
-    showBanner('alert',[{strong:true,text:'Hay un documento cargado.',br:true},{text:'Pulse "Quitar documento" para dictar notas en la pantalla.'}]);
-    return;
-  }
-  if(!recognition){whiteScreen.focus();return;}
-  if(escuchando){try{recognition.stop();}catch(e){}return;}
-  try{recognition.start();}catch(e){whiteScreen.focus();}
-});
 });
 </script>
+<script type="module">
+import { auth } from "./js/firebase-init.js";
+window.omnihToken = () => new Promise((resolve, reject) => {
+  if (auth.currentUser) { auth.currentUser.getIdToken().then(resolve, reject); return; }
+  const unsub = auth.onAuthStateChanged((u) => {
+    unsub();
+    if (u) { u.getIdToken().then(resolve, reject); } else { reject(new Error("sin sesion")); }
+  });
+});
+</script>
+<script type="module" src="js/sesion.js"></script>
 </body>
 </html>
