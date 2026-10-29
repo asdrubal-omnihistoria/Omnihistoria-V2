@@ -16,7 +16,7 @@ La **OMNIHISTORIA** es un ecosistema de preservación digital, archivo históric
 ## 🎯 MISIÓN
 Proporcionar una plataforma interactiva, segura y descentralizada que transforme archivos valiosos, muchas veces dispersos, en obras  estructurada bajo los estándares clásicos usuales, con información y compendios permanentemente actualizados tecnológicamente y de accesibilidad controlada.
 
-La misión central para este nuestro tiempo, ante la falta de propiedad real de la data generada en redes sociales y la arbitrariedad de las grandes tecnologías, que destruyen al bloquear cuentas individiales o de emprendimiento, historias completas de logros, aportes filosóficos, ontológico e historiograficos, es garantizar la preservación y difusión de las fuentes Omnihistoricas (historia, tecnología y comunidad) elaboradas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades (**teselas**) que constituye la humanidad.
+La misión central para este nuestro tiempo, ante la falta de propiedad real de la data generada en redes sociales y las medidas de las grandes tecnologías, que destruyen al bloquear cuentas individiales o de emprendimiento, historias completas de logros, aportes filosóficos, ontológico e historiograficos, es garantizar la preservación y difusión de las fuentes Omnihistoricas (historias elaboradas en formato digital y en comunidad) compiladas en tiempo presente por sus protagonistas, con las herramientas tecnológicas disponibles, integrando a la Inteligencia Artificial como un custodio respetuoso y contextual del mosaico de unicidades humanas  (**teselas**) que constituyen la humanidad.
 
 ---
 
