@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>OMNIH | Taller Operativo del Preservador</title>
+  <title>OMNIH | Espacio de trabajo desplegado</title>
   <style>
     :root {
       --bg-light: #ffffff;
@@ -20,11 +20,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
     [hidden] { display: none !important; }
     body { background-color: var(--bg-light); color: var(--text-main); min-height: 100dvh; display: flex; flex-direction: column; }
-    button, select, textarea { font-family: inherit; }
+    button, select, textarea, input { font-family: inherit; }
     :focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 2px; }
 
-    /* ENCABEZADO: identidad a la izquierda, menú a la derecha */
-    header { background: #ffffff; border-bottom: 1px solid var(--border-color); padding: 10px 20px; position: sticky; top: 0; z-index: 20; }
+    /* ENCABEZADO: un solo espacio, sin línea divisoria */
+    header { background: #ffffff; padding: 10px 20px; position: sticky; top: 0; z-index: 20; }
     .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 850px; margin: 0 auto; width: 100%; }
     .brand-logo-link { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
     .dna-box { width: 28px; height: 38px; display: flex; justify-content: center; align-items: center; }
@@ -32,73 +32,156 @@
     .text-omnih { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .hamburger-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); padding: 8px 10px; }
 
-    main { flex: 1; max-width: 850px; width: 100%; margin: 0 auto; padding: 20px 20px 110px 20px; display: flex; flex-direction: column; gap: 20px; }
+    main { flex: 1; max-width: 850px; width: 100%; margin: 0 auto; padding: 12px 20px 110px 20px; display: flex; flex-direction: column; gap: 20px; }
 
-    .aviso { padding: 12px 14px; border-radius: 8px; font-size: 0.85rem; background: var(--accent-blue-light); border: 1px solid #bae6fd; color: #0369a1; }
+    .aviso { max-width: 810px; width: calc(100% - 40px); margin: 6px auto 0; padding: 12px 14px; border-radius: 8px; font-size: 0.85rem; background: var(--accent-blue-light); border: 1px solid #bae6fd; color: #0369a1; }
     .aviso.error { background: #fef2f2; border-color: #fecaca; color: var(--alert-red); }
 
-    /* BLOQUE DEL PRESERVADOR: carrusel, foto, categoría */
+    /* BLOQUE DEL PRESERVADOR: foto, nombre, categoría */
     .profile-hero { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-
-    .carousel-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-    .carousel-container { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding: 4px; scrollbar-width: none; width: 100%; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
-    .carousel-container::-webkit-scrollbar { display: none; }
-    .carousel-item { width: 84px; height: 84px; border-radius: 8px; border: 1px dashed var(--border-color); flex-shrink: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.72rem; color: var(--text-muted); cursor: pointer; scroll-snap-align: start; overflow: hidden; position: relative; text-align: center; padding: 4px; }
-    .carousel-item.btn-add { border-color: var(--accent-blue); color: var(--accent-blue); font-weight: 700; }
-    .carousel-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-    .carousel-item .marca { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.92); color: var(--text-muted); font-size: 0.6rem; font-weight: 700; padding: 2px; }
-    .carousel-nav-btn { background: rgba(255,255,255,0.95); border: 1px solid var(--border-color); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .carousel-nav-btn.prev { left: -8px; }
-    .carousel-nav-btn.next { right: -8px; }
-    .carousel-vacio { font-size: 0.8rem; color: var(--text-muted); align-self: center; padding-left: 4px; }
-
     .user-info { display: flex; align-items: center; gap: 14px; }
     .foto-perfil { width: 72px; height: 72px; flex-shrink: 0; border-radius: 50%; border: 2px dashed var(--accent-gold); background: #fffbeb; color: #92741f; font-size: 0.7rem; font-weight: 700; line-height: 1.15; cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; text-align: center; }
     .foto-perfil.con-foto { border-style: solid; }
     .foto-perfil img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .user-details { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-    .user-name { font-weight: 700; font-size: 1.05rem; color: var(--text-main); }
-    .estado-foto { font-size: 0.72rem; color: var(--text-muted); }
+    .user-name { font-weight: 700; font-size: 1.05rem; color: var(--text-main); overflow-wrap: anywhere; }
+    .user-lugar { font-size: 0.8rem; color: var(--text-muted); }
     .rank-tag { align-self: flex-start; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: var(--accent-blue-light); color: var(--accent-blue); border: 1px solid #bae6fd; }
 
     .categoria-fila { display: flex; flex-direction: column; gap: 6px; }
     .categoria-fila label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
-    select { width: 100%; padding: 12px; font-size: 0.95rem; color: var(--text-main); background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; }
+    select, input[type="text"], input[type="date"], input[type="number"], input[type="search"] { width: 100%; padding: 12px; font-size: 0.95rem; color: var(--text-main); background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; }
 
-    /* ÁREA DE REDACCIÓN */
+    /* ESPACIO DE TRABAJO DESPLEGADO */
     .editor-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
     .editor-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .editor-title { font-size: 0.82rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.5px; text-transform: uppercase; }
+    .editor-izq { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .btn-libro { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--accent-gold); cursor: pointer; flex-shrink: 0; }
+    .btn-libro:hover { background: #fef9c3; }
+    .editor-title { font-size: 0.95rem; font-weight: 800; color: var(--accent-gold); letter-spacing: 0.02em; }
     .tabs { display: inline-flex; border: 1px solid var(--border-color); border-radius: 999px; padding: 3px; background: var(--panel-bg); }
     .tab { border: none; background: transparent; padding: 7px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; }
     .tab.activa { background: #ffffff; color: var(--text-main); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
     textarea { width: 100%; min-height: 260px; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; font-size: 1rem; line-height: 1.6; outline: none; resize: vertical; background: #fafafa; }
+    textarea.corta { min-height: 110px; }
     textarea:focus { background: #ffffff; border-color: var(--accent-blue); }
     .conversar-vacio { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; padding: 14px; border: 1px dashed var(--border-color); border-radius: 8px; background: #fafafa; }
-    .adjuntos { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
-    .adjuntos li { background: #fffbeb; border: 1px solid #f3e3b0; color: #7a5b12; padding: 5px 12px; border-radius: 999px; font-size: 0.78rem; }
 
-    /* COMANDOS */
+    /* Adjuntos: se ven completos */
+    .adjuntos { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .adj { border: 1px solid #f3e3b0; background: #fffdf5; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+    .adj-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .adj-cab .nombre { font-size: 0.8rem; color: #7a5b12; overflow-wrap: anywhere; }
+    .adj-cab button { border: none; background: transparent; color: #7a5b12; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 2px 8px; }
+    .adj-img { width: 100%; height: auto; max-height: 70dvh; object-fit: contain; border-radius: 8px; background: #fafafa; display: block; }
+    .adj-texto { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.85rem; line-height: 1.5; max-height: 40dvh; overflow-y: auto; background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
+
     .comandos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px; }
     .btn-cmd { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 46px; padding: 8px 10px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; cursor: pointer; background: var(--panel-bg); color: var(--text-main); border: 1px solid var(--border-color); text-decoration: none; }
     .btn-cmd:hover { background: var(--accent-blue-light); border-color: #bae6fd; }
-    .btn-cmd.grabando { background: #fef2f2; border-color: #fecaca; color: var(--alert-red); }
     .btn-cmd.ia { background: var(--accent-blue-light); color: var(--accent-blue); border-color: #bae6fd; }
+    .btn-cmd.primario { background: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
+    .btn-cmd.primario:disabled { opacity: 0.6; cursor: default; }
+    .btn-cmd.peligro { color: var(--alert-red); }
 
     .attachment-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 12px; }
     .btn-action { padding: 10px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s ease; }
     .btn-capsule { background: var(--panel-bg); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
     .btn-capsule:hover { background: #fef9c3; }
 
-    /* ORIENTACIÓN IA */
+    /* MIS FOTOS (carrusel abajo): pertenencia, personales y familiares */
+    .archivo-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .archivo-titulo { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
+    .archivo-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .carousel-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .carousel-container { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding: 4px; scrollbar-width: none; width: 100%; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+    .carousel-container::-webkit-scrollbar { display: none; }
+    .carousel-item { width: 96px; height: 96px; border-radius: 10px; border: 1px solid var(--border-color); flex-shrink: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.72rem; color: var(--text-muted); cursor: pointer; scroll-snap-align: start; overflow: hidden; position: relative; text-align: center; padding: 6px; }
+    .carousel-item.btn-add { border: 1px dashed var(--accent-blue); color: var(--accent-blue); font-weight: 700; }
+    .carousel-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .carousel-nav-btn { background: rgba(255,255,255,0.95); border: 1px solid var(--border-color); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .carousel-nav-btn.prev { left: -8px; }
+    .carousel-nav-btn.next { right: -8px; }
+    .carousel-vacio { font-size: 0.8rem; color: var(--text-muted); align-self: center; padding-left: 4px; }
+
+    /* FICHA BASE */
+    .ficha-titulo { font-size: 1.35rem; font-weight: 800; color: var(--text-main); }
+    .ficha-intro { font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; margin-top: 6px; }
+    .ficha-bloque { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+    .ficha-bloque h2 { font-size: 0.95rem; font-weight: 800; color: var(--accent-gold); }
+    .campo { display: flex; flex-direction: column; gap: 6px; }
+    .campo label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
+    .campo .ayuda { font-size: 0.72rem; color: var(--text-muted); }
+    .fila2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .ficha-foto { display: flex; align-items: center; gap: 14px; }
+    .ficha-foto .foto-perfil { width: 84px; height: 84px; }
+    .ficha-foto .estado { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+    #formFicha { display: flex; flex-direction: column; gap: 16px; }
+    .bloqueo { text-align: center; align-items: center; gap: 14px; padding-top: 40px; }
+    .bloqueo h1 { font-size: 1.3rem; }
+    .bloqueo p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; max-width: 520px; }
+    .bloqueo .btn-cmd { width: 100%; max-width: 280px; }
+
+    /* ORIENTACIÓN */
     .ai-guidance-floating { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 810px; background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid var(--accent-blue); border-radius: 8px; font-size: 0.8rem; color: #0369a1; box-shadow: 0 4px 12px rgba(0,0,0,0.06); z-index: 15; }
     .ai-guidance-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #e0f2fe; cursor: pointer; font-weight: 700; user-select: none; }
     .ai-guidance-content { padding: 12px 14px; display: none; line-height: 1.5; background: #f0f9ff; border-top: 1px solid #bae6fd; max-height: 50dvh; overflow-y: auto; }
     .ai-guidance-floating.open .ai-guidance-content { display: block; }
     .ai-guidance-content ol { margin: 8px 0 10px 18px; display: flex; flex-direction: column; gap: 8px; }
     .ai-guidance-content ol span { display: block; color: #0c4a6e; opacity: 0.85; }
+    .ai-guidance-content .btn-cmd { margin-top: 8px; }
 
-    /* MENÚ LATERAL */
+    /* HISTÓRICO (panel lateral izquierdo) */
+    .historico-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 36; }
+    .historico { position: fixed; top: 0; left: 0; width: 330px; max-width: 90vw; height: 100dvh; background: #ffffff; border-right: 1px solid var(--border-color); z-index: 37; display: flex; flex-direction: column; box-shadow: 8px 0 30px rgba(15, 23, 42, 0.15); }
+    .historico-cab { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px; }
+    .historico-cab h2 { font-size: 1.05rem; font-weight: 800; color: var(--accent-gold); }
+    .historico-cab button { background: none; border: none; font-size: 1.6rem; line-height: 1; cursor: pointer; color: var(--text-muted); padding: 4px 10px; }
+    .historico-buscar { padding: 6px 16px 10px; }
+    .historico-lista { flex: 1; overflow-y: auto; padding: 0 10px 24px; }
+    .grupo-titulo { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); padding: 14px 8px 6px; }
+    .entrada { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: none; background: transparent; padding: 8px; border-radius: 8px; cursor: pointer; }
+    .entrada:hover { background: var(--accent-blue-light); }
+    .entrada .mini { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; background: var(--panel-bg); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); overflow: hidden; }
+    .entrada .mini img { width: 100%; height: 100%; object-fit: cover; }
+    .entrada .txt { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .entrada .tit { font-size: 0.85rem; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .entrada .sub { font-size: 0.72rem; color: var(--text-muted); }
+    .historico-vacio { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; padding: 14px; }
+
+    /* VISOR DE IMAGEN COMPLETA */
+    .visor { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.94); z-index: 60; display: flex; flex-direction: column; }
+    .visor-barra { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; gap: 10px; }
+    .visor-barra button { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; border-radius: 8px; padding: 9px 14px; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+    .visor-img { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px; }
+    .visor-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    /* HOJAS (certificar, verificar, detalle) */
+    .hoja-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 33; }
+    .hoja { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 580px; max-height: 88dvh; overflow-y: auto; background: #ffffff; border: 1px solid var(--border-color); border-radius: 16px 16px 0 0; z-index: 35; padding: 18px 18px 26px; box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.18); }
+    .hoja-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .hoja-cab h2 { font-size: 1.05rem; font-weight: 800; }
+    .hoja-cab button { background: none; border: none; font-size: 1.6rem; line-height: 1; cursor: pointer; color: var(--text-muted); padding: 4px 10px; }
+    .hoja-col { display: flex; flex-direction: column; gap: 14px; }
+    .lista-cert { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .lista-cert li { font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--panel-bg); overflow-wrap: anywhere; }
+    .lista-cert li.ok { border-color: #bbf7d0; background: #f0fdf4; }
+    .opcion { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
+    .opcion input { margin-top: 3px; }
+    .opcion strong { font-size: 0.9rem; }
+    .opcion span { display: block; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
+    .nota-beta { font-size: 0.8rem; line-height: 1.5; color: #7a5b12; background: #fffbeb; border: 1px solid #f3e3b0; border-radius: 8px; padding: 10px 12px; }
+    .estado-linea { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+    .estado-linea.error { color: var(--alert-red); }
+    .estado-linea.ok { color: var(--success-green); font-weight: 700; }
+    .datos { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .datos div { font-size: 0.82rem; line-height: 1.4; overflow-wrap: anywhere; }
+    .datos b { display: block; font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+    .hash { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.74rem; word-break: break-all; }
+    .acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .texto-folio { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.9rem; line-height: 1.6; max-height: 40dvh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; background: #fafafa; }
+
+    /* MENÚ LATERAL (no se toca) */
     .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 25; }
     .drawer-overlay.active { display: block; }
     .drawer-panel { position: fixed; top: 0; right: -100%; width: 280px; max-width: 86vw; height: 100dvh; background: #ffffff; border-left: 1px solid var(--border-color); transition: right 0.3s ease; z-index: 30; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -116,11 +199,14 @@
     @media (min-width: 720px) {
       .comandos { grid-template-columns: repeat(5, 1fr); }
       .foto-perfil { width: 84px; height: 84px; }
+      .fila2 { grid-template-columns: 1fr 1fr; }
+      .datos { grid-template-columns: 1fr 1fr; }
+      .hoja { border-radius: 16px; bottom: 24px; }
     }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
   </style>
 </head>
-<body>
+<body data-tipo="individual">
 
   <div class="drawer-overlay" id="drawer-overlay"></div>
 
@@ -134,7 +220,6 @@
       <ul class="drawer-menu">
         <li><a href="index.html">1. Portal y Blog (Raíz)</a></li>
         <li><a href="capsula.html">2. Cápsula del Tiempo (Resguardo)</a></li>
-        <li><a href="carga.html">3. Certificar documentos</a></li>
       </ul>
     </div>
     <div>
@@ -169,36 +254,143 @@
     </div>
   </header>
 
-  <main>
-    <p class="aviso" id="aviso" role="status" aria-live="polite" hidden></p>
+  <p class="aviso" id="aviso" role="status" aria-live="polite" hidden></p>
 
-    <div class="profile-hero">
-      <!-- 1. Carrusel del archivo -->
-      <div class="carousel-wrapper">
-        <button class="carousel-nav-btn prev" id="btnPrevCarousel" type="button" aria-label="Anteriores">&#10094;</button>
-        <div class="carousel-container" id="photo-carousel">
-          <div class="carousel-item btn-add" id="btnTriggerUpload" role="button" tabindex="0"><span>+ Tesela</span></div>
-          <span class="carousel-vacio" id="carousel-vacio">Aquí aparecerán sus documentos certificados, en orden de ingreso.</span>
+  <!-- Vista: abriendo -->
+  <main id="vistaCarga">
+    <p class="conversar-vacio">Abriendo su espacio…</p>
+  </main>
+
+  <!-- Vista: ficha base -->
+  <main id="vistaFicha" hidden>
+    <div>
+      <h1 class="ficha-titulo">Información base para las teselas</h1>
+      <p class="ficha-intro">Complete su ficha una sola vez. Al enviarla se abre su espacio de trabajo.</p>
+    </div>
+
+    <form id="formFicha" novalidate>
+      <section class="ficha-bloque">
+        <h2>Usted</h2>
+        <div class="ficha-foto">
+          <button type="button" class="foto-perfil" id="btnFotoForm" aria-label="Subir su foto de perfil">
+            <img id="fotoImgForm" alt="Su foto de perfil" hidden>
+            <span id="fotoVaciaForm">Subir<br>foto</span>
+          </button>
+          <div class="estado" id="estadoFotoForm">Suba una fotografía suya, de frente y bien iluminada.</div>
         </div>
-        <button class="carousel-nav-btn next" id="btnNextCarousel" type="button" aria-label="Siguientes">&#10095;</button>
-        <input type="file" id="carousel-upload" accept="image/*" style="display: none;">
-      </div>
+        <div class="fila2">
+          <div class="campo"><label for="f_nombres">Nombres</label><input type="text" id="f_nombres" autocomplete="given-name" maxlength="80" required></div>
+          <div class="campo"><label for="f_apellidos">Apellidos</label><input type="text" id="f_apellidos" autocomplete="family-name" maxlength="80" required></div>
+        </div>
+        <div class="fila2">
+          <div class="campo"><label for="f_fnac">Fecha de nacimiento</label><input type="date" id="f_fnac" min="1900-01-01" required></div>
+          <div class="campo"><label for="f_nacionalidad">Nacionalidad</label><select id="f_nacionalidad" required></select></div>
+        </div>
+      </section>
 
-      <!-- 2. Foto de perfil real y nombre -->
+      <section class="ficha-bloque">
+        <h2>Dónde nació</h2>
+        <div class="fila2">
+          <div class="campo"><label for="f_pais_nac">País</label><select id="f_pais_nac" required></select></div>
+          <div class="campo"><label for="f_region_nac">Estado o región</label><input type="text" id="f_region_nac" maxlength="80"></div>
+        </div>
+        <div class="campo"><label for="f_ciudad_nac">Ciudad o localidad</label><input type="text" id="f_ciudad_nac" maxlength="80" required></div>
+      </section>
+
+      <section class="ficha-bloque">
+        <h2>Dónde vive hoy</h2>
+        <div class="fila2">
+          <div class="campo"><label for="f_pais_res">País</label><select id="f_pais_res" required></select></div>
+          <div class="campo"><label for="f_region_res">Estado o región</label><input type="text" id="f_region_res" maxlength="80"></div>
+        </div>
+        <div class="campo"><label for="f_ciudad_res">Ciudad o localidad</label><input type="text" id="f_ciudad_res" maxlength="80" required></div>
+      </section>
+
+      <section class="ficha-bloque">
+        <h2>Su perfil</h2>
+        <div class="fila2">
+          <div class="campo">
+            <label for="f_sexo">Sexo (opcional)</label>
+            <select id="f_sexo">
+              <option value="">Prefiero no indicar</option>
+              <option value="mujer">Mujer</option>
+              <option value="hombre">Hombre</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="f_civil">Estado civil (opcional)</label>
+            <select id="f_civil">
+              <option value="">Prefiero no indicar</option>
+              <option value="soltero">Soltero o soltera</option>
+              <option value="casado">Casado o casada</option>
+              <option value="union">Unión estable</option>
+              <option value="separado">Separado o separada</option>
+              <option value="viudo">Viudo o viuda</option>
+            </select>
+          </div>
+        </div>
+        <div class="fila2">
+          <div class="campo">
+            <label for="f_estudios">Nivel educativo (opcional)</label>
+            <select id="f_estudios">
+              <option value="">Prefiero no indicar</option>
+              <option value="basica">Educación básica</option>
+              <option value="media">Educación media o bachillerato</option>
+              <option value="tecnico">Técnico</option>
+              <option value="universitario">Universitario</option>
+              <option value="posgrado">Posgrado</option>
+            </select>
+          </div>
+          <div class="campo"><label for="f_hijos">Número de hijos (opcional)</label><input type="number" id="f_hijos" min="0" max="40" inputmode="numeric"></div>
+        </div>
+        <div class="campo">
+          <label for="f_idiomas">Idiomas que habla (opcional)</label>
+          <input type="text" id="f_idiomas" maxlength="120">
+          <span class="ayuda">Sepárelos con comas.</span>
+        </div>
+      </section>
+
+      <section class="ficha-bloque">
+        <h2>Su relato en pocas líneas</h2>
+        <div class="campo">
+          <label for="f_semblanza">Semblanza breve de su vida</label>
+          <textarea id="f_semblanza" class="corta" maxlength="700" required></textarea>
+        </div>
+        <div class="campo">
+          <label for="f_hito">Un recuerdo o hito que lo defina (opcional)</label>
+          <textarea id="f_hito" class="corta" maxlength="500"></textarea>
+        </div>
+      </section>
+
+      <button type="submit" class="btn-cmd primario" id="btnEnviarFicha">Enviar y entrar</button>
+    </form>
+  </main>
+
+  <!-- Vista: no elegible en la beta -->
+  <main id="vistaBloqueo" class="bloqueo" hidden>
+    <h1>Fase beta</h1>
+    <p>Esta fase beta de OMNIH aún no está habilitada para menores de edad, según la jurisdicción indicada. Gracias por su interés: podrá participar cuando sea elegible.</p>
+    <button type="button" class="btn-cmd" data-salir>Cerrar sesión</button>
+  </main>
+
+  <!-- Vista: central -->
+  <main id="vistaCentral" hidden>
+
+    <!-- 1. Preservador: foto, nombre y categoría -->
+    <div class="profile-hero">
       <div class="user-info">
         <button type="button" class="foto-perfil" id="btnFoto" aria-label="Subir o cambiar su foto de perfil">
           <img id="fotoImg" alt="Su foto de perfil" hidden>
           <span id="fotoVacia">Subir<br>foto</span>
         </button>
-        <input type="file" id="inputFoto" accept="image/jpeg,image/png,image/webp" style="display: none;">
         <div class="user-details">
-          <div class="user-name">Preservador: <span id="user-display-name">Activo</span></div>
-          <div class="estado-foto" id="estadoFoto">Sin foto de perfil</div>
-          <div class="rank-tag">Genehistoriador V2</div>
+          <div class="user-name" id="user-display-name">Preservador</div>
+          <div class="user-lugar" id="user-lugar"></div>
+          <span class="rank-tag">Genehistoriador V2</span>
         </div>
       </div>
-
-      <!-- 3. Categoría del relato -->
+      <input type="file" id="inputFoto" accept="image/jpeg,image/png,image/webp" style="display: none;">
       <div class="categoria-fila">
         <label for="categoria">Categoría del relato</label>
         <select id="categoria">
@@ -214,10 +406,15 @@
       </div>
     </div>
 
-    <!-- 4. Escribir y conversar -->
+    <!-- 2. Espacio de trabajo desplegado -->
     <div class="editor-card">
       <div class="editor-head">
-        <div class="editor-title">Taller de Formalización de Teselas</div>
+        <div class="editor-izq">
+          <button type="button" class="btn-libro" id="btnHistorico" aria-label="Abrir mi histórico" title="Mi histórico">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16"/><path d="M9 7.5h7"/></svg>
+          </button>
+          <div class="editor-title">Espacio de trabajo desplegado</div>
+        </div>
         <div class="tabs" role="tablist">
           <button type="button" class="tab activa" id="tabEscribir" role="tab" aria-selected="true">Escribir</button>
           <button type="button" class="tab" id="tabConversar" role="tab" aria-selected="false">Conversar</button>
@@ -228,29 +425,45 @@
         <textarea id="relato-text" placeholder="Escribe el testimonio, concepto u ontología histórica para someter a resguardo duradero..."></textarea>
       </div>
       <div id="panelConversar" hidden>
-        <p class="conversar-vacio">Su lista de contactos está vacía. Cuando agregue familiares y amigos reales (con fecha de nacimiento, mayores de 16 años) podrá concertar una jornada omnihistórica a una hora determinada. No hay "me gusta" ni seguidores: solo contactos.</p>
+        <p class="conversar-vacio">Su lista de contactos está vacía. Cuando agregue familiares y amigos reales podrá concertar una jornada omnihistórica a una hora determinada. No hay “me gusta” ni seguidores: solo contactos.</p>
       </div>
 
       <ul class="adjuntos" id="adjuntos" aria-label="Archivos adjuntos"></ul>
 
-      <!-- 5. Comandos -->
       <div class="comandos">
         <button type="button" class="btn-cmd" id="btnAdjuntar">Adjuntar archivo</button>
-        <button type="button" class="btn-cmd" id="btnVoz">Dictar por voz</button>
-        <a class="btn-cmd" href="carga.html">Certificar folio</a>
-        <a class="btn-cmd" href="carga.html">Verificar integridad</a>
+        <button type="button" class="btn-cmd" id="btnCertificar">Certificar folio</button>
+        <button type="button" class="btn-cmd" id="btnVerificar">Verificar integridad</button>
+        <button type="button" class="btn-cmd peligro" id="btnBorrar">Borrar pantalla</button>
         <button type="button" class="btn-cmd ia" id="btnIA">Orientación IA</button>
       </div>
       <input type="file" id="inputAdjunto" multiple style="display: none;">
 
       <div class="attachment-bar">
-        <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Borrador vacío</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Nada escrito aún</span>
         <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo</button>
       </div>
     </div>
+
+    <!-- 3. Mis fotos: carrusel abajo -->
+    <div class="archivo-card">
+      <div>
+        <div class="archivo-titulo">Mis fotos</div>
+        <div class="archivo-sub">Fotos personales y familiares: su sentido de pertenencia.</div>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-nav-btn prev" id="btnPrevCarousel" type="button" aria-label="Anteriores">&#10094;</button>
+        <div class="carousel-container" id="photo-carousel">
+          <div class="carousel-item btn-add" id="btnTriggerUpload" role="button" tabindex="0"><span>+ Foto</span></div>
+          <span class="carousel-vacio" id="carousel-vacio">Aquí aparecerán sus fotos.</span>
+        </div>
+        <button class="carousel-nav-btn next" id="btnNextCarousel" type="button" aria-label="Siguientes">&#10095;</button>
+      </div>
+      <input type="file" id="inputFotoAlbum" accept="image/jpeg,image/png,image/webp" multiple style="display: none;">
+    </div>
   </main>
 
-  <aside class="ai-guidance-floating" id="ai-guidance-box">
+  <aside class="ai-guidance-floating" id="ai-guidance-box" hidden>
     <div class="ai-guidance-header" id="btnToggleAi" role="button" tabindex="0">
       <span>🤖 Orientación IA: cómo desarrollar su relato</span>
       <span id="ai-toggle-icon">▲</span>
@@ -259,23 +472,84 @@
       <p>Le sugiero este orden:</p>
       <ol>
         <li><strong>Su autobiografía.</strong><span>Empiece por su propia historia, con calma.</span></li>
-        <li><strong>Sus contactos.</strong><span>Familiares, amigos o colegas reales, con fecha de nacimiento. No se admiten menores de 16 años.</span></li>
+        <li><strong>Sus contactos.</strong><span>Familiares, amigos o colegas reales, con fecha de nacimiento.</span></li>
         <li><strong>La Raíz (en el orden que prefiera).</strong><span>Padres, abuelos y bisabuelos, vivos o fallecidos.</span></li>
         <li><strong>Sus hijos, si los tiene.</strong><span>Un relato por hijo, primero uno y después otro, hasta los 16 años.</span></li>
       </ol>
       <button type="button" class="btn-cmd" id="btnIrAuto">Empezar por mi autobiografía</button>
+      <button type="button" class="btn-cmd" id="btnIaListo">Ya me ambienté, ocultar esta guía</button>
     </div>
   </aside>
 
-  <footer>OMNIH, la historia escrita por la gente</footer>
+  <!-- Histórico -->
+  <div class="historico-overlay" id="historicoOverlay" hidden></div>
+  <aside class="historico" id="historico" role="dialog" aria-modal="true" aria-labelledby="historicoTitulo" hidden>
+    <div class="historico-cab">
+      <h2 id="historicoTitulo">Mi histórico</h2>
+      <button type="button" id="historicoCerrar" aria-label="Cerrar histórico">&times;</button>
+    </div>
+    <div class="historico-buscar"><input type="search" id="historicoBuscar" placeholder="Buscar en mi histórico" aria-label="Buscar en mi histórico"></div>
+    <div class="historico-lista" id="historicoLista"></div>
+  </aside>
+
+  <!-- Visor de imagen completa -->
+  <div class="visor" id="visor" hidden>
+    <div class="visor-barra">
+      <button type="button" id="visorCerrar">Cerrar</button>
+      <button type="button" id="visorEliminar">Eliminar foto</button>
+    </div>
+    <div class="visor-img"><img id="visorImg" alt="Foto completa"></div>
+  </div>
+
+  <div class="hoja-overlay" id="hojaOverlay" hidden></div>
+  <section class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaTitulo" hidden>
+    <div class="hoja-cab">
+      <h2 id="hojaTitulo"></h2>
+      <button type="button" id="hojaCerrar" aria-label="Cerrar">&times;</button>
+    </div>
+    <div id="hojaCuerpo"></div>
+  </section>
+
+  <footer>© 2026 Repositorio de Legado de la OMNIHISTORIA. Servicio comunitario (DAO) de uso Público Global, todos los derechos reservados.</footer>
 
   <script>
   (function () {
     var $ = function (id) { return document.getElementById(id); };
-    var uid = null;          // se llena cuando Firebase confirma la sesión
-    var firebase = null;     // { db, doc, setDoc, getDoc, ... } cuando hay conexión
+    var uid = null;           // se llena cuando Firebase confirma la sesión
+    var F = null;             // funciones de Firebase cuando hay conexión
+    var ficha = null;         // ficha base ya guardada
+    var fotoData = null, fotoEstado = null;
+    var pendientes = [];      // archivos adjuntos aún sin certificar
+    var piezas = {};          // documentos certificados, por id
+    var fotos = {};           // fotos de pertenencia, por id (miniatura y fecha)
+    var fotosCompletas = {};  // caché de fotos completas
+    var fotoAbierta = null;
 
-    /* ---------- Avisos ---------- */
+    /* ----- Parámetros de la beta (se cambian aquí) ----- */
+    var LIMITE = 4 * 1024 * 1024;          // tope por documento certificado
+    var LIM_DOCS = 20;                     // documentos certificados por persona
+    var LIM_FOTOS = 20;                    // fotos de pertenencia por persona
+    var LIM_FOTO_ORIGEN = 12 * 1024 * 1024; // la foto se comprime en el teléfono; no se sube el original
+    var MAX_TEXTO = 100000;                // caracteres de un folio escrito
+    var MAYORIA_EDAD = { KR: 19, SG: 21, EG: 21, TH: 20 };   // por defecto 18; ajustar con asesoría legal
+
+    var CATEGORIAS = { autobiografia: 'Autobiografía', genehistoria: 'Genehistoria filial', omnihistoria: 'Omnihistorias', mascotas: 'Mascotas' };
+    var MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    var CODIGOS = 'AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW'.split(' ');
+
+    /* ---------- Utilidades ---------- */
+    function h(tag, attrs, kids) {
+      var e = document.createElement(tag);
+      Object.keys(attrs || {}).forEach(function (k) {
+        var v = attrs[k];
+        if (k === 'class') e.className = v;
+        else if (k === 'text') e.textContent = v;
+        else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+        else e.setAttribute(k, v);
+      });
+      (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+      return e;
+    }
     var avisoT;
     function avisar(msg, error) {
       var el = $('aviso');
@@ -286,6 +560,13 @@
       avisoT = setTimeout(function () { el.hidden = true; }, 9000);
       el.scrollIntoView({ block: 'nearest' });
     }
+    function mostrarVista(id) {
+      ['vistaCarga', 'vistaFicha', 'vistaBloqueo', 'vistaCentral'].forEach(function (v) { $(v).hidden = (v !== id); });
+      window.scrollTo(0, 0);
+    }
+    function fechaCorta() { return new Date().toISOString().slice(0, 10); }
+    function kbTexto(n) { return n < 1048576 ? Math.max(1, Math.round(n / 1024)) + ' KB' : (n / 1048576).toFixed(1) + ' MB'; }
+    function contar(o) { return Object.keys(o).length; }
 
     /* ---------- Menú lateral ---------- */
     var drawer = $('drawer-menu'), overlay = $('drawer-overlay');
@@ -294,7 +575,17 @@
     $('btnOpenDrawer').addEventListener('click', abrirMenu);
     $('btnCloseDrawer').addEventListener('click', cerrarMenu);
     overlay.addEventListener('click', cerrarMenu);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarMenu(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { cerrarMenu(); cerrarHoja(); cerrarHistorico(); cerrarVisor(); } });
+
+    /* ---------- Hojas (certificar, verificar, detalle) ---------- */
+    function abrirHoja(titulo, cuerpo) {
+      $('hojaTitulo').textContent = titulo;
+      var c = $('hojaCuerpo'); c.textContent = ''; c.appendChild(cuerpo);
+      $('hoja').hidden = false; $('hojaOverlay').hidden = false;
+    }
+    function cerrarHoja() { $('hoja').hidden = true; $('hojaOverlay').hidden = true; }
+    $('hojaCerrar').addEventListener('click', cerrarHoja);
+    $('hojaOverlay').addEventListener('click', cerrarHoja);
 
     /* ---------- Orientación IA ---------- */
     var aiBox = $('ai-guidance-box');
@@ -303,46 +594,36 @@
       aiBox.classList.toggle('open', open);
       $('ai-toggle-icon').textContent = open ? '▼' : '▲';
     }
+    function apagarIA() {
+      aiBox.hidden = true; $('btnIA').hidden = true;
+      if (ficha) ficha.iaActiva = false;
+      guardarFichaParcial({ iaActiva: false });
+    }
     $('btnToggleAi').addEventListener('click', function () { alternarIA(); });
     $('btnToggleAi').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternarIA(); } });
-    $('btnIA').addEventListener('click', function () { alternarIA(); });
+    $('btnIA').addEventListener('click', function () { aiBox.hidden = false; alternarIA(); });
+    $('btnIaListo').addEventListener('click', apagarIA);
 
-    /* ---------- Carrusel ---------- */
-    var carousel = $('photo-carousel');
-    $('btnPrevCarousel').addEventListener('click', function () { carousel.scrollBy({ left: -160 }); });
-    $('btnNextCarousel').addEventListener('click', function () { carousel.scrollBy({ left: 160 }); });
-
-    function agregarPieza(dataUrl, titulo, sinCertificar) {
-      $('carousel-vacio').hidden = true;
-      var d = document.createElement('div');
-      d.className = 'carousel-item';
-      if (dataUrl) {
-        var img = document.createElement('img');
-        img.src = dataUrl; img.alt = titulo || 'Documento';
-        d.appendChild(img);
-      } else {
-        var s = document.createElement('span'); s.textContent = titulo || 'Documento'; d.appendChild(s);
-      }
-      if (sinCertificar) {
-        var m = document.createElement('span'); m.className = 'marca'; m.textContent = 'sin certificar'; d.appendChild(m);
-      }
-      carousel.appendChild(d);
+    /* ---------- Países ---------- */
+    function poblarPaises() {
+      var nombres = null;
+      try { nombres = new Intl.DisplayNames(['es'], { type: 'region' }); } catch (e) {}
+      var lista = CODIGOS.map(function (c) {
+        var n = c; try { if (nombres) n = nombres.of(c) || c; } catch (e) {}
+        return { c: c, n: n };
+      }).sort(function (a, b) { return a.n.localeCompare(b.n, 'es'); });
+      ['f_nacionalidad', 'f_pais_nac', 'f_pais_res'].forEach(function (id) {
+        var s = $(id);
+        s.appendChild(h('option', { value: '', text: 'Seleccione…' }));
+        lista.forEach(function (p) { s.appendChild(h('option', { value: p.c, text: p.n })); });
+      });
     }
-    var subirTesela = function () { $('carousel-upload').click(); };
-    $('btnTriggerUpload').addEventListener('click', subirTesela);
-    $('btnTriggerUpload').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); subirTesela(); } });
-    $('carousel-upload').addEventListener('change', function (e) {
-      var f = e.target.files[0]; e.target.value = '';
-      if (!f) return;
-      var r = new FileReader();
-      r.onload = function (ev) {
-        agregarPieza(ev.target.result, f.name, true);
-        avisar('La imagen quedó en el carrusel como "sin certificar". Para certificarla use "Certificar folio".');
-      };
-      r.readAsDataURL(f);
-    });
+    function nombrePais(c) {
+      try { return new Intl.DisplayNames(['es'], { type: 'region' }).of(c) || c; } catch (e) { return c; }
+    }
+    poblarPaises();
 
-    /* ---------- Foto de perfil: controles ---------- */
+    /* ---------- Imágenes ---------- */
     var TIPOS = ['image/jpeg', 'image/png', 'image/webp'];
     var TXT_ESTADO = {
       rostro_detectado: 'Foto con rostro detectado. Revisión de la IA pendiente',
@@ -363,12 +644,12 @@
       if (TIPOS.indexOf(archivo.type) < 0) return Promise.reject(rechazo('Use una fotografía en formato JPG, PNG o WebP.'));
       if (archivo.size > 10 * 1024 * 1024) return Promise.reject(rechazo('La fotografía pesa más de 10 MB. Elija una más liviana.'));
       return leerImagen(archivo).then(function (img) {
-        var w = img.naturalWidth, h = img.naturalHeight;
-        if (Math.min(w, h) < 300) throw rechazo('La fotografía es muy pequeña. Debe medir al menos 300 píxeles por lado.');
-        if (w / h > 2 || w / h < 0.5) throw rechazo('La imagen es demasiado alargada para ser un retrato. Elija una fotografía de su rostro.');
-        var lado = Math.min(w, h), salida = Math.min(480, lado), c = document.createElement('canvas');
+        var w = img.naturalWidth, alto = img.naturalHeight;
+        if (Math.min(w, alto) < 300) throw rechazo('La fotografía es muy pequeña. Debe medir al menos 300 píxeles por lado.');
+        if (w / alto > 2 || w / alto < 0.5) throw rechazo('La imagen es demasiado alargada para ser un retrato. Elija una fotografía de su rostro.');
+        var lado = Math.min(w, alto), salida = Math.min(480, lado), c = document.createElement('canvas');
         c.width = c.height = salida;
-        c.getContext('2d').drawImage(img, (w - lado) / 2, (h - lado) / 2, lado, lado, 0, 0, salida, salida);
+        c.getContext('2d').drawImage(img, (w - lado) / 2, (alto - lado) / 2, lado, lado, 0, 0, salida, salida);
         var estado = 'pendiente_revision';
         var final = function () { return { dataUrl: c.toDataURL('image/jpeg', 0.82), estado: estado }; };
         if (!('FaceDetector' in window)) return final();
@@ -380,38 +661,130 @@
     }
 
     function mostrarFoto(dataUrl, estado) {
-      if (dataUrl) {
-        $('fotoImg').src = dataUrl; $('fotoImg').hidden = false; $('fotoVacia').hidden = true;
-        $('btnFoto').classList.add('con-foto');
-        $('estadoFoto').textContent = TXT_ESTADO[estado] || 'Foto recibida';
-      }
+      if (!dataUrl) return;
+      ['fotoImg', 'fotoImgForm'].forEach(function (id) { $(id).src = dataUrl; $(id).hidden = false; });
+      ['fotoVacia', 'fotoVaciaForm'].forEach(function (id) { $(id).hidden = true; });
+      $('btnFoto').classList.add('con-foto'); $('btnFotoForm').classList.add('con-foto');
+      $('estadoFotoForm').textContent = TXT_ESTADO[estado] || 'Foto recibida';
+    }
+
+    function guardarFichaParcial(datos) {
+      if (!F || !uid || !ficha) return Promise.resolve(false);
+      return F.setDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base'), datos, { merge: true }).then(function () { return true; }, function () { return false; });
     }
 
     $('btnFoto').addEventListener('click', function () { $('inputFoto').click(); });
+    $('btnFotoForm').addEventListener('click', function () { $('inputFoto').click(); });
     $('inputFoto').addEventListener('change', function (e) {
       var archivo = e.target.files[0]; e.target.value = '';
       if (!archivo) return;
       prepararFoto(archivo).then(function (r) {
+        fotoData = r.dataUrl; fotoEstado = r.estado;
         mostrarFoto(r.dataUrl, r.estado);
-        if (!firebase || !uid) { avisar('Vista previa: la foto se muestra aquí pero no se guarda. Se guardará cuando abra la página desde su sitio con sesión iniciada.'); return; }
-        return firebase.setDoc(firebase.doc(firebase.db, 'perfiles', uid), {
-          foto: r.dataUrl, estadoFoto: r.estado, fotoFecha: new Date().toISOString()
-        }, { merge: true }).then(function () {
-          avisar('Foto guardada. La revisión de la IA queda pendiente.');
-        });
+        if (ficha) {
+          ficha.foto = r.dataUrl; ficha.estadoFoto = r.estado;
+          if (!F || !uid) { avisar('Vista previa: la foto se muestra aquí pero no se guarda.'); return; }
+          return guardarFichaParcial({ foto: r.dataUrl, estadoFoto: r.estado, fotoFecha: new Date().toISOString() }).then(function (ok) {
+            avisar(ok ? 'Foto guardada. La revisión de la IA queda pendiente.' : 'No se pudo guardar la foto. Revise su conexión e intente de nuevo.', !ok);
+          });
+        }
       }).catch(function (err) {
-        if (err && err.rechazo) avisar(err.message, true);
-        else if (err && err.code === 'permission-denied') avisar('Firestore no permitió guardar la foto. Hay que ajustar las reglas de la colección perfiles.', true);
-        else avisar('No se pudo guardar la foto. Revise su conexión e intente de nuevo.', true);
+        avisar(err && err.rechazo ? err.message : 'No se pudo leer la fotografía. Intente con otra.', true);
       });
     });
+
+    /* ---------- Ficha base ---------- */
+    function edadDesde(iso) {
+      var p = iso.split('-'), n = new Date(+p[0], +p[1] - 1, +p[2]), hoy = new Date();
+      var e = hoy.getFullYear() - n.getFullYear(), m = hoy.getMonth() - n.getMonth();
+      if (m < 0 || (m === 0 && hoy.getDate() < n.getDate())) e--;
+      return e;
+    }
+    function mayoriaDe(cc) { return MAYORIA_EDAD[cc] || 18; }
+    function val(id) { return ($(id).value || '').trim(); }
+
+    function leerFicha() {
+      return {
+        nombres: val('f_nombres'), apellidos: val('f_apellidos'), fechaNacimiento: val('f_fnac'),
+        nacionalidad: val('f_nacionalidad'),
+        paisNacimiento: val('f_pais_nac'), regionNacimiento: val('f_region_nac'), ciudadNacimiento: val('f_ciudad_nac'),
+        paisResidencia: val('f_pais_res'), regionResidencia: val('f_region_res'), ciudadResidencia: val('f_ciudad_res'),
+        sexo: val('f_sexo'), estadoCivil: val('f_civil'), estudios: val('f_estudios'),
+        hijos: val('f_hijos') === '' ? null : Math.max(0, Math.min(40, parseInt(val('f_hijos'), 10) || 0)),
+        idiomas: val('f_idiomas'), semblanza: val('f_semblanza'), hito: val('f_hito')
+      };
+    }
+
+    function metricasDe(f) {
+      var e = edadDesde(f.fechaNacimiento);
+      var rango = e < 25 ? '18-24' : e < 35 ? '25-34' : e < 45 ? '35-44' : e < 55 ? '45-54' : e < 65 ? '55-64' : '65+';
+      return {
+        paisResidencia: f.paisResidencia, regionResidencia: f.regionResidencia, ciudadResidencia: f.ciudadResidencia,
+        paisNacimiento: f.paisNacimiento, nacionalidad: f.nacionalidad, rangoEdad: rango,
+        sexo: f.sexo, estadoCivil: f.estadoCivil, estudios: f.estudios,
+        idiomas: f.idiomas ? f.idiomas.split(',').length : 0, hijos: f.hijos, creada: new Date().toISOString()
+      };
+    }
+
+    $('formFicha').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = $('formFicha');
+      if (!fotoData) { avisar('Suba su fotografía para continuar.', true); $('btnFotoForm').focus(); return; }
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      var d = leerFicha();
+      var edad = edadDesde(d.fechaNacimiento);
+      if (isNaN(edad) || edad < 0 || edad > 120) { avisar('Revise la fecha de nacimiento.', true); $('f_fnac').focus(); return; }
+
+      // Menores: no elegibles en la beta, según la jurisdicción de residencia
+      if (edad < mayoriaDe(d.paisResidencia)) {
+        if (F && uid) {
+          F.setDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base'), { estado: 'no_elegible_beta', fecha: new Date().toISOString() }).catch(function () {});
+        }
+        mostrarVista('vistaBloqueo');
+        return;
+      }
+
+      var completa = Object.assign({}, d, {
+        estado: 'completa', foto: fotoData, estadoFoto: fotoEstado, iaActiva: true, creada: new Date().toISOString()
+      });
+      var btn = $('btnEnviarFicha'); btn.disabled = true; btn.textContent = 'Enviando…';
+
+      if (!F || !uid) { ficha = completa; entrarCentral(); avisar('Vista previa: su ficha no se guarda sin conexión.'); return; }
+
+      F.setDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base'), completa).then(function () {
+        ficha = completa;
+        // Métricas de la comunidad: contadores anónimos, sin identificación
+        F.addDoc(F.collection(F.db, 'metricas'), metricasDe(completa)).catch(function () {});
+        // Compatibilidad con el perfil existente (si las reglas lo permiten)
+        F.setDoc(F.doc(F.db, 'perfiles', uid), { foto: fotoData, estadoFoto: fotoEstado, fotoFecha: new Date().toISOString() }, { merge: true }).catch(function () {});
+        entrarCentral();
+      }).catch(function (err) {
+        btn.disabled = false; btn.textContent = 'Enviar y entrar';
+        if (err && err.code === 'permission-denied') avisar('Firestore no permitió guardar la ficha. Hay que publicar las reglas nuevas de la subcolección ficha.', true);
+        else avisar('No se pudo guardar la ficha. Revise su conexión e intente de nuevo.', true);
+      });
+    });
+
+    function entrarCentral() {
+      var nombre = ((ficha.nombres || '') + ' ' + (ficha.apellidos || '')).trim() || 'Preservador';
+      $('user-display-name').textContent = nombre;
+      var lugar = [ficha.ciudadResidencia, ficha.paisResidencia ? nombrePais(ficha.paisResidencia) : ''].filter(Boolean).join(', ');
+      $('user-lugar').textContent = lugar;
+      if (ficha.foto) { fotoData = ficha.foto; fotoEstado = ficha.estadoFoto; mostrarFoto(ficha.foto, ficha.estadoFoto); }
+      var ia = ficha.iaActiva !== false;
+      aiBox.hidden = !ia; $('btnIA').hidden = !ia;
+      mostrarVista('vistaCentral');
+      cargarBorrador();
+      cargarArchivo();
+      cargarFotos();
+    }
 
     /* ---------- Borrador por categoría ---------- */
     var texto = $('relato-text'), categoria = $('categoria'), tBorrador;
     function clave() { return 'omnih_borrador_' + (uid || 'local') + '_' + categoria.value; }
     function cargarBorrador() {
       try { texto.value = localStorage.getItem(clave()) || ''; } catch (e) { texto.value = ''; }
-      $('status-autosave').textContent = texto.value ? 'Borrador recuperado de este dispositivo' : 'Borrador vacío';
+      $('status-autosave').textContent = texto.value ? 'Borrador recuperado de este dispositivo' : 'Nada escrito aún';
     }
     function guardarBorrador() {
       clearTimeout(tBorrador);
@@ -432,36 +805,417 @@
     $('tabEscribir').addEventListener('click', function () { pestana(true); });
     $('tabConversar').addEventListener('click', function () { pestana(false); });
 
-    /* ---------- Adjuntar ---------- */
+    /* ---------- Adjuntar: lo adjunto se ve completo ---------- */
+    function pintarAdjuntos() {
+      var ul = $('adjuntos'); ul.textContent = '';
+      pendientes.forEach(function (f, i) {
+        var li = h('li', { class: 'adj' });
+        li.appendChild(h('div', { class: 'adj-cab' }, [
+          h('span', { class: 'nombre', text: f.name + ' (' + kbTexto(f.size) + '), sin certificar' }),
+          h('button', { type: 'button', 'aria-label': 'Quitar ' + f.name, text: '×', onclick: function () { pendientes.splice(i, 1); pintarAdjuntos(); } })
+        ]));
+        if (f.type.indexOf('image/') === 0) {
+          var im = h('img', { class: 'adj-img', alt: f.name }); im.src = URL.createObjectURL(f); li.appendChild(im);
+        } else if (f.type === 'text/plain') {
+          var pre = h('pre', { class: 'adj-texto', text: 'Leyendo…' });
+          f.text().then(function (t) { pre.textContent = t.slice(0, 30000) + (t.length > 30000 ? '\n…' : ''); });
+          li.appendChild(pre);
+        } else {
+          li.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Abrir ' + (f.type === 'application/pdf' ? 'PDF' : 'archivo'), onclick: function () { window.open(URL.createObjectURL(f), '_blank'); } }));
+        }
+        ul.appendChild(li);
+      });
+    }
     $('btnAdjuntar').addEventListener('click', function () { $('inputAdjunto').click(); });
     $('inputAdjunto').addEventListener('change', function (e) {
+      var excedidos = 0;
       Array.prototype.forEach.call(e.target.files, function (a) {
-        var kb = a.size < 1048576 ? Math.max(1, Math.round(a.size / 1024)) + ' KB' : (a.size / 1048576).toFixed(1) + ' MB';
-        var li = document.createElement('li'); li.textContent = a.name + ' (' + kb + '), sin certificar';
-        $('adjuntos').appendChild(li);
+        if (a.size > LIMITE) { excedidos++; return; }
+        pendientes.push(a);
       });
       e.target.value = '';
+      pintarAdjuntos();
+      if (excedidos) avisar('En la beta cada documento puede pesar hasta 4 MB. Se omitieron ' + excedidos + ' archivo(s).', true);
     });
 
-    /* ---------- Dictado por voz ---------- */
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null;
-    $('btnVoz').addEventListener('click', function () {
-      if (!SR) { avisar('Este navegador no permite dictar por voz. Pruebe con Chrome.', true); return; }
-      if (rec) { rec.stop(); return; }
-      pestana(true);
-      rec = new SR(); rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = false;
-      rec.onresult = function (e) {
-        for (var i = e.resultIndex; i < e.results.length; i++) {
-          if (e.results[i].isFinal) {
-            texto.value += (texto.value && !/\s$/.test(texto.value) ? ' ' : '') + e.results[i][0].transcript.trim();
-          }
+    /* ---------- Mis fotos (carrusel) ---------- */
+    var carousel = $('photo-carousel');
+    $('btnPrevCarousel').addEventListener('click', function () { carousel.scrollBy({ left: -180 }); });
+    $('btnNextCarousel').addEventListener('click', function () { carousel.scrollBy({ left: 180 }); });
+
+    function agregarFoto(f) {
+      fotos[f.id] = f;
+      $('carousel-vacio').hidden = true;
+      var d = h('div', { class: 'carousel-item', role: 'button', tabindex: '0', 'data-id': f.id, 'aria-label': 'Ver foto completa' });
+      var img = h('img', { alt: 'Foto personal o familiar' }); img.src = f.miniatura; d.appendChild(img);
+      var abrir = function () { abrirVisor(f.id); };
+      d.addEventListener('click', abrir);
+      d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+      carousel.appendChild(d);
+      carousel.scrollTo({ left: carousel.scrollWidth, behavior: 'smooth' });
+    }
+
+    function cargarFotos() {
+      if (!F || !uid) return;
+      F.getDocs(F.query(F.collection(F.db, 'perfiles', uid, 'fotos'), F.orderBy('fecha')))
+        .then(function (q) { q.docs.forEach(function (d) { var f = d.data(); f.id = d.id; agregarFoto(f); }); carousel.scrollTo({ left: 0 }); })
+        .catch(function () {});
+    }
+
+    function comprimirFoto(archivo) {
+      return leerImagen(archivo).then(function (img) {
+        var w = img.naturalWidth, alto = img.naturalHeight;
+        function reducir(lado, calidad) {
+          var esc = Math.min(1, lado / Math.max(w, alto)), c = document.createElement('canvas');
+          c.width = Math.round(w * esc); c.height = Math.round(alto * esc);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          return c.toDataURL('image/jpeg', calidad);
         }
-        guardarBorrador();
+        var completa = reducir(1280, 0.78);
+        if (completa.length > 900000) completa = reducir(1024, 0.7);
+        if (completa.length > 900000) completa = reducir(800, 0.65);
+        var lado = Math.min(w, alto), m = document.createElement('canvas');
+        m.width = m.height = 200;
+        m.getContext('2d').drawImage(img, (w - lado) / 2, (alto - lado) / 2, lado, lado, 0, 0, 200, 200);
+        return { completa: completa, miniatura: m.toDataURL('image/jpeg', 0.7) };
+      });
+    }
+
+    function subirFoto(archivo) {
+      if (TIPOS.indexOf(archivo.type) < 0) return Promise.reject(rechazo('Use fotografías en formato JPG, PNG o WebP.'));
+      if (archivo.size > LIM_FOTO_ORIGEN) return Promise.reject(rechazo('Una de las fotos pesa más de 12 MB. Elija una más liviana.'));
+      return comprimirFoto(archivo).then(function (r) {
+        var fecha = new Date().toISOString();
+        if (!F || !uid) {
+          var idLocal = 'local' + Date.now() + Math.floor(Math.random() * 1000);
+          fotosCompletas[idLocal] = r.completa;
+          agregarFoto({ id: idLocal, miniatura: r.miniatura, fecha: fecha });
+          return;
+        }
+        var ref = F.doc(F.collection(F.db, 'perfiles', uid, 'fotos'));
+        return F.setDoc(ref, { miniatura: r.miniatura, fecha: fecha }).then(function () {
+          return F.setDoc(F.doc(F.db, 'perfiles', uid, 'fotosFull', ref.id), { datos: r.completa });
+        }).then(function () {
+          fotosCompletas[ref.id] = r.completa;
+          agregarFoto({ id: ref.id, miniatura: r.miniatura, fecha: fecha });
+        }, function (err) {
+          F.deleteDoc(ref).catch(function () {});
+          throw err;
+        });
+      });
+    }
+
+    function pedirFotos() {
+      if (contar(fotos) >= LIM_FOTOS) { avisar('En la beta puede guardar hasta ' + LIM_FOTOS + ' fotos. Elimine alguna para agregar otra.', true); return; }
+      $('inputFotoAlbum').click();
+    }
+    $('btnTriggerUpload').addEventListener('click', pedirFotos);
+    $('btnTriggerUpload').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pedirFotos(); } });
+    $('inputFotoAlbum').addEventListener('change', function (e) {
+      var lista = Array.prototype.slice.call(e.target.files); e.target.value = '';
+      var libres = LIM_FOTOS - contar(fotos), omitidas = Math.max(0, lista.length - libres), falla = null;
+      lista.slice(0, libres).reduce(function (prev, a) {
+        return prev.then(function () { if (!falla) return subirFoto(a).catch(function (err) { falla = err; }); });
+      }, Promise.resolve()).then(function () {
+        if (falla) avisar(falla.rechazo ? falla.message : (falla.code === 'permission-denied' ? 'Firestore no permitió guardar la foto. Hay que publicar las reglas nuevas.' : 'No se pudo guardar la foto. Revise su conexión.'), true);
+        else if (omitidas) avisar('Se guardaron las fotos que cabían. El límite en la beta es de ' + LIM_FOTOS + '.', true);
+        else if (!F || !uid) avisar('Vista previa: las fotos se muestran aquí pero no se guardan.');
+      });
+    });
+
+    function abrirVisor(id) {
+      fotoAbierta = id;
+      var f = fotos[id];
+      $('visorImg').src = fotosCompletas[id] || (f && f.miniatura) || '';
+      $('visor').hidden = false;
+      if (!fotosCompletas[id] && F && uid) {
+        F.getDoc(F.doc(F.db, 'perfiles', uid, 'fotosFull', id)).then(function (s) {
+          if (s.exists()) { fotosCompletas[id] = s.data().datos; if (fotoAbierta === id) $('visorImg').src = fotosCompletas[id]; }
+        }).catch(function () {});
+      }
+    }
+    function cerrarVisor() { $('visor').hidden = true; fotoAbierta = null; $('visorImg').removeAttribute('src'); }
+    $('visorCerrar').addEventListener('click', cerrarVisor);
+    $('visorEliminar').addEventListener('click', function () {
+      var id = fotoAbierta; if (!id) return;
+      if (!window.confirm('¿Eliminar esta foto de su archivo? No se puede deshacer.')) return;
+      var quitar = function () {
+        delete fotos[id]; delete fotosCompletas[id];
+        var n = carousel.querySelector('[data-id="' + id + '"]'); if (n) n.remove();
+        if (!contar(fotos)) $('carousel-vacio').hidden = false;
+        cerrarVisor();
       };
-      rec.onerror = function () { avisar('El dictado se interrumpió. Revise el permiso del micrófono.', true); };
-      rec.onend = function () { rec = null; $('btnVoz').classList.remove('grabando'); $('btnVoz').textContent = 'Dictar por voz'; };
-      rec.start();
-      $('btnVoz').classList.add('grabando'); $('btnVoz').textContent = 'Detener dictado';
+      if (!F || !uid) { quitar(); return; }
+      Promise.all([
+        F.deleteDoc(F.doc(F.db, 'perfiles', uid, 'fotos', id)),
+        F.deleteDoc(F.doc(F.db, 'perfiles', uid, 'fotosFull', id))
+      ]).then(quitar, function () { avisar('No se pudo eliminar la foto. Intente de nuevo.', true); });
+    });
+
+    /* ---------- Documentos certificados ---------- */
+    function cargarArchivo() {
+      if (!F || !uid) return;
+      F.getDocs(F.query(F.collection(F.db, 'perfiles', uid, 'archivo'), F.orderBy('fecha')))
+        .then(function (q) { q.docs.forEach(function (d) { var p = d.data(); p.id = d.id; piezas[p.id] = p; }); })
+        .catch(function () {});
+    }
+
+    function certificarArchivo(file) {
+      var fd = new FormData();
+      fd.append('file', file, file.name);
+      fd.append('entidad', ((ficha && (ficha.nombres + ' ' + ficha.apellidos)) || 'Particular').trim());
+      fd.append('convenio', 'particular');
+      return fetch('/api/certify', { method: 'POST', body: fd }).then(function (r) {
+        return r.json().catch(function () { return { error: 'Respuesta no válida del servidor (' + r.status + ').' }; }).then(function (j) {
+          if (!r.ok || !j.success) throw new Error(j.error || ('Error ' + r.status));
+          return j;
+        });
+      });
+    }
+
+    function miniaturaDe(file) {
+      return new Promise(function (res) {
+        if (file.type.indexOf('image/') !== 0) return res(null);
+        leerImagen(file).then(function (img) {
+          var w = img.naturalWidth, alto = img.naturalHeight, lado = Math.min(w, alto), c = document.createElement('canvas');
+          c.width = c.height = 160;
+          c.getContext('2d').drawImage(img, (w - lado) / 2, (alto - lado) / 2, lado, lado, 0, 0, 160, 160);
+          res(c.toDataURL('image/jpeg', 0.7));
+        }).catch(function () { res(null); });
+      });
+    }
+
+    // Fase beta: el sello y el acta quedan en Firestore; el documento original permanece en el dispositivo.
+    // Solo el folio escrito en el espacio de trabajo se guarda también como texto.
+    function sellarYGuardar(it, visibilidad) {
+      var file = it.file;
+      return certificarArchivo(file).then(function (j) {
+        return miniaturaDe(file).then(function (mini) {
+          var pieza = {
+            titulo: it.titulo, nombreArchivo: file.name, tam: file.size, tipo: file.type || '',
+            hash: j.hash, firma: j.proof.signature, acta: JSON.stringify(j.proof),
+            otsEstado: j.ots_status || '', ots: j.ots_receipt_base64 || null,
+            visibilidad: visibilidad, categoria: categoria.value, fecha: new Date().toISOString(),
+            miniatura: mini, contenido: it.esTexto ? it.texto : null
+          };
+          var ref = F.doc(F.collection(F.db, 'perfiles', uid, 'archivo'));
+          return F.setDoc(ref, pieza).then(function () {
+            pieza.id = ref.id;
+            if (visibilidad !== 'publico') return pieza;
+            return F.setDoc(F.doc(F.db, 'publico', ref.id), {
+              autorUid: uid, autorNombre: ((ficha.nombres || '') + ' ' + (ficha.apellidos || '')).trim(),
+              titulo: it.titulo, hash: j.hash, fecha: pieza.fecha, categoria: categoria.value,
+              pais: ficha.paisResidencia || '', region: ficha.regionResidencia || '', ciudad: ficha.ciudadResidencia || '',
+              otsEstado: pieza.otsEstado
+            }).then(function () { return pieza; });
+          });
+        });
+      });
+    }
+
+    function hojaCertificar() {
+      var cont = h('div', { class: 'hoja-col' });
+      if (!F || !uid) { cont.appendChild(h('p', { class: 'conversar-vacio', text: 'Vista previa: para certificar abra la página desde su sitio con la sesión iniciada.' })); abrirHoja('Certificar folio', cont); return; }
+      var items = [], t = texto.value.trim();
+      if (t) {
+        if (t.length > MAX_TEXTO) { avisar('El folio supera los ' + MAX_TEXTO.toLocaleString('es') + ' caracteres permitidos en la beta. Divídalo en dos.', true); return; }
+        items.push({ file: new File([t], 'folio-' + categoria.value + '-' + fechaCorta() + '.txt', { type: 'text/plain' }), titulo: 'Folio: ' + CATEGORIAS[categoria.value], esTexto: true, texto: t });
+      }
+      pendientes.forEach(function (f) { items.push({ file: f, titulo: f.name, esTexto: false }); });
+      if (!items.length) {
+        cont.appendChild(h('p', { class: 'conversar-vacio', text: 'No hay nada para certificar. Escriba un folio o adjunte un archivo y vuelva a pulsar “Certificar folio”.' }));
+        abrirHoja('Certificar folio', cont); return;
+      }
+      if (contar(piezas) + items.length > LIM_DOCS) {
+        cont.appendChild(h('p', { class: 'conversar-vacio', text: 'En la beta puede certificar hasta ' + LIM_DOCS + ' documentos. Ya tiene ' + contar(piezas) + '.' }));
+        abrirHoja('Certificar folio', cont); return;
+      }
+      var ul = h('ul', { class: 'lista-cert' });
+      var lis = items.map(function (it) {
+        var li = h('li', { text: it.titulo + ' (' + kbTexto(it.file.size) + ')' }); ul.appendChild(li); return li;
+      });
+      cont.appendChild(ul);
+
+      var gname = 'vis' + Date.now();
+      var rPriv = h('input', { type: 'radio', name: gname, value: 'privado', checked: 'checked' });
+      var rPub = h('input', { type: 'radio', name: gname, value: 'publico' });
+      cont.appendChild(h('label', { class: 'opcion' }, [rPriv, h('div', {}, [h('strong', { text: 'Privado' }), h('span', { text: 'Queda en su histórico personal. Solo usted lo ve.' })])]));
+      cont.appendChild(h('label', { class: 'opcion' }, [rPub, h('div', {}, [h('strong', { text: 'Público' }), h('span', { text: 'Aparece en el archivo público de su ciudad, región y país, y cualquier persona puede verlo. Lo ya visto o copiado por otros no se puede retirar.' })])]));
+      cont.appendChild(h('p', { class: 'nota-beta', text: 'Fase beta: el sello queda registrado en su histórico, pero el documento original permanece en su dispositivo. Conserve su copia; la necesitará para verificar su integridad.' }));
+
+      var estado = h('p', { class: 'estado-linea', text: '' });
+      var btn = h('button', { type: 'button', class: 'btn-cmd primario', text: 'Certificar' });
+      var btnCerrar = h('button', { type: 'button', class: 'btn-cmd', text: 'Cerrar', onclick: cerrarHoja });
+      btnCerrar.hidden = true;
+
+      btn.addEventListener('click', function () {
+        var vis = rPub.checked ? 'publico' : 'privado';
+        btn.disabled = true; var hechos = 0, falla = null;
+        var seguir = items.reduce(function (prev, it, i) {
+          return prev.then(function () {
+            if (falla) return;
+            estado.className = 'estado-linea'; estado.textContent = 'Certificando ' + (i + 1) + ' de ' + items.length + '…';
+            return sellarYGuardar(it, vis).then(function (p) {
+              hechos++;
+              lis[i].className = 'ok'; lis[i].textContent = it.titulo + ': certificado (' + p.hash.slice(0, 14) + '…)';
+              piezas[p.id] = p;
+              if (!it.esTexto) { var k = pendientes.indexOf(it.file); if (k >= 0) pendientes.splice(k, 1); }
+            }).catch(function (err) {
+              falla = (err && err.code === 'permission-denied') ? 'Firestore no permitió guardar. Hay que publicar las reglas nuevas.' : ((err && err.message) || 'No se pudo certificar.');
+            });
+          });
+        }, Promise.resolve());
+        seguir.then(function () {
+          pintarAdjuntos();
+          if (falla) {
+            estado.className = 'estado-linea error'; estado.textContent = falla; btn.disabled = false;
+          } else {
+            estado.className = 'estado-linea ok';
+            estado.textContent = hechos + ' documento(s) certificado(s). Los verá en su histórico.';
+            btn.hidden = true; btnCerrar.hidden = false;
+            if (aiBox.hidden === false) apagarIA();
+          }
+        });
+      });
+      cont.appendChild(estado); cont.appendChild(btn); cont.appendChild(btnCerrar);
+      abrirHoja('Certificar folio', cont);
+    }
+    $('btnCertificar').addEventListener('click', hojaCertificar);
+
+    /* ---------- Detalle de un documento certificado ---------- */
+    function sha256Hex(file) {
+      return file.arrayBuffer().then(function (b) { return crypto.subtle.digest('SHA-256', b); }).then(function (d) {
+        return Array.prototype.map.call(new Uint8Array(d), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+      });
+    }
+    function descargar(contenido, tipo, nombre) {
+      var a = h('a', { href: URL.createObjectURL(new Blob([contenido], { type: tipo })), download: nombre });
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function hojaDetalle(p) {
+      var cont = h('div', { class: 'hoja-col' });
+      if (p.contenido) cont.appendChild(h('div', { class: 'texto-folio', text: p.contenido }));
+      else if (p.miniatura) { var im = h('img', { class: 'adj-img', alt: p.titulo || 'Documento' }); im.src = p.miniatura; im.style.maxWidth = '160px'; cont.appendChild(im); }
+      var datos = h('div', { class: 'datos' });
+      function dato(t, v, esHash) { datos.appendChild(h('div', {}, [h('b', { text: t }), h('span', { class: esHash ? 'hash' : '', text: v })])); }
+      dato('Documento', p.titulo || p.nombreArchivo || 'Documento');
+      dato('Fecha de certificación', (p.fecha || '').replace('T', ' ').slice(0, 16) + ' UTC');
+      dato('Visibilidad', p.visibilidad === 'publico' ? 'Público' : 'Privado');
+      dato('Sello', 'OMNIH-CA v2, firma Ed25519');
+      dato('Bitcoin', p.otsEstado === 'CONFIRMADO_EN_CALENDARIO_BITCOIN' ? 'En proceso' : 'Sin recibo');
+      dato('Original', p.contenido ? 'Guardado como texto en su histórico' : 'Permanece en su dispositivo (fase beta)');
+      dato('Hash SHA-256', p.hash || '', true);
+      cont.appendChild(datos);
+
+      var res = h('p', { class: 'estado-linea', text: '' });
+      var inp = h('input', { type: 'file', style: 'display:none' });
+      inp.addEventListener('change', function () {
+        var f = inp.files[0]; if (!f) return;
+        res.className = 'estado-linea'; res.textContent = 'Comprobando…';
+        sha256Hex(f).then(function (hex) {
+          var ok = ('0x' + hex) === p.hash;
+          res.className = 'estado-linea ' + (ok ? 'ok' : 'error');
+          res.textContent = ok ? 'Íntegro: su archivo coincide con el sello.' : 'No coincide: este archivo es distinto del que se certificó.';
+        }).catch(function () { res.className = 'estado-linea error'; res.textContent = 'No se pudo comprobar el archivo.'; });
+      });
+      var acc = h('div', { class: 'acciones' });
+      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Verificar con mi archivo', onclick: function () { inp.click(); } }));
+      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar acta (.json)', onclick: function () { descargar(p.acta || '{}', 'application/json', 'acta-' + (p.hash || 'omnih').slice(2, 12) + '.json'); } }));
+      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Copiar hash', onclick: function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(p.hash).then(function () { avisar('Hash copiado.'); }, function () { avisar('No se pudo copiar.', true); });
+      } }));
+      if (p.contenido) acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar texto (.txt)', onclick: function () { descargar(p.contenido, 'text/plain', (p.nombreArchivo || 'folio.txt')); } }));
+      cont.appendChild(acc); cont.appendChild(inp); cont.appendChild(res);
+      abrirHoja('Documento certificado', cont);
+    }
+
+    /* ---------- Verificar integridad (cualquier archivo) ---------- */
+    function hojaVerificar() {
+      var cont = h('div', { class: 'hoja-col' });
+      cont.appendChild(h('p', { class: 'estado-linea', text: 'Elija el archivo que quiere comprobar. Se compara con los documentos certificados en su histórico.' }));
+      var inp = h('input', { type: 'file', style: 'display:none' });
+      var res = h('div', { class: 'hoja-col' });
+      var btn = h('button', { type: 'button', class: 'btn-cmd primario', text: 'Elegir archivo', onclick: function () { inp.click(); } });
+      inp.addEventListener('change', function () {
+        var f = inp.files[0]; if (!f) return;
+        res.textContent = ''; res.appendChild(h('p', { class: 'estado-linea', text: 'Calculando huella de “' + f.name + '”…' }));
+        sha256Hex(f).then(function (hex) {
+          var huella = '0x' + hex;
+          if (!F || !uid) { res.textContent = ''; res.appendChild(h('p', { class: 'estado-linea', text: 'Vista previa: sin conexión no se puede comparar. Huella: ' + huella })); return; }
+          return F.getDocs(F.query(F.collection(F.db, 'perfiles', uid, 'archivo'), F.where('hash', '==', huella))).then(function (q) {
+            res.textContent = '';
+            if (!q.empty) {
+              var p = q.docs[0].data();
+              res.appendChild(h('p', { class: 'estado-linea ok', text: 'Íntegro: el archivo coincide con el sello.' }));
+              res.appendChild(h('p', { class: 'estado-linea', text: (p.titulo || p.nombreArchivo || 'Documento') + ', certificado el ' + (p.fecha || '').slice(0, 10) + '.' }));
+            } else {
+              res.appendChild(h('p', { class: 'estado-linea error', text: 'No coincide con ningún documento certificado en su histórico. El archivo pudo haber cambiado o nunca se certificó aquí.' }));
+            }
+            res.appendChild(h('p', { class: 'estado-linea hash', text: huella }));
+          });
+        }).catch(function () {
+          res.textContent = ''; res.appendChild(h('p', { class: 'estado-linea error', text: 'No se pudo comprobar el archivo. Intente de nuevo.' }));
+        });
+      });
+      cont.appendChild(btn); cont.appendChild(inp); cont.appendChild(res);
+      abrirHoja('Verificar integridad', cont);
+    }
+    $('btnVerificar').addEventListener('click', hojaVerificar);
+
+    /* ---------- Histórico: documentos y fotos, de lo más reciente a lo más antiguo ---------- */
+    function etiquetaTiempo(iso) {
+      var d = new Date(iso), hoy = new Date();
+      var d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate()), h0 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+      var dias = Math.round((h0 - d0) / 86400000);
+      if (dias <= 0) return 'Hoy';
+      if (dias === 1) return 'Ayer';
+      if (dias <= 7) return 'Últimos 7 días';
+      if (d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth()) return 'Este mes';
+      if (d.getFullYear() === hoy.getFullYear()) return MESES[d.getMonth()];
+      return String(d.getFullYear());
+    }
+    function pintarHistorico() {
+      var q = ($('historicoBuscar').value || '').trim().toLowerCase();
+      var lista = [];
+      Object.keys(piezas).forEach(function (id) { var p = piezas[id]; lista.push({ tipo: 'doc', id: id, titulo: p.titulo || p.nombreArchivo || 'Documento', fecha: p.fecha || '', mini: p.miniatura, sub: (CATEGORIAS[p.categoria] || 'Documento') + ' · ' + (p.visibilidad === 'publico' ? 'público' : 'privado') }); });
+      Object.keys(fotos).forEach(function (id) { var f = fotos[id]; lista.push({ tipo: 'foto', id: id, titulo: 'Foto', fecha: f.fecha || '', mini: f.miniatura, sub: 'Foto personal o familiar' }); });
+      lista = lista.filter(function (x) { return !q || (x.titulo + ' ' + x.sub).toLowerCase().indexOf(q) >= 0; });
+      lista.sort(function (a, b) { return a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0; });
+      var cont = $('historicoLista'); cont.textContent = '';
+      if (!lista.length) {
+        cont.appendChild(h('p', { class: 'historico-vacio', text: q ? 'Nada coincide con su búsqueda.' : 'Aquí aparecerán los documentos que certifique y las fotos que guarde, del más reciente al más antiguo.' }));
+        return;
+      }
+      var grupo = null;
+      lista.forEach(function (x) {
+        var et = x.fecha ? etiquetaTiempo(x.fecha) : 'Sin fecha';
+        if (et !== grupo) { grupo = et; cont.appendChild(h('div', { class: 'grupo-titulo', text: et })); }
+        var mini = h('span', { class: 'mini' });
+        if (x.mini) { var im = h('img', { alt: '' }); im.src = x.mini; mini.appendChild(im); } else mini.textContent = 'DOC';
+        var fechaTxt = x.fecha ? new Date(x.fecha).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        var b = h('button', { type: 'button', class: 'entrada' }, [mini, h('span', { class: 'txt' }, [h('span', { class: 'tit', text: x.titulo }), h('span', { class: 'sub', text: x.sub + (fechaTxt ? ' · ' + fechaTxt : '') })])]);
+        b.addEventListener('click', function () {
+          cerrarHistorico();
+          if (x.tipo === 'foto') abrirVisor(x.id); else hojaDetalle(piezas[x.id]);
+        });
+        cont.appendChild(b);
+      });
+    }
+    function abrirHistorico() { $('historicoBuscar').value = ''; pintarHistorico(); $('historico').hidden = false; $('historicoOverlay').hidden = false; }
+    function cerrarHistorico() { $('historico').hidden = true; $('historicoOverlay').hidden = true; }
+    $('btnHistorico').addEventListener('click', abrirHistorico);
+    $('historicoCerrar').addEventListener('click', cerrarHistorico);
+    $('historicoOverlay').addEventListener('click', cerrarHistorico);
+    $('historicoBuscar').addEventListener('input', pintarHistorico);
+
+    /* ---------- Borrar lo que está en pantalla (texto y adjuntos sin certificar) ---------- */
+    $('btnBorrar').addEventListener('click', function () {
+      if (!texto.value.trim() && !pendientes.length) { avisar('No hay nada en pantalla para borrar.'); return; }
+      if (!window.confirm('¿Borrar lo que está en pantalla (texto y archivos adjuntos)? Lo ya certificado en su histórico no se toca.')) return;
+      clearTimeout(tBorrador); texto.value = ''; pendientes = []; pintarAdjuntos();
+      try { localStorage.removeItem(clave()); } catch (e) {}
+      $('status-autosave').textContent = 'Nada escrito aún';
+      avisar('Pantalla despejada.');
     });
 
     /* ---------- Orientación: ir a la autobiografía ---------- */
@@ -482,10 +1236,10 @@
       location.href = 'capsula.html';
     });
 
-    /* ---------- Conexión con Firebase (no se intenta al abrir el archivo directo) ---------- */
-    cargarBorrador();
-    if (location.protocol === 'file:') {
+    /* ---------- Conexión con Firebase (no se intenta fuera de http/https) ---------- */
+    if (!/^https?:$/.test(location.protocol)) {
       avisar('Vista previa: está viendo la página sin conexión. Los botones de pantalla funcionan, pero nada se guarda en su cuenta.');
+      mostrarVista('vistaFicha');
       return;
     }
     Promise.all([
@@ -495,22 +1249,28 @@
       import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js')
     ]).then(function (m) {
       var app = m[1].getApp(), auth = m[2].getAuth(app), fs = m[3];
-      firebase = { db: fs.getFirestore(app), doc: fs.doc, setDoc: fs.setDoc };
+      F = {
+        app: app, db: fs.getFirestore(app), doc: fs.doc, setDoc: fs.setDoc, getDoc: fs.getDoc, deleteDoc: fs.deleteDoc,
+        collection: fs.collection, addDoc: fs.addDoc, getDocs: fs.getDocs, query: fs.query, orderBy: fs.orderBy, where: fs.where
+      };
       m[2].onAuthStateChanged(auth, function (u) {
         if (!u || !u.emailVerified) { location.href = 'login.html'; return; }
         uid = u.uid;
-        var nombre = u.displayName || (u.email || '').split('@')[0] || 'Preservador';
-        $('user-display-name').textContent = nombre;
-        cargarBorrador();
-        fs.getDoc(fs.doc(firebase.db, 'perfiles', uid)).then(function (s) {
-          if (!s.exists()) return;
-          var p = s.data();
-          $('user-display-name').textContent = p.nombre || p.nombres || p.displayName || nombre;
-          if (p.foto) mostrarFoto(p.foto, p.estadoFoto);
-        }).catch(function () {});
-        fs.getDocs(fs.query(fs.collection(firebase.db, 'perfiles', uid, 'archivo'), fs.orderBy('fecha')))
-          .then(function (q) { q.docs.forEach(function (d) { var p = d.data(); agregarPieza(p.miniatura, p.titulo, false); }); })
-          .catch(function () {});
+        F.getDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base')).then(function (s) {
+          if (s.exists()) {
+            var d = s.data();
+            if (d.estado === 'no_elegible_beta') { mostrarVista('vistaBloqueo'); return; }
+            if (d.estado === 'completa') { ficha = d; entrarCentral(); return; }
+          }
+          // Sin ficha: se abre el formulario. Si ya había foto en el perfil, se reutiliza.
+          F.getDoc(F.doc(F.db, 'perfiles', uid)).then(function (ps) {
+            if (ps.exists() && ps.data().foto) { fotoData = ps.data().foto; fotoEstado = ps.data().estadoFoto; mostrarFoto(fotoData, fotoEstado); }
+          }).catch(function () {});
+          mostrarVista('vistaFicha');
+        }).catch(function () {
+          mostrarVista('vistaFicha');
+          avisar('No se pudo leer su ficha. Revise su conexión o que estén publicadas las reglas de Firestore.', true);
+        });
       });
     }).catch(function () {
       avisar('No se pudo conectar con Firebase desde esta página. Revise que existan js/firebase-init.js y su conexión.', true);
