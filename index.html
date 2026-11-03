@@ -452,7 +452,7 @@
       <div class="metrics-grid">
         <div class="metric-unit">
           <span class="metric-lbl">Almacenamiento</span>
-          <span class="metric-val" id="val-storage">0.00 GB</span>
+          <span class="metric-val" id="val-storage">0 MB</span>
           <span class="metric-lbl">(Resguardados)</span>
         </div>
         <div class="metric-unit">
@@ -461,9 +461,9 @@
           <span class="metric-lbl">(SHA-256)</span>
         </div>
         <div class="metric-unit">
-          <span class="metric-lbl">Interacciones</span>
-          <span class="metric-val" id="val-interact">0</span>
-          <span class="metric-lbl">(Mes)</span>
+          <span class="metric-lbl">Despliegues</span>
+          <span class="metric-val" id="val-deploy">0</span>
+          <span class="metric-lbl">(Total)</span>
         </div>
       </div>
     </section>
@@ -479,9 +479,9 @@
     <!-- ACCESOS INFERIORES -->
     <div class="bottom-cta">
       <a href="/convenio" class="btn-cta-main">Solicitud institucional de convenio</a>
-      <!-- INICIO ATAJO TEMPORAL A CARGA (borrar hasta FIN) -->
+      <!-- ===== INICIO ATAJO TEMPORAL A CARGA: PARA INUTILIZARLO, BORRA ESTAS 3 LÍNEAS (esta, el enlace y la de FIN) ===== -->
       <a href="/carga" class="corporate-link">Acceso Corporativo e Institucional (Convenios) →</a>
-      <!-- FIN ATAJO TEMPORAL A CARGA -->
+      <!-- ===== FIN ATAJO TEMPORAL A CARGA ===== -->
     </div>
 
     <!-- PIE DE PÁGINA GLOBAL -->
@@ -628,11 +628,13 @@
               return typeof p === 'object' ? p : { id: String(p) };
             });
           }
-          if (data.metricas.almacenamientoGB) {
-            document.getElementById('val-storage').textContent = `${data.metricas.almacenamientoGB} GB`;
+          const m = data.metricas;
+          const mb = Number(m.almacenamientoMB ?? (m.almacenamientoGB ? m.almacenamientoGB * 1024 : 0));
+          if (mb) {
+            document.getElementById('val-storage').textContent = mb >= 1024 ? `${(mb / 1024).toFixed(2)} GB` : `${mb} MB`;
           }
-          if (data.metricas.interaccionesMes) {
-            document.getElementById('val-interact').textContent = data.metricas.interaccionesMes;
+          if (m.despliegues) {
+            document.getElementById('val-deploy').textContent = m.despliegues;
           }
         }
 
