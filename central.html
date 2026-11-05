@@ -40,7 +40,7 @@
     /* BLOQUE DEL PRESERVADOR: foto, nombre, categoría */
     .profile-hero { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
     .user-info { display: flex; align-items: center; gap: 14px; }
-    .foto-perfil { width: 72px; height: 72px; flex-shrink: 0; border-radius: 50%; border: 2px dashed var(--accent-gold); background: #fffbeb; color: #92741f; font-size: 0.7rem; font-weight: 700; line-height: 1.15; cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .foto-perfil { width: 72px; height: 72px; flex-shrink: 0; border-radius: 10px; border: 2px dashed var(--accent-gold); background: #fffbeb; color: #92741f; font-size: 0.7rem; font-weight: 700; line-height: 1.15; cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; text-align: center; }
     .foto-perfil.con-foto { border-style: solid; }
     .foto-perfil img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .user-details { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
@@ -271,13 +271,6 @@
     <form id="formFicha" novalidate>
       <section class="ficha-bloque">
         <h2>Usted</h2>
-        <div class="ficha-foto">
-          <button type="button" class="foto-perfil" id="btnFotoForm" aria-label="Subir su foto de perfil">
-            <img id="fotoImgForm" alt="Su foto de perfil" hidden>
-            <span id="fotoVaciaForm">Subir<br>foto</span>
-          </button>
-          <div class="estado" id="estadoFotoForm">Suba una fotografía suya, de frente y bien iluminada.</div>
-        </div>
         <div class="fila2">
           <div class="campo"><label for="f_nombres">Nombres</label><input type="text" id="f_nombres" autocomplete="given-name" maxlength="80" required></div>
           <div class="campo"><label for="f_apellidos">Apellidos</label><input type="text" id="f_apellidos" autocomplete="family-name" maxlength="80" required></div>
@@ -286,55 +279,19 @@
           <div class="campo"><label for="f_fnac">Fecha de nacimiento</label><input type="date" id="f_fnac" min="1900-01-01" required></div>
           <div class="campo"><label for="f_nacionalidad">Nacionalidad</label><select id="f_nacionalidad" required></select></div>
         </div>
-      </section>
-
-      <section class="ficha-bloque">
-        <h2>Dónde nació</h2>
-        <div class="fila2">
-          <div class="campo"><label for="f_pais_nac">País</label><select id="f_pais_nac" required></select></div>
-          <div class="campo"><label for="f_region_nac">Estado o región</label><input type="text" id="f_region_nac" maxlength="80"></div>
-        </div>
-        <div class="campo"><label for="f_ciudad_nac">Ciudad o localidad</label><input type="text" id="f_ciudad_nac" maxlength="80" required></div>
-      </section>
-
-      <section class="ficha-bloque">
-        <h2>Dónde vive hoy</h2>
-        <div class="fila2">
-          <div class="campo"><label for="f_pais_res">País</label><select id="f_pais_res" required></select></div>
-          <div class="campo"><label for="f_region_res">Estado o región</label><input type="text" id="f_region_res" maxlength="80"></div>
-        </div>
-        <div class="campo"><label for="f_ciudad_res">Ciudad o localidad</label><input type="text" id="f_ciudad_res" maxlength="80" required></div>
-      </section>
-
-      <section class="ficha-bloque">
-        <h2>Su perfil</h2>
         <div class="fila2">
           <div class="campo">
-            <label for="f_sexo">Sexo (opcional)</label>
-            <select id="f_sexo">
-              <option value="">Prefiero no indicar</option>
+            <label for="f_sexo">Sexo</label>
+            <select id="f_sexo" required>
+              <option value="">Seleccione…</option>
               <option value="mujer">Mujer</option>
               <option value="hombre">Hombre</option>
-              <option value="otro">Otro</option>
             </select>
           </div>
           <div class="campo">
-            <label for="f_civil">Estado civil (opcional)</label>
-            <select id="f_civil">
-              <option value="">Prefiero no indicar</option>
-              <option value="soltero">Soltero o soltera</option>
-              <option value="casado">Casado o casada</option>
-              <option value="union">Unión estable</option>
-              <option value="separado">Separado o separada</option>
-              <option value="viudo">Viudo o viuda</option>
-            </select>
-          </div>
-        </div>
-        <div class="fila2">
-          <div class="campo">
-            <label for="f_estudios">Nivel educativo (opcional)</label>
-            <select id="f_estudios">
-              <option value="">Prefiero no indicar</option>
+            <label for="f_estudios">Nivel educativo</label>
+            <select id="f_estudios" required>
+              <option value="">Seleccione…</option>
               <option value="basica">Educación básica</option>
               <option value="media">Educación media o bachillerato</option>
               <option value="tecnico">Técnico</option>
@@ -342,24 +299,6 @@
               <option value="posgrado">Posgrado</option>
             </select>
           </div>
-          <div class="campo"><label for="f_hijos">Número de hijos (opcional)</label><input type="number" id="f_hijos" min="0" max="40" inputmode="numeric"></div>
-        </div>
-        <div class="campo">
-          <label for="f_idiomas">Idiomas que habla (opcional)</label>
-          <input type="text" id="f_idiomas" maxlength="120">
-          <span class="ayuda">Sepárelos con comas.</span>
-        </div>
-      </section>
-
-      <section class="ficha-bloque">
-        <h2>Su relato en pocas líneas</h2>
-        <div class="campo">
-          <label for="f_semblanza">Semblanza breve de su vida</label>
-          <textarea id="f_semblanza" class="corta" maxlength="700" required></textarea>
-        </div>
-        <div class="campo">
-          <label for="f_hito">Un recuerdo o hito que lo defina (opcional)</label>
-          <textarea id="f_hito" class="corta" maxlength="500"></textarea>
         </div>
       </section>
 
@@ -531,7 +470,7 @@
     var LIM_FOTOS = 20;                    // fotos de pertenencia por persona
     var LIM_FOTO_ORIGEN = 12 * 1024 * 1024; // la foto se comprime en el teléfono; no se sube el original
     var MAX_TEXTO = 100000;                // caracteres de un folio escrito
-    var MAYORIA_EDAD = { KR: 19, SG: 21, EG: 21, TH: 20 };   // por defecto 18; ajustar con asesoría legal
+    var MAYORIA_EDAD = 18;                 // se decide solo por la fecha de nacimiento
 
     var CATEGORIAS = { autobiografia: 'Autobiografía', genehistoria: 'Genehistoria filial', omnihistoria: 'Omnihistorias', mascotas: 'Mascotas' };
     var MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -612,7 +551,7 @@
         var n = c; try { if (nombres) n = nombres.of(c) || c; } catch (e) {}
         return { c: c, n: n };
       }).sort(function (a, b) { return a.n.localeCompare(b.n, 'es'); });
-      ['f_nacionalidad', 'f_pais_nac', 'f_pais_res'].forEach(function (id) {
+      ['f_nacionalidad'].forEach(function (id) {
         var s = $(id);
         s.appendChild(h('option', { value: '', text: 'Seleccione…' }));
         lista.forEach(function (p) { s.appendChild(h('option', { value: p.c, text: p.n })); });
@@ -645,27 +584,19 @@
       if (archivo.size > 10 * 1024 * 1024) return Promise.reject(rechazo('La fotografía pesa más de 10 MB. Elija una más liviana.'));
       return leerImagen(archivo).then(function (img) {
         var w = img.naturalWidth, alto = img.naturalHeight;
-        if (Math.min(w, alto) < 300) throw rechazo('La fotografía es muy pequeña. Debe medir al menos 300 píxeles por lado.');
-        if (w / alto > 2 || w / alto < 0.5) throw rechazo('La imagen es demasiado alargada para ser un retrato. Elija una fotografía de su rostro.');
+        // Cualquier foto sirve: se recorta sola al centro, en cuadrado, y se reduce
         var lado = Math.min(w, alto), salida = Math.min(480, lado), c = document.createElement('canvas');
         c.width = c.height = salida;
         c.getContext('2d').drawImage(img, (w - lado) / 2, (alto - lado) / 2, lado, lado, 0, 0, salida, salida);
-        var estado = 'pendiente_revision';
-        var final = function () { return { dataUrl: c.toDataURL('image/jpeg', 0.82), estado: estado }; };
-        if (!('FaceDetector' in window)) return final();
-        return new window.FaceDetector({ fastMode: true, maxDetectedFaces: 3 }).detect(c).then(function (caras) {
-          if (!caras.length) throw rechazo('No se detecta un rostro en la imagen. Suba una fotografía suya, de frente y bien iluminada.');
-          estado = 'rostro_detectado'; return final();
-        }, function () { return final(); });
+        return { dataUrl: c.toDataURL('image/jpeg', 0.82), estado: 'pendiente_revision' };
       });
     }
 
     function mostrarFoto(dataUrl, estado) {
       if (!dataUrl) return;
-      ['fotoImg', 'fotoImgForm'].forEach(function (id) { $(id).src = dataUrl; $(id).hidden = false; });
-      ['fotoVacia', 'fotoVaciaForm'].forEach(function (id) { $(id).hidden = true; });
-      $('btnFoto').classList.add('con-foto'); $('btnFotoForm').classList.add('con-foto');
-      $('estadoFotoForm').textContent = TXT_ESTADO[estado] || 'Foto recibida';
+      $('fotoImg').src = dataUrl; $('fotoImg').hidden = false;
+      $('fotoVacia').hidden = true;
+      $('btnFoto').classList.add('con-foto');
     }
 
     function guardarFichaParcial(datos) {
@@ -674,7 +605,6 @@
     }
 
     $('btnFoto').addEventListener('click', function () { $('inputFoto').click(); });
-    $('btnFotoForm').addEventListener('click', function () { $('inputFoto').click(); });
     $('inputFoto').addEventListener('change', function (e) {
       var archivo = e.target.files[0]; e.target.value = '';
       if (!archivo) return;
@@ -700,18 +630,12 @@
       if (m < 0 || (m === 0 && hoy.getDate() < n.getDate())) e--;
       return e;
     }
-    function mayoriaDe(cc) { return MAYORIA_EDAD[cc] || 18; }
     function val(id) { return ($(id).value || '').trim(); }
 
     function leerFicha() {
       return {
         nombres: val('f_nombres'), apellidos: val('f_apellidos'), fechaNacimiento: val('f_fnac'),
-        nacionalidad: val('f_nacionalidad'),
-        paisNacimiento: val('f_pais_nac'), regionNacimiento: val('f_region_nac'), ciudadNacimiento: val('f_ciudad_nac'),
-        paisResidencia: val('f_pais_res'), regionResidencia: val('f_region_res'), ciudadResidencia: val('f_ciudad_res'),
-        sexo: val('f_sexo'), estadoCivil: val('f_civil'), estudios: val('f_estudios'),
-        hijos: val('f_hijos') === '' ? null : Math.max(0, Math.min(40, parseInt(val('f_hijos'), 10) || 0)),
-        idiomas: val('f_idiomas'), semblanza: val('f_semblanza'), hito: val('f_hito')
+        nacionalidad: val('f_nacionalidad'), sexo: val('f_sexo'), estudios: val('f_estudios')
       };
     }
 
@@ -719,24 +643,21 @@
       var e = edadDesde(f.fechaNacimiento);
       var rango = e < 25 ? '18-24' : e < 35 ? '25-34' : e < 45 ? '35-44' : e < 55 ? '45-54' : e < 65 ? '55-64' : '65+';
       return {
-        paisResidencia: f.paisResidencia, regionResidencia: f.regionResidencia, ciudadResidencia: f.ciudadResidencia,
-        paisNacimiento: f.paisNacimiento, nacionalidad: f.nacionalidad, rangoEdad: rango,
-        sexo: f.sexo, estadoCivil: f.estadoCivil, estudios: f.estudios,
-        idiomas: f.idiomas ? f.idiomas.split(',').length : 0, hijos: f.hijos, creada: new Date().toISOString()
+        nacionalidad: f.nacionalidad, rangoEdad: rango,
+        sexo: f.sexo, estudios: f.estudios, creada: new Date().toISOString()
       };
     }
 
     $('formFicha').addEventListener('submit', function (e) {
       e.preventDefault();
       var form = $('formFicha');
-      if (!fotoData) { avisar('Suba su fotografía para continuar.', true); $('btnFotoForm').focus(); return; }
       if (!form.checkValidity()) { form.reportValidity(); return; }
       var d = leerFicha();
       var edad = edadDesde(d.fechaNacimiento);
       if (isNaN(edad) || edad < 0 || edad > 120) { avisar('Revise la fecha de nacimiento.', true); $('f_fnac').focus(); return; }
 
-      // Menores: no elegibles en la beta, según la jurisdicción de residencia
-      if (edad < mayoriaDe(d.paisResidencia)) {
+      // Menores: no elegibles en la beta, solo por la fecha de nacimiento
+      if (edad < MAYORIA_EDAD) {
         if (F && uid) {
           F.setDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base'), { estado: 'no_elegible_beta', fecha: new Date().toISOString() }).catch(function () {});
         }
@@ -745,7 +666,7 @@
       }
 
       var completa = Object.assign({}, d, {
-        estado: 'completa', foto: fotoData, estadoFoto: fotoEstado, iaActiva: true, creada: new Date().toISOString()
+        estado: 'completa', iaActiva: true, creada: new Date().toISOString()
       });
       var btn = $('btnEnviarFicha'); btn.disabled = true; btn.textContent = 'Enviando…';
 
@@ -755,8 +676,6 @@
         ficha = completa;
         // Métricas de la comunidad: contadores anónimos, sin identificación
         F.addDoc(F.collection(F.db, 'metricas'), metricasDe(completa)).catch(function () {});
-        // Compatibilidad con el perfil existente (si las reglas lo permiten)
-        F.setDoc(F.doc(F.db, 'perfiles', uid), { foto: fotoData, estadoFoto: fotoEstado, fotoFecha: new Date().toISOString() }, { merge: true }).catch(function () {});
         entrarCentral();
       }).catch(function (err) {
         btn.disabled = false; btn.textContent = 'Enviar y entrar';
@@ -768,8 +687,7 @@
     function entrarCentral() {
       var nombre = ((ficha.nombres || '') + ' ' + (ficha.apellidos || '')).trim() || 'Preservador';
       $('user-display-name').textContent = nombre;
-      var lugar = [ficha.ciudadResidencia, ficha.paisResidencia ? nombrePais(ficha.paisResidencia) : ''].filter(Boolean).join(', ');
-      $('user-lugar').textContent = lugar;
+      $('user-lugar').textContent = '';
       if (ficha.foto) { fotoData = ficha.foto; fotoEstado = ficha.estadoFoto; mostrarFoto(ficha.foto, ficha.estadoFoto); }
       var ia = ficha.iaActiva !== false;
       aiBox.hidden = !ia; $('btnIA').hidden = !ia;
@@ -1005,7 +923,7 @@
             return F.setDoc(F.doc(F.db, 'publico', ref.id), {
               autorUid: uid, autorNombre: ((ficha.nombres || '') + ' ' + (ficha.apellidos || '')).trim(),
               titulo: it.titulo, hash: j.hash, fecha: pieza.fecha, categoria: categoria.value,
-              pais: ficha.paisResidencia || '', region: ficha.regionResidencia || '', ciudad: ficha.ciudadResidencia || '',
+              pais: ficha.nacionalidad || '', region: '', ciudad: '',
               otsEstado: pieza.otsEstado
             }).then(function () { return pieza; });
           });
