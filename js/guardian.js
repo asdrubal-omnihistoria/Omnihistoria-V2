@@ -12,6 +12,7 @@ import {
 export function rutaPorTipo(tipo) {
   if (tipo === "individual") return "central.html";
   if (tipo === "convenio") return "carga.html";
+  if (tipo === "admin") return "administrador.html";
   return null;
 }
 
@@ -46,6 +47,24 @@ export async function ingresar(correo, clave) {
   await setPersistence(auth, browserSessionPersistence);
   const cred = await signInWithEmailAndPassword(auth, correo, clave);
   await cred.user.reload();
+
+  // Administrador: lo reconoce Firebase (documento admins/UID), no el código
+  try {
+    const a = await getDoc(doc(db, "admins", cred.user.uid));
+    if (a.exists() && a.data().activo === true) {
+      const sesionAdmin = {
+        uid: cred.user.uid,
+        correo: cred.user.email,
+        tipo: "admin",
+        entidad: "ADMINISTRADOR",
+        convenio: null,
+        token: await cred.user.getIdToken(),
+        loginAt: new Date().toISOString()
+      };
+      sessionStorage.setItem("omnih_institucion_activa", JSON.stringify(sesionAdmin));
+      return sesionAdmin;
+    }
+  } catch (_) { /* si no es administrador, sigue el flujo normal */ }
 
   if (!cred.user.emailVerified) {
     await signOut(auth);
@@ -125,4 +144,4 @@ export function mensajeError(e) {
     "auth/too-many-requests": "Demasiados intentos fallidos. Intenta más tarde."
   };
   return m[code] || (e && e.message) || "Error al procesar la solicitud.";
-}
+                                }
