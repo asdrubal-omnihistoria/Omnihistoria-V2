@@ -1010,6 +1010,38 @@
       var a = h('a', { href: URL.createObjectURL(new Blob([contenido], { type: tipo })), download: nombre });
       document.body.appendChild(a); a.click(); a.remove();
     }
+    // Copiar: usa el portapapeles moderno y, si el navegador no lo permite, un método alterno
+    function copiarTexto(t) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+      return new Promise(function (ok, fallo) {
+        var ta = h('textarea', { readonly: '', 'aria-hidden': 'true', style: 'position:fixed;top:0;left:0;opacity:0;min-height:0;height:1px;width:1px;' });
+        ta.value = t; document.body.appendChild(ta); ta.focus(); ta.select();
+        try { ta.setSelectionRange(0, t.length); } catch (e) {}
+        var r = false; try { r = document.execCommand('copy'); } catch (e) {}
+        ta.remove(); if (r) ok(); else fallo();
+      });
+    }
+    // El acta se entrega con sangrías, no en una sola línea
+    function actaLegible(a) { try { return JSON.stringify(JSON.parse(a), null, 2); } catch (e) { return a || '{}'; } }
+    // Certificado legible en el teléfono (el .txt original se conserva intacto porque de él sale el hash)
+    function certificadoHtml(p) {
+      function esc(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+      var fila = function (t, v) { return '<p class="t">' + esc(t) + '</p><p class="v">' + esc(v) + '</p>'; };
+      return '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+        '<title>Certificado OMNIH</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:680px;margin:0 auto;padding:20px;color:#0f172a;line-height:1.55;font-size:18px}' +
+        'h1{font-size:1.4rem;color:#c5a059}.t{font-size:.8rem;font-weight:700;color:#64748b;margin:16px 0 2px}.v{margin:0;word-break:break-all}' +
+        '.folio{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;word-break:normal}' +
+        'pre{white-space:pre-wrap;word-break:break-all;font-size:.8rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px}</style></head><body>' +
+        '<h1>OMNIH · Documento certificado</h1>' +
+        (p.contenido ? '<p class="t">Texto certificado</p><div class="v folio">' + esc(p.contenido) + '</div>' : '') +
+        fila('Documento', p.titulo || p.nombreArchivo || 'Documento') +
+        fila('Fecha de certificación', (p.fecha || '').replace('T', ' ').slice(0, 16) + ' UTC') +
+        fila('Visibilidad', p.visibilidad === 'publico' ? 'Público' : 'Privado') +
+        fila('Sello', 'OMNIH-CA v2, firma Ed25519') +
+        fila('Bitcoin', p.otsEstado === 'CONFIRMADO_EN_CALENDARIO_BITCOIN' ? 'En proceso' : 'Sin recibo') +
+        fila('Hash SHA-256', p.hash || '') +
+        '<p class="t">Acta</p><pre>' + esc(actaLegible(p.acta)) + '</pre></body></html>';
+    }
     function hojaDetalle(p) {
       var cont = h('div', { class: 'hoja-col' });
       if (p.contenido) cont.appendChild(h('div', { class: 'texto-folio', text: p.contenido }));
@@ -1038,10 +1070,14 @@
       });
       var acc = h('div', { class: 'acciones' });
       acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Verificar con mi archivo', onclick: function () { inp.click(); } }));
-      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar acta (.json)', onclick: function () { descargar(p.acta || '{}', 'application/json', 'acta-' + (p.hash || 'omnih').slice(2, 12) + '.json'); } }));
-      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Copiar hash', onclick: function () {
-        if (navigator.clipboard) navigator.clipboard.writeText(p.hash).then(function () { avisar('Hash copiado.'); }, function () { avisar('No se pudo copiar.', true); });
-      } }));
+      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar acta (.json)', onclick: function () { descargar(actaLegible(p.acta), 'application/json', 'acta-' + (p.hash || 'omnih').slice(2, 12) + '.json'); } }));
+      var bCopiar = h('button', { type: 'button', class: 'btn-cmd', text: 'Copiar hash' });
+      bCopiar.addEventListener('click', function () {
+        var vuelta = function (m) { bCopiar.textContent = m; setTimeout(function () { bCopiar.textContent = 'Copiar hash'; }, 2000); };
+        copiarTexto(p.hash || '').then(function () { vuelta('¡Hash copiado!'); }, function () { vuelta('No se pudo copiar'); });
+      });
+      acc.appendChild(bCopiar);
+      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar certificado (legible)', onclick: function () { descargar(certificadoHtml(p), 'text/html', 'certificado-' + (p.hash || 'omnih').slice(2, 12) + '.html'); } }));
       if (p.contenido) acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar texto (.txt)', onclick: function () { descargar(p.contenido, 'text/plain', (p.nombreArchivo || 'folio.txt')); } }));
       cont.appendChild(acc); cont.appendChild(inp); cont.appendChild(res);
       abrirHoja('Documento certificado', cont);
@@ -1186,7 +1222,11 @@
           }).catch(function () {});
           mostrarVista('vistaFicha');
         }).catch(function () {
-          mostrarVista('vistaFicha');
+          // Si no se pudo leer la ficha NO se abre el formulario (la persona podría ya tenerla): se ofrece reintentar
+          mostrarVista('vistaCarga');
+          var cargaTxt = $('vistaCarga').querySelector('p');
+          cargaTxt.textContent = 'No se pudo abrir su espacio. Revise su conexión e intente de nuevo.';
+          if (!$('btnReintentar')) $('vistaCarga').appendChild(h('button', { type: 'button', class: 'btn-cmd', id: 'btnReintentar', text: 'Reintentar', onclick: function () { location.reload(); } }));
           avisar('No se pudo leer su ficha. Revise su conexión o que estén publicadas las reglas de Firestore.', true);
         });
       });
