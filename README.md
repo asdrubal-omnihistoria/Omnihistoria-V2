@@ -1,5 +1,5 @@
 # 🏛️ REPOSITORIO DE LEGADO DE LA OMNIHISTORIA (Año 1).
-### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Descentralizado (DAO), para la Preservación Histórica y testimonial de la existencia de las personas  humanas desde una perspectiva de actualidad, sin distinciones y por derecho de unicidad y manifiesto interés, en formato digital certificado.
+### Objetivo General: Establecer un Ecosistema en web.2 y web.3,  Descentralizado (DAO), para la Preservación Histórica y testimonial de la existencia de los seres humanos, desde una perspectiva reiterada de actualidad, sin distinciones y por derecho de unicidad, con manifiesto interés de parte, siempre en formato digital certificado.
 
 En un sentido general.
 > *"Un custodio digital certificado de alta fidelidad hermenéutica frente a la cultura de lo efímero, diseñado para salvaguardar el legado digital frente a la obsolescencia de formatos, en un contexto tecnológico signado por la inteligencia artificial y en consecuencia:"la historia del futuro se escribe en tiempo presente".
