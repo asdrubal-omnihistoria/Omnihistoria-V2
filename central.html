@@ -66,6 +66,27 @@
     textarea.corta { min-height: 110px; }
     textarea:focus { background: #ffffff; border-color: var(--accent-blue); }
     .conversar-vacio { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; padding: 14px; border: 1px dashed var(--border-color); border-radius: 8px; background: #fafafa; }
+    /* CHAT: identidad, contactos e invitaciones */
+    .chat-bloque { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-top: 1px solid var(--border-color); }
+    .chat-bloque:first-child { border-top: none; padding-top: 0; }
+    .chat-titulo { font-size: 0.78rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.5px; text-transform: uppercase; }
+    .chat-nota { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+    .buscar-fila { display: flex; gap: 8px; }
+    .buscar-fila input { flex: 1; min-width: 0; padding: 12px; font-size: 0.95rem; border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .btn-lupa { flex-shrink: 0; width: 48px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--panel-bg); color: var(--accent-blue); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .chat-resultado { padding: 12px; border: 1px solid #bae6fd; background: var(--accent-blue-light); border-radius: 8px; font-size: 0.88rem; color: #0369a1; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .chat-lista { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .chat-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff; flex-wrap: wrap; }
+    .chat-datos { min-width: 0; }
+    .chat-nombre { font-weight: 700; font-size: 0.92rem; overflow-wrap: anywhere; }
+    .chat-sub { font-size: 0.74rem; color: var(--text-muted); overflow-wrap: anywhere; }
+    .chat-botones { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-mini { padding: 8px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); }
+    .btn-mini.ok { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
+    .btn-mini.peligro { color: var(--alert-red); }
+    textarea.inv-msg { min-height: 84px; font-size: 0.9rem; }
+    .enlace-inv { width: 100%; padding: 10px; font-size: 0.78rem; border: 1px solid var(--border-color); border-radius: 8px; background: #fafafa; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .codigo-chip { margin-top: 2px; align-self: flex-start; padding: 3px 9px; font-size: 0.72rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #92741f; background: #fffbeb; border: 1px solid #f3e3b0; border-radius: 6px; cursor: pointer; }
 
     /* Adjuntos: se ven completos */
     .adjuntos { list-style: none; display: flex; flex-direction: column; gap: 12px; }
@@ -356,7 +377,7 @@
         </div>
         <div class="tabs" role="tablist">
           <button type="button" class="tab activa" id="tabEscribir" role="tab" aria-selected="true">Escribir</button>
-          <button type="button" class="tab" id="tabConversar" role="tab" aria-selected="false">Conversar</button>
+          <button type="button" class="tab" id="tabConversar" role="tab" aria-selected="false">Chat</button>
         </div>
       </div>
 
@@ -364,7 +385,45 @@
         <textarea id="relato-text" placeholder="Escribe el testimonio, concepto u ontología histórica para someter a resguardo duradero..."></textarea>
       </div>
       <div id="panelConversar" hidden>
-        <p class="conversar-vacio">Su lista de contactos está vacía. Cuando agregue familiares y amigos reales podrá concertar una jornada omnihistórica a una hora determinada. No hay “me gusta” ni seguidores: solo contactos.</p>
+        <div class="chat-bloque">
+          <div class="chat-titulo">Mi código de identidad</div>
+          <p class="chat-nota">Es su “número de teléfono” en OMNIH. Compártalo con sus familiares y amigos reales para que lo agreguen.</p>
+          <div class="chat-botones">
+            <button type="button" class="btn-mini ok" id="btnCopiarCodigo">Copiar mi código</button>
+            <button type="button" class="btn-mini" id="btnCompartirCodigo">Compartir</button>
+          </div>
+        </div>
+        <div class="chat-bloque">
+          <div class="chat-titulo">Agregar a una persona</div>
+          <p class="chat-nota">Pídale su código (lo ve bajo su nombre) y péguelo aquí. No se busca por nombre: así nadie aparece ante desconocidos.</p>
+          <div class="buscar-fila">
+            <input type="text" id="buscarCodigo" placeholder="Pegue aquí su código de identidad" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Código de identidad de la persona">
+            <button type="button" class="btn-lupa" id="btnBuscar" aria-label="Buscar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+          </div>
+          <div class="chat-resultado" id="resultadoBusqueda" hidden></div>
+        </div>
+        <div class="chat-bloque" id="bloqueRecibidas" hidden>
+          <div class="chat-titulo">Solicitudes recibidas</div>
+          <ul class="chat-lista" id="listaRecibidas"></ul>
+        </div>
+        <div class="chat-bloque">
+          <div class="chat-titulo">Mis contactos</div>
+          <ul class="chat-lista" id="listaContactos"></ul>
+          <p class="conversar-vacio" id="contactosVacio">Su lista de contactos está vacía. Cuando agregue familiares y amigos reales podrá concertar una jornada omnihistórica a una hora determinada. No hay “me gusta” ni seguidores: solo contactos.</p>
+          <p class="chat-nota" id="notaChat" hidden>El chat con cada contacto se activa en la siguiente fase.</p>
+        </div>
+        <div class="chat-bloque" id="bloqueEnviadas" hidden>
+          <div class="chat-titulo">Solicitudes enviadas</div>
+          <ul class="chat-lista" id="listaEnviadas"></ul>
+        </div>
+        <div class="chat-bloque">
+          <div class="chat-titulo">Invitar a alguien a OMNIH</div>
+          <p class="chat-nota">Para quien aún no está registrado: se crea un enlace personal de un solo uso. Al registrarse por ese enlace, queda conectado con usted.</p>
+          <textarea class="inv-msg" id="invMensaje" maxlength="300" placeholder="Un comentario para esa persona (opcional)"></textarea>
+          <button type="button" class="btn-cmd primario" id="btnInvitar">Crear invitación</button>
+          <div class="chat-resultado" id="invResultado" hidden></div>
+          <ul class="chat-lista" id="listaInvitaciones"></ul>
+        </div>
       </div>
 
       <ul class="adjuntos" id="adjuntos" aria-label="Archivos adjuntos"></ul>
@@ -695,6 +754,7 @@
       cargarBorrador();
       cargarArchivo();
       cargarFotos();
+      iniciarChat();
     }
 
     /* ---------- Borrador por categoría ---------- */
@@ -1196,6 +1256,248 @@
       mostrarVista('vistaFicha');
       return;
     }
+    /* ---------- Chat: identidad, contactos e invitaciones ---------- */
+    var CLAVE_INV = 'omnih_invitacion';
+    var miCodigo = null, vinculos = [], misInvitaciones = [], aceptando = {}, chatIniciado = false;
+    var resolverVinculos, vinculosListos = new Promise(function (ok) { resolverVinculos = ok; });
+
+    function ahora() { return new Date().toISOString(); }
+    function miNombreExacto() { return (ficha.nombres || '') + ' ' + (ficha.apellidos || ''); }
+    function normCodigo(t) { return (t || '').toLowerCase().replace(/[^0-9a-f]/g, ''); }
+    function verCodigo(c) { return c.replace(/(.{4})(?=.)/g, '$1-'); }
+    function idVinculo(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
+    function otroDe(v) { return v.miembros[0] === uid ? v.miembros[1] : v.miembros[0]; }
+    function nombreDe(v) { return (v.nombres && v.nombres[otroDe(v)]) || 'Contacto'; }
+    function enlaceInv(t) { return location.origin + '/invitacion.html?t=' + t; }
+
+    // Hash SHA-256 de bytes aleatorios + identidad; devuelve sus primeros "largo" caracteres
+    function hashAleatorio(largo) {
+      var a = new Uint8Array(16); crypto.getRandomValues(a);
+      var u = new TextEncoder().encode(uid + '|' + Date.now()), buf = new Uint8Array(a.length + u.length);
+      buf.set(a); buf.set(u, a.length);
+      return crypto.subtle.digest('SHA-256', buf).then(function (d) {
+        return Array.prototype.map.call(new Uint8Array(d), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('').slice(0, largo);
+      });
+    }
+
+    // Cada persona recibe su código de identidad la primera vez que entra a central
+    function asegurarIdentidad() {
+      var ref = F.doc(F.db, 'perfiles', uid, 'ajustes', 'identidad');
+      return F.getDoc(ref).then(function (s) {
+        if (s.exists() && s.data().codigo) return s.data().codigo;
+        return hashAleatorio(16).then(function (c) {
+          var b = F.writeBatch(F.db);
+          b.set(F.doc(F.db, 'codigos', c), { uid: uid, nombre: miNombreExacto(), fecha: ahora() });
+          b.set(ref, { codigo: c, fecha: ahora() });
+          return b.commit().then(function () { return c; });
+        });
+      });
+    }
+
+    function pintarCodigo() {
+      var cont = $('user-lugar'); cont.textContent = '';
+      if (!miCodigo) return;
+      var rotulo = 'Mi código ' + verCodigo(miCodigo);
+      var chip = h('button', { type: 'button', class: 'codigo-chip', title: 'Toque para copiar su código de identidad', text: rotulo });
+      chip.addEventListener('click', function () {
+        copiarTexto(verCodigo(miCodigo)).then(function () { chip.textContent = '¡Código copiado!'; }, function () { chip.textContent = 'No se pudo copiar'; });
+        setTimeout(function () { chip.textContent = rotulo; }, 2000);
+      });
+      cont.appendChild(chip);
+    }
+
+    function fila(nombre, sub, botones) {
+      return h('li', { class: 'chat-fila' }, [
+        h('div', { class: 'chat-datos' }, [h('div', { class: 'chat-nombre', text: nombre }), sub ? h('div', { class: 'chat-sub', text: sub }) : null]),
+        h('div', { class: 'chat-botones' }, botones || [])
+      ]);
+    }
+    function mini(texto, clase, fn) {
+      var b = h('button', { type: 'button', class: 'btn-mini' + (clase ? ' ' + clase : ''), text: texto });
+      b.addEventListener('click', function () { fn(b); });
+      return b;
+    }
+    function llenar(id, filas) { var ul = $(id); ul.textContent = ''; filas.forEach(function (f) { ul.appendChild(f); }); }
+    function avisoError() { avisar('No se pudo completar la acción. Revise su conexión e intente de nuevo.', true); }
+
+    function responder(v, estado) {
+      F.updateDoc(F.doc(F.db, 'vinculos', v.id), { estado: estado, fechaRespuesta: ahora() })
+        .then(function () { avisar(estado === 'aceptado' ? 'Contacto agregado.' : 'Solicitud rechazada.'); }, avisoError);
+    }
+    function quitarVinculo(v, confirmar) {
+      if (confirmar && !window.confirm(confirmar)) return;
+      F.deleteDoc(F.doc(F.db, 'vinculos', v.id)).catch(avisoError);
+    }
+    function copiarEnlace(t, b) {
+      var antes = b.textContent;
+      copiarTexto(enlaceInv(t)).then(function () { b.textContent = '¡Copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
+      setTimeout(function () { b.textContent = antes; }, 2000);
+    }
+
+    function pintarChat() {
+      var recibidas = [], enviadas = [], contactos = [];
+      vinculos.forEach(function (v) {
+        if (v.estado === 'aceptado') contactos.push(v);
+        else if (v.estado === 'pendiente') (v.solicitante === uid ? enviadas : recibidas).push(v);
+      });
+      contactos.sort(function (x, y) { return nombreDe(x).localeCompare(nombreDe(y)); });
+
+      llenar('listaRecibidas', recibidas.map(function (v) {
+        return fila(nombreDe(v), 'Quiere ser su contacto', [mini('Aceptar', 'ok', function () { responder(v, 'aceptado'); }), mini('Rechazar', '', function () { responder(v, 'rechazado'); })]);
+      }));
+      $('bloqueRecibidas').hidden = !recibidas.length;
+
+      llenar('listaContactos', contactos.map(function (v) {
+        return fila(nombreDe(v), '', [mini('Quitar', 'peligro', function () { quitarVinculo(v, '¿Quitar a ' + nombreDe(v) + ' de sus contactos?'); })]);
+      }));
+      $('contactosVacio').hidden = contactos.length > 0;
+      $('notaChat').hidden = contactos.length === 0;
+
+      llenar('listaEnviadas', enviadas.map(function (v) {
+        return fila(nombreDe(v), 'Esperando respuesta', [mini('Cancelar', '', function () { quitarVinculo(v); })]);
+      }));
+      $('bloqueEnviadas').hidden = !enviadas.length;
+
+      llenar('listaInvitaciones', misInvitaciones.map(function (i) {
+        var titulo = i.mensaje ? '“' + i.mensaje.slice(0, 40) + (i.mensaje.length > 40 ? '…' : '') + '”' : 'Invitación sin comentario';
+        var quien = '';
+        if (i.usada && i.usadaPor) {
+          var vv = vinculos.filter(function (v) { return otroDe(v) === i.usadaPor; })[0];
+          quien = vv ? ' por ' + nombreDe(vv) : '';
+        }
+        var sub = (i.usada ? 'Usada' + quien : 'Pendiente de uso') + ' · ' + (i.fecha || '').slice(0, 10);
+        var btns = [];
+        if (!i.usada) {
+          btns.push(mini('Copiar enlace', '', function (b) { copiarEnlace(i.id, b); }));
+          btns.push(mini('Eliminar', 'peligro', function () {
+            if (window.confirm('¿Eliminar esta invitación? El enlace dejará de servir.')) F.deleteDoc(F.doc(F.db, 'invitaciones', i.id)).catch(avisoError);
+          }));
+        }
+        return fila(titulo, sub, btns);
+      }));
+    }
+
+    // Quien invita acepta solo a quien se registró con su invitación (la verifica la marca "usadaPor")
+    function revisarAutoAceptar() {
+      vinculos.forEach(function (v) {
+        if (v.estado !== 'pendiente' || v.solicitante === uid || aceptando[v.id]) return;
+        var inv = misInvitaciones.filter(function (i) { return i.usada && i.usadaPor === v.solicitante; })[0];
+        if (!inv) return;
+        aceptando[v.id] = true;
+        F.updateDoc(F.doc(F.db, 'vinculos', v.id), { estado: 'aceptado', fechaRespuesta: ahora() }).catch(function () { delete aceptando[v.id]; });
+      });
+    }
+
+    function enviarSolicitud(d) {
+      var a = uid < d.uid ? uid : d.uid, b = uid < d.uid ? d.uid : uid, nombres = {};
+      nombres[uid] = miNombreExacto(); nombres[d.uid] = d.nombre;
+      F.setDoc(F.doc(F.db, 'vinculos', a + '_' + b), { miembros: [a, b], solicitante: uid, estado: 'pendiente', nombres: nombres, fecha: ahora() })
+        .then(function () { $('resultadoBusqueda').hidden = true; $('buscarCodigo').value = ''; avisar('Solicitud enviada a ' + d.nombre + '.'); }, avisoError);
+    }
+
+    function buscarCodigo() {
+      var c = normCodigo($('buscarCodigo').value), out = $('resultadoBusqueda');
+      out.hidden = false; out.textContent = '';
+      var dec = function (t) { out.appendChild(h('div', { text: t })); };
+      if (!F || !uid) { dec('Para buscar abra la página con la sesión iniciada.'); return; }
+      if (c.length !== 16) { dec('El código tiene 16 caracteres: números y letras de la a a la f.'); return; }
+      if (c === miCodigo) { dec('Ese es su propio código.'); return; }
+      F.getDoc(F.doc(F.db, 'codigos', c)).then(function (s) {
+        if (!s.exists()) { dec('No se encontró a nadie con ese código.'); return; }
+        var d = s.data(), id = idVinculo(uid, d.uid);
+        var ex = vinculos.filter(function (v) { return v.id === id; })[0];
+        out.appendChild(h('strong', { text: d.nombre }));
+        if (!ex) { out.appendChild(mini('Enviar solicitud', 'ok', function () { enviarSolicitud(d); })); return; }
+        if (ex.estado === 'aceptado') { dec('Ya es su contacto.'); return; }
+        if (ex.estado === 'pendiente' && ex.solicitante === uid) { dec('Ya le envió una solicitud; está esperando respuesta.'); return; }
+        if (ex.estado === 'pendiente') { dec('Esta persona ya le envió una solicitud.'); out.appendChild(mini('Aceptar', 'ok', function () { responder(ex, 'aceptado'); out.hidden = true; })); return; }
+        dec('Hay una solicitud rechazada con esta persona.');
+        out.appendChild(mini('Quitar y empezar de nuevo', '', function () { quitarVinculo(ex); out.hidden = true; }));
+      }).catch(function () { out.textContent = ''; dec('No se pudo buscar. Revise su conexión e intente de nuevo.'); });
+    }
+    $('btnBuscar').addEventListener('click', buscarCodigo);
+    $('buscarCodigo').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); buscarCodigo(); } });
+
+    function mostrarEnlace(t) {
+      var out = $('invResultado'), url = enlaceInv(t);
+      out.hidden = false; out.textContent = '';
+      var campo = h('input', { type: 'text', class: 'enlace-inv', readonly: '', value: url, 'aria-label': 'Enlace de invitación' });
+      campo.addEventListener('focus', function () { campo.select(); });
+      out.appendChild(h('strong', { text: 'Invitación creada. Envíe este enlace a esa persona:' }));
+      out.appendChild(campo);
+      var fil = h('div', { class: 'chat-botones' });
+      fil.appendChild(mini('Copiar enlace', 'ok', function (b) { copiarEnlace(t, b); }));
+      if (navigator.share) fil.appendChild(mini('Compartir', '', function () { navigator.share({ title: 'Invitación a OMNIH', text: 'Lo invito a formar parte de la Omnihistoria', url: url }).catch(function () {}); }));
+      out.appendChild(fil);
+    }
+    $('btnInvitar').addEventListener('click', function () {
+      if (!F || !uid || !ficha) { avisar('Para invitar abra la página con la sesión iniciada.', true); return; }
+      var btn = $('btnInvitar'); btn.disabled = true;
+      var msg = ($('invMensaje').value || '').trim().slice(0, 300);
+      hashAleatorio(32).then(function (t) {
+        var d = { invitadorUid: uid, invitadorNombre: miNombreExacto(), fecha: ahora(), usada: false };
+        if (msg) d.mensaje = msg;
+        return F.setDoc(F.doc(F.db, 'invitaciones', t), d).then(function () { return t; });
+      }).then(function (t) { $('invMensaje').value = ''; mostrarEnlace(t); }, function () { avisar('No se pudo crear la invitación. Intente de nuevo.', true); })
+        .then(function () { btn.disabled = false; });
+    });
+
+    // Persona invitada: al entrar por primera vez a central se usa la invitación y se pide el vínculo
+    function limpiarInv() { try { localStorage.removeItem(CLAVE_INV); } catch (e) {} }
+    function procesarInvitacionPendiente() {
+      var t = null; try { t = localStorage.getItem(CLAVE_INV); } catch (e) {}
+      if (!t) return;
+      if (!/^[0-9a-f]{32}$/.test(t)) { limpiarInv(); return; }
+      vinculosListos.then(function () { return F.getDoc(F.doc(F.db, 'invitaciones', t)); }).then(function (s) {
+        if (!s.exists()) { limpiarInv(); return; }
+        var inv = s.data();
+        if (inv.invitadorUid === uid) { limpiarInv(); return; }
+        var miaYa = inv.usada && inv.usadaPor === uid;
+        if (inv.usada && !miaYa) { limpiarInv(); avisar('Esa invitación ya había sido usada.', true); return; }
+        var paso1 = miaYa ? Promise.resolve() : F.updateDoc(F.doc(F.db, 'invitaciones', t), { usada: true, fechaUso: ahora(), usadaPor: uid });
+        return paso1.then(function () {
+          var id = idVinculo(uid, inv.invitadorUid);
+          if (vinculos.some(function (v) { return v.id === id; })) return;
+          var a = uid < inv.invitadorUid ? uid : inv.invitadorUid, b = uid < inv.invitadorUid ? inv.invitadorUid : uid, nombres = {};
+          nombres[uid] = miNombreExacto(); nombres[inv.invitadorUid] = inv.invitadorNombre;
+          return F.setDoc(F.doc(F.db, 'vinculos', id), { miembros: [a, b], solicitante: uid, estado: 'pendiente', nombres: nombres, fecha: ahora() });
+        }).then(function () {
+          limpiarInv();
+          avisar('Invitación de ' + inv.invitadorNombre + ' recibida: quedarán conectados en cuanto ' + inv.invitadorNombre + ' abra su espacio.');
+        });
+      }).catch(function () { /* se reintenta en la próxima entrada: la marca no se borra */ });
+    }
+
+    $('btnCopiarCodigo').addEventListener('click', function () {
+      var b = $('btnCopiarCodigo'), antes = 'Copiar mi código';
+      if (!miCodigo) { avisar('Su código aún se está preparando. Intente en un momento.', true); return; }
+      copiarTexto(verCodigo(miCodigo)).then(function () { b.textContent = '¡Código copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
+      setTimeout(function () { b.textContent = antes; }, 2000);
+    });
+    if (navigator.share) {
+      $('btnCompartirCodigo').addEventListener('click', function () {
+        if (!miCodigo) { avisar('Su código aún se está preparando. Intente en un momento.', true); return; }
+        navigator.share({ title: 'Mi código en OMNIH', text: 'Mi código en OMNIH: ' + verCodigo(miCodigo) + '. Péguelo en la lupa de la pestaña Chat para agregarme.' }).catch(function () {});
+      });
+    } else { $('btnCompartirCodigo').hidden = true; }
+
+    function iniciarChat() {
+      if (!F || !uid || !ficha || chatIniciado) return;
+      chatIniciado = true;
+      pintarChat();
+      F.onSnapshot(F.query(F.collection(F.db, 'vinculos'), F.where('miembros', 'array-contains', uid)), function (q) {
+        vinculos = []; q.forEach(function (d) { var v = d.data(); v.id = d.id; vinculos.push(v); });
+        pintarChat(); revisarAutoAceptar(); resolverVinculos();
+      }, function () { avisar('No se pudieron leer sus contactos. Revise su conexión.', true); resolverVinculos(); });
+      F.onSnapshot(F.query(F.collection(F.db, 'invitaciones'), F.where('invitadorUid', '==', uid)), function (q) {
+        misInvitaciones = []; q.forEach(function (d) { var v = d.data(); v.id = d.id; misInvitaciones.push(v); });
+        misInvitaciones.sort(function (x, y) { return (y.fecha || '').localeCompare(x.fecha || ''); });
+        pintarChat(); revisarAutoAceptar();
+      }, function () { avisar('No se pudieron leer sus invitaciones.', true); });
+      asegurarIdentidad().then(function (c) { miCodigo = c; pintarCodigo(); procesarInvitacionPendiente(); },
+        function () { avisar('No se pudo preparar su código de identidad. Recargue la página.', true); });
+    }
+
     Promise.all([
       import('./js/firebase-init.js'),
       import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
@@ -1205,7 +1507,8 @@
       var app = m[1].getApp(), auth = m[2].getAuth(app), fs = m[3];
       F = {
         app: app, db: fs.getFirestore(app), doc: fs.doc, setDoc: fs.setDoc, getDoc: fs.getDoc, deleteDoc: fs.deleteDoc,
-        collection: fs.collection, addDoc: fs.addDoc, getDocs: fs.getDocs, query: fs.query, orderBy: fs.orderBy, where: fs.where
+        collection: fs.collection, addDoc: fs.addDoc, getDocs: fs.getDocs, query: fs.query, orderBy: fs.orderBy, where: fs.where,
+        updateDoc: fs.updateDoc, onSnapshot: fs.onSnapshot, writeBatch: fs.writeBatch
       };
       m[2].onAuthStateChanged(auth, function (u) {
         if (!u || !u.emailVerified) { location.href = 'login.html'; return; }
