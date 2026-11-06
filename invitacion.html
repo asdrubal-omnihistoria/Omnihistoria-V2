@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>OMNIH | Invitación</title>
+  <style>
+    :root {
+      --bg-light: #ffffff;
+      --panel-bg: #f8fafc;
+      --accent-gold: #c5a059;
+      --accent-blue: #0284c7;
+      --accent-blue-light: #e0f2fe;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --alert-red: #b91c1c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    [hidden] { display: none !important; }
+    body { background: var(--bg-light); color: var(--text-main); min-height: 100dvh; display: flex; flex-direction: column; }
+    :focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 2px; }
+    header { background: #ffffff; padding: 10px 20px; }
+    .header-content { display: flex; align-items: center; max-width: 850px; margin: 0 auto; width: 100%; }
+    .brand-logo-link { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .dna-box { width: 28px; height: 38px; display: flex; justify-content: center; align-items: center; }
+    .dna-icon { width: 28px; height: 38px; transform: rotate(45deg); display: block; }
+    .text-omnih { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    main { flex: 1; max-width: 640px; width: 100%; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+    .tarjeta { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+    .kicker { font-size: 0.78rem; font-weight: 700; color: var(--accent-gold); letter-spacing: 0.5px; text-transform: uppercase; }
+    h1 { font-size: 1.35rem; line-height: 1.3; overflow-wrap: anywhere; }
+    .cita { border-left: 4px solid var(--accent-gold); background: #fffbeb; padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 0.95rem; line-height: 1.6; color: #7a5b12; white-space: pre-wrap; overflow-wrap: anywhere; }
+    p { font-size: 0.95rem; line-height: 1.65; color: var(--text-main); }
+    .nota { font-size: 0.8rem; color: var(--text-muted); }
+    .btn { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 10px 16px; font-size: 0.95rem; font-weight: 700; border-radius: 10px; cursor: pointer; background: var(--accent-blue); color: #ffffff; border: 1px solid var(--accent-blue); text-decoration: none; }
+    .btn.claro { background: var(--panel-bg); color: var(--text-main); border-color: var(--border-color); }
+    footer { padding: 14px 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="brand-logo-link" title="Ir a la Raíz">
+        <div class="dna-box">
+          <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hebraFondo" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b03a8a" />
+                <stop offset="35%" stop-color="#704fa0" />
+                <stop offset="70%" stop-color="#3b7cb3" />
+                <stop offset="100%" stop-color="#4aa47a" />
+              </linearGradient>
+              <linearGradient id="hebraFrente" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d95438" />
+                <stop offset="100%" stop-color="#eab308" />
+              </linearGradient>
+            </defs>
+            <path d="M30,20 Q90,70 30,120 T30,220" fill="none" stroke="url(#hebraFondo)" stroke-width="16" stroke-linecap="round" />
+            <path d="M90,20 Q30,70 90,120 T90,220" fill="none" stroke="url(#hebraFrente)" stroke-width="16" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span class="text-omnih">OMNIH</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div class="tarjeta" id="vCarga">
+      <p>Abriendo su invitación…</p>
+    </div>
+
+    <div class="tarjeta" id="vValida" hidden>
+      <div class="kicker">Invitación personal</div>
+      <h1><span id="invNombre">Una persona</span> lo invita a formar parte de la Omnihistoria</h1>
+      <div class="cita" id="invCita" hidden></div>
+      <p>OMNIH es un repositorio donde la historia la escribe la gente: su vida, su familia y su comunidad, con un sello de integridad que cualquiera puede verificar. Usted decide qué guarda y qué comparte.</p>
+      <p>Al registrarse desde esta invitación, quedará conectado con quien lo invitó.</p>
+      <button type="button" class="btn" id="btnRegistro">Registrarme</button>
+      <p class="nota">Esta invitación es personal y de un solo uso. Complete su registro en este mismo navegador.</p>
+    </div>
+
+    <div class="tarjeta" id="vInvalida" hidden>
+      <div class="kicker">Invitación</div>
+      <h1>Esta invitación no está disponible</h1>
+      <p>El enlace no existe o ya fue usado. Pida una invitación nueva a quien se la envió.</p>
+      <a class="btn claro" href="index.html">Ir a OMNIH</a>
+    </div>
+
+    <div class="tarjeta" id="vError" hidden>
+      <div class="kicker">Invitación</div>
+      <h1>No se pudo abrir la invitación</h1>
+      <p>Revise su conexión e intente de nuevo.</p>
+      <button type="button" class="btn claro" id="btnReintentar">Reintentar</button>
+    </div>
+  </main>
+
+  <footer>© 2026 OMNIH</footer>
+
+  <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var t = new URLSearchParams(location.search).get('t') || '';
+    function ver(id) { ['vCarga', 'vValida', 'vInvalida', 'vError'].forEach(function (x) { $(x).hidden = x !== id; }); }
+    $('btnReintentar').addEventListener('click', function () { location.reload(); });
+    if (!/^[0-9a-f]{32}$/.test(t)) { ver('vInvalida'); return; }
+    Promise.all([
+      import('./js/firebase-init.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js')
+    ]).then(function (m) {
+      var db = m[2].getFirestore(m[1].getApp());
+      return m[2].getDoc(m[2].doc(db, 'invitaciones', t));
+    }).then(function (s) {
+      if (!s.exists() || s.data().usada) { ver('vInvalida'); return; }
+      var d = s.data();
+      $('invNombre').textContent = d.invitadorNombre || 'Una persona';
+      if (d.mensaje) { $('invCita').textContent = d.mensaje; $('invCita').hidden = false; }
+      ver('vValida');
+      $('btnRegistro').addEventListener('click', function () {
+        try { localStorage.setItem('omnih_invitacion', t); } catch (e) {}
+        location.href = 'registro.html';
+      });
+    }).catch(function () { ver('vError'); });
+  })();
+  </script>
+</body>
+</html>
