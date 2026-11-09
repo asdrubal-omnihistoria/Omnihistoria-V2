@@ -38,7 +38,20 @@
     .aviso.error { background: #fef2f2; border-color: #fecaca; color: var(--alert-red); }
 
     /* BLOQUE DEL PRESERVADOR: foto, nombre, categoría */
-    .profile-hero { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+    .profile-hero { background: transparent; border: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+    .muro { position: relative; width: 100%; aspect-ratio: 15 / 7; border-radius: 12px; overflow: hidden; border: 1.5px dashed var(--border-color); background: transparent; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
+    .muro.con-imagen { border: none; padding: 0; background: var(--panel-bg); }
+    .muro img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .muro-txt { font-size: 0.8rem; color: var(--text-muted); }
+    .btn-muro { border: 1px solid var(--border-color); background: #ffffff; color: var(--text-main); font-size: 0.75rem; font-weight: 700; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+    .muro.con-imagen .btn-muro { position: absolute; left: 10px; bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .identidad-fila { display: flex; align-items: flex-start; gap: 14px; padding: 0 16px; margin-top: 14px; }
+    .profile-hero.con-muro .identidad-fila { margin-top: -30px; }
+    .profile-hero.con-muro .foto-perfil { border-color: #ffffff; border-style: solid; box-shadow: 0 1px 6px rgba(0,0,0,0.22); }
+    .identidad-fila .user-details { padding-top: 6px; }
+    .profile-hero.con-muro .identidad-fila .user-details { padding-top: 34px; }
+    .categoria-fila { margin: 26px auto 0; width: 100%; max-width: 420px; text-align: center; }
+    .categoria-fila select { text-align: center; text-align-last: center; }
     .user-info { display: flex; align-items: center; gap: 14px; }
     .foto-perfil { width: 72px; height: 72px; flex-shrink: 0; border-radius: 10px; border: 2px dashed var(--accent-gold); background: #fffbeb; color: #92741f; font-size: 0.7rem; font-weight: 700; line-height: 1.15; cursor: pointer; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; text-align: center; }
     .foto-perfil.con-foto { border-style: solid; }
@@ -355,8 +368,14 @@
   <main id="vistaCentral" hidden>
 
     <!-- 1. Preservador: foto, nombre y categoría -->
-    <div class="profile-hero">
-      <div class="user-info">
+    <div class="profile-hero" id="perfilHero">
+      <div class="muro" id="muro">
+        <img id="muroImg" alt="Su imagen personal o familiar" hidden>
+        <span class="muro-txt" id="muroTxt">Adjunte una imagen personal o familiar</span>
+        <button type="button" class="btn-muro" id="btnMuro">+ Imagen</button>
+      </div>
+      <input type="file" id="inputMuro" accept="image/jpeg,image/png,image/webp" style="display: none;">
+      <div class="identidad-fila">
         <button type="button" class="foto-perfil" id="btnFoto" aria-label="Subir o cambiar su foto de perfil">
           <img id="fotoImg" alt="Su foto de perfil" hidden>
           <span id="fotoVacia">Subir<br>foto</span>
@@ -681,6 +700,42 @@
       return F.setDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base'), datos, { merge: true }).then(function () { return true; }, function () { return false; });
     }
 
+    /* ---------- Muro (imagen opcional, la misma de la Cápsula) ---------- */
+    function prepararMuro(archivo) {
+      if (TIPOS.indexOf(archivo.type) < 0) return Promise.reject(rechazo('Use una imagen en formato JPG, PNG o WebP.'));
+      if (archivo.size > 10 * 1024 * 1024) return Promise.reject(rechazo('La imagen pesa más de 10 MB. Elija una más liviana.'));
+      return leerImagen(archivo).then(function (img) {
+        var w = img.naturalWidth, alto = img.naturalHeight, ratio = 15 / 7;
+        var cw = w, ch = Math.round(w / ratio);
+        if (ch > alto) { ch = alto; cw = Math.round(alto * ratio); }
+        var sw = Math.min(1200, cw), sh = Math.round(sw / ratio), c = document.createElement('canvas');
+        c.width = sw; c.height = sh;
+        c.getContext('2d').drawImage(img, (w - cw) / 2, (alto - ch) / 2, cw, ch, 0, 0, sw, sh);
+        return c.toDataURL('image/jpeg', 0.78);
+      });
+    }
+    function mostrarMuro(dataUrl) {
+      if (!dataUrl) return;
+      $('muroImg').src = dataUrl; $('muroImg').hidden = false;
+      $('muroTxt').hidden = true; $('btnMuro').textContent = 'Cambiar imagen';
+      $('muro').classList.add('con-imagen'); $('perfilHero').classList.add('con-muro');
+    }
+    $('btnMuro').addEventListener('click', function () { $('inputMuro').click(); });
+    $('inputMuro').addEventListener('change', function (e) {
+      var archivo = e.target.files[0]; e.target.value = '';
+      if (!archivo) return;
+      prepararMuro(archivo).then(function (d) {
+        mostrarMuro(d);
+        if (ficha) ficha.muro = d;
+        if (!F || !uid || !ficha) { avisar('Vista previa: la imagen se muestra aquí pero no se guarda.'); return; }
+        return guardarFichaParcial({ muro: d, muroFecha: new Date().toISOString() }).then(function (ok) {
+          avisar(ok ? 'Imagen guardada.' : 'No se pudo guardar la imagen. Revise su conexión e intente de nuevo.', !ok);
+        });
+      }).catch(function (err) {
+        avisar(err && err.rechazo ? err.message : 'No se pudo leer la imagen. Intente con otra.', true);
+      });
+    });
+
     $('btnFoto').addEventListener('click', function () { $('inputFoto').click(); });
     $('inputFoto').addEventListener('change', function (e) {
       var archivo = e.target.files[0]; e.target.value = '';
@@ -766,6 +821,7 @@
       $('user-display-name').textContent = nombre;
       $('user-lugar').textContent = '';
       if (ficha.foto) { fotoData = ficha.foto; fotoEstado = ficha.estadoFoto; mostrarFoto(ficha.foto, ficha.estadoFoto); }
+      if (ficha.muro) mostrarMuro(ficha.muro);
       var ia = ficha.iaActiva !== false;
       aiBox.hidden = !ia; $('btnIA').hidden = !ia;
       mostrarVista('vistaCentral');
@@ -1456,9 +1512,7 @@
     });
 
     /* ---------- Enviar a la Cápsula (se conserva el puente original) ---------- */
-    $('btnSendToCapsule').addEventListener('click', function () {
-      var t = texto.value.trim();
-      if (!t) { avisar('Escriba su testimonio antes de enviarlo a la Cápsula.', true); texto.focus(); return; }
+    function irACapsula(t) {
       guardarAhora(categoria.value, false);
       try {
         sessionStorage.setItem('omnih_capsula_activa', JSON.stringify({
@@ -1467,6 +1521,22 @@
         }));
       } catch (e) {}
       location.href = 'capsula.html';
+    }
+    $('btnSendToCapsule').addEventListener('click', function () {
+      // Si la persona está en el Chat con una invitación a la vista, lo que se envía es esa invitación
+      if (!$('panelConversar').hidden) {
+        if (typeof ultimaInv !== 'undefined' && ultimaInv) { irACapsula(ultimaInv); return; }
+        if (!$('invPrevia').hidden && typeof crearInvitacion === 'function') {
+          var msg = ($('invMensaje').value || '').trim().slice(0, 300), bt = $('btnSendToCapsule');
+          bt.disabled = true;
+          crearInvitacion().then(function (tk) { irACapsula(textoInvitacion(msg, enlaceInv(tk))); },
+            function () { bt.disabled = false; avisar('No se pudo preparar la invitación. Intente de nuevo.', true); });
+          return;
+        }
+      }
+      var t = texto.value.trim();
+      if (!t) { avisar('Escriba su testimonio, o abra una invitación con “Ver invitación”, antes de enviarla a la Cápsula.', true); return; }
+      irACapsula(t);
     });
 
     /* ---------- Conexión con Firebase (no se intenta fuera de http/https) ---------- */
@@ -1477,7 +1547,7 @@
     }
     /* ---------- Chat: identidad, contactos e invitaciones ---------- */
     var CLAVE_INV = 'omnih_invitacion';
-    var miCodigo = null, vinculos = [], misInvitaciones = [], aceptando = {}, chatIniciado = false;
+    var miCodigo = null, vinculos = [], misInvitaciones = [], aceptando = {}, chatIniciado = false, ultimaInv = null;
     var resolverVinculos, vinculosListos = new Promise(function (ok) { resolverVinculos = ok; });
 
     function ahora() { return new Date().toISOString(); }
@@ -1576,7 +1646,7 @@
       $('bloqueEnviadas').hidden = !enviadas.length;
 
       llenar('listaInvitaciones', misInvitaciones.map(function (i) {
-        var titulo = i.mensaje ? '“' + i.mensaje.slice(0, 40) + (i.mensaje.length > 40 ? '…' : '') + '”' : 'Invitación sin comentario';
+        var titulo = 'Invitación personal';
         var quien = '';
         if (i.usada && i.usadaPor) {
           var vv = vinculos.filter(function (v) { return otroDe(v) === i.usadaPor; })[0];
@@ -1648,7 +1718,7 @@
     function vistaPreviaInvitacion() {
       if (!F || !uid || !ficha) { avisar('Para invitar abra la página con la sesión iniciada.', true); return; }
       var msg = ($('invMensaje').value || '').trim().slice(0, 300), pv = $('invPrevia');
-      $('invResultado').hidden = true; pv.hidden = false; pv.textContent = '';
+      $('invResultado').hidden = true; ultimaInv = null; pv.hidden = false; pv.textContent = '';
       pv.appendChild(h('div', { class: 'inv-cab', text: 'Invitación a OMNIH' }));
       pv.appendChild(h('div', { class: 'inv-sub', text: 'Invitación personal' }));
       pv.appendChild(h('div', { class: 'inv-quien', text: miNombreExacto().trim() + ' le invita a formar parte de la Omnihistoria' }));
@@ -1662,22 +1732,26 @@
       pv.appendChild(fil);
       pv.scrollIntoView({ block: 'nearest' });
     }
+    // El comentario personal viaja solo en el texto; en Firestore se guarda únicamente el enlace de un solo uso
+    function crearInvitacion() {
+      return hashAleatorio(32).then(function (t) {
+        var d = { invitadorUid: uid, invitadorNombre: miNombreExacto(), fecha: ahora(), usada: false };
+        return F.setDoc(F.doc(F.db, 'invitaciones', t), d).then(function () { return t; });
+      });
+    }
     function enviarInvitacion(btn, msg) {
       btn.disabled = true;
-      hashAleatorio(32).then(function (t) {
-        var d = { invitadorUid: uid, invitadorNombre: miNombreExacto(), fecha: ahora(), usada: false };
-        if (msg) d.mensaje = msg;
-        return F.setDoc(F.doc(F.db, 'invitaciones', t), d).then(function () { return t; });
-      }).then(function (t) { $('invMensaje').value = ''; $('invPrevia').hidden = true; mostrarOpcionesEnvio(t, msg); },
+      crearInvitacion().then(function (t) { $('invMensaje').value = ''; $('invPrevia').hidden = true; mostrarOpcionesEnvio(t, msg); },
         function () { avisar('No se pudo crear la invitación. Intente de nuevo.', true); })
         .then(function () { btn.disabled = false; });
     }
     function mostrarOpcionesEnvio(t, msg) {
       var out = $('invResultado'), url = enlaceInv(t), cuerpo = textoInvitacion(msg, url);
+      ultimaInv = cuerpo;
       out.hidden = false; out.textContent = '';
       out.appendChild(h('strong', { text: 'Invitación lista. Elija cómo enviarla:' }));
       var fil = h('div', { class: 'chat-botones' });
-      fil.appendChild(mini('WhatsApp', 'ok', function () { window.open('https://wa.me/?text=' + encodeURIComponent(cuerpo), '_blank'); }));
+      fil.appendChild(mini('WhatsApp', 'ok', function () { location.href = 'https://wa.me/?text=' + encodeURIComponent(cuerpo); }));
       fil.appendChild(mini('Correo', '', function () { location.href = 'mailto:?subject=' + encodeURIComponent('Invitación a OMNIH') + '&body=' + encodeURIComponent(cuerpo); }));
       if (navigator.share) fil.appendChild(mini('Otras apps', '', function () { navigator.share({ title: 'Invitación a OMNIH', text: cuerpo }).catch(function () {}); }));
       fil.appendChild(mini('Copiar texto', '', function (b) {
@@ -1685,6 +1759,7 @@
         copiarTexto(cuerpo).then(function () { b.textContent = '¡Copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
         setTimeout(function () { b.textContent = antes; }, 2000);
       }));
+      fil.appendChild(mini('Enviar a la Cápsula', '', function () { irACapsula(cuerpo); }));
       out.appendChild(fil);
     }
     $('btnInvitar').addEventListener('click', vistaPreviaInvitacion);
@@ -1769,6 +1844,7 @@
           // Sin ficha: se abre el formulario. Si ya había foto en el perfil, se reutiliza.
           F.getDoc(F.doc(F.db, 'perfiles', uid)).then(function (ps) {
             if (ps.exists() && ps.data().foto) { fotoData = ps.data().foto; fotoEstado = ps.data().estadoFoto; mostrarFoto(fotoData, fotoEstado); }
+            if (ps.exists() && ps.data().muro) mostrarMuro(ps.data().muro);
           }).catch(function () {});
           mostrarVista('vistaFicha');
         }).catch(function () {
