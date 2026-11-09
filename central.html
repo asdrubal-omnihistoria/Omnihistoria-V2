@@ -85,6 +85,11 @@
     .btn-mini.ok { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
     .btn-mini.peligro { color: var(--alert-red); }
     textarea.inv-msg { min-height: 84px; font-size: 0.9rem; }
+    .inv-previa { border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; background: #ffffff; display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; line-height: 1.55; }
+    .inv-previa .inv-cab { font-weight: 800; font-size: 1rem; }
+    .inv-previa .inv-sub { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .inv-previa .inv-quien { font-weight: 700; }
+    .inv-previa .inv-coment { border-left: 3px solid #eab308; padding-left: 10px; font-style: italic; white-space: pre-wrap; }
     .enlace-inv { width: 100%; padding: 10px; font-size: 0.78rem; border: 1px solid var(--border-color); border-radius: 8px; background: #fafafa; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .codigo-chip { margin-top: 2px; align-self: flex-start; padding: 3px 9px; font-size: 0.72rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #92741f; background: #fffbeb; border: 1px solid #f3e3b0; border-radius: 6px; cursor: pointer; }
 
@@ -95,6 +100,18 @@
     .adj-cab .nombre { font-size: 0.8rem; color: #7a5b12; overflow-wrap: anywhere; }
     .adj-cab button { border: none; background: transparent; color: #7a5b12; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 2px 8px; }
     .adj-img { width: 100%; height: auto; max-height: 70dvh; object-fit: contain; border-radius: 8px; background: #fafafa; display: block; }
+    .adj-vista { display: flex; flex-direction: column; gap: 8px; }
+    .adj-video { width: 100%; max-height: 70dvh; border-radius: 8px; background: #000000; display: block; }
+    .doc-note { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+    .doc-pages { display: flex; flex-direction: column; gap: 10px; }
+    .doc-pages canvas { display: block; width: 100%; height: auto; border: 1px solid var(--border-color); border-radius: 4px; background: #ffffff; }
+    .doc-html { font-size: 0.92rem; line-height: 1.6; background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; overflow-wrap: anywhere; max-height: 70dvh; overflow-y: auto; }
+    .doc-html p { margin: 0 0 0.7em; }
+    .doc-html h1, .doc-html h2, .doc-html h3, .doc-html h4 { margin: 1em 0 0.5em; line-height: 1.25; }
+    .doc-html ul, .doc-html ol { margin: 0 0 0.7em 1.4em; }
+    .doc-html table { border-collapse: collapse; display: block; max-width: 100%; overflow-x: auto; margin: 0 0 0.8em; }
+    .doc-html td, .doc-html th { border: 1px solid var(--border-color); padding: 4px 8px; vertical-align: top; }
+    .doc-html img { max-width: 100%; height: auto; }
     .adj-texto { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.85rem; line-height: 1.5; max-height: 40dvh; overflow-y: auto; background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
 
     .comandos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px; }
@@ -218,7 +235,7 @@
     footer { padding: 14px 20px; background: #ffffff; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-muted); }
 
     @media (min-width: 720px) {
-      .comandos { grid-template-columns: repeat(5, 1fr); }
+      .comandos { grid-template-columns: repeat(4, 1fr); }
       .foto-perfil { width: 84px; height: 84px; }
       .fila2 { grid-template-columns: 1fr 1fr; }
       .datos { grid-template-columns: 1fr 1fr; }
@@ -347,7 +364,7 @@
         <div class="user-details">
           <div class="user-name" id="user-display-name">Preservador</div>
           <div class="user-lugar" id="user-lugar"></div>
-          <span class="rank-tag">Genehistoriador V2</span>
+          <span class="rank-tag" id="rangoCat">Genehistoriador V2</span>
         </div>
       </div>
       <input type="file" id="inputFoto" accept="image/jpeg,image/png,image/webp" style="display: none;">
@@ -386,18 +403,17 @@
       </div>
       <div id="panelConversar" hidden>
         <div class="chat-bloque">
-          <div class="chat-titulo">Mi código de identidad</div>
-          <p class="chat-nota">Es su “número de teléfono” en OMNIH. Compártalo con sus familiares y amigos reales para que lo agreguen.</p>
+          <div class="chat-titulo">ID OMNIH</div>
+          <p class="chat-nota">Compartir el ID OMNIH con familiares y amigos reales ya incorporados en el Repertorio de la Omnihistoria, esto permite agregar contactos directamente en el chat.</p>
           <div class="chat-botones">
-            <button type="button" class="btn-mini ok" id="btnCopiarCodigo">Copiar mi código</button>
+            <button type="button" class="btn-mini ok" id="btnCopiarCodigo">Copiar ID OMNIH</button>
             <button type="button" class="btn-mini" id="btnCompartirCodigo">Compartir</button>
           </div>
         </div>
         <div class="chat-bloque">
           <div class="chat-titulo">Agregar a una persona</div>
-          <p class="chat-nota">Pídale su código (lo ve bajo su nombre) y péguelo aquí. No se busca por nombre: así nadie aparece ante desconocidos.</p>
           <div class="buscar-fila">
-            <input type="text" id="buscarCodigo" placeholder="Pegue aquí su código de identidad" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Código de identidad de la persona">
+            <input type="text" id="buscarCodigo" placeholder="Pegue aquí el ID OMNIH" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="ID OMNIH de la persona">
             <button type="button" class="btn-lupa" id="btnBuscar" aria-label="Buscar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
           </div>
           <div class="chat-resultado" id="resultadoBusqueda" hidden></div>
@@ -409,18 +425,17 @@
         <div class="chat-bloque">
           <div class="chat-titulo">Mis contactos</div>
           <ul class="chat-lista" id="listaContactos"></ul>
-          <p class="conversar-vacio" id="contactosVacio">Su lista de contactos está vacía. Cuando agregue familiares y amigos reales podrá concertar una jornada omnihistórica a una hora determinada. No hay “me gusta” ni seguidores: solo contactos.</p>
-          <p class="chat-nota" id="notaChat" hidden>El chat con cada contacto se activa en la siguiente fase.</p>
         </div>
         <div class="chat-bloque" id="bloqueEnviadas" hidden>
           <div class="chat-titulo">Solicitudes enviadas</div>
           <ul class="chat-lista" id="listaEnviadas"></ul>
         </div>
         <div class="chat-bloque">
-          <div class="chat-titulo">Invitar a alguien a OMNIH</div>
-          <p class="chat-nota">Para quien aún no está registrado: se crea un enlace personal de un solo uso. Al registrarse por ese enlace, queda conectado con usted.</p>
-          <textarea class="inv-msg" id="invMensaje" maxlength="300" placeholder="Un comentario para esa persona (opcional)"></textarea>
-          <button type="button" class="btn-cmd primario" id="btnInvitar">Crear invitación</button>
+          <div class="chat-titulo">Invitar amigos o familiares a que formen parte de nuestra comunidad</div>
+          <p class="chat-nota">Quedarán conectados directamente a tus contactos.</p>
+          <textarea class="inv-msg" id="invMensaje" maxlength="300" placeholder="Un mensaje personal para esa persona (opcional)"></textarea>
+          <button type="button" class="btn-cmd primario" id="btnInvitar">Ver invitación</button>
+          <div class="inv-previa" id="invPrevia" hidden></div>
           <div class="chat-resultado" id="invResultado" hidden></div>
           <ul class="chat-lista" id="listaInvitaciones"></ul>
         </div>
@@ -430,6 +445,8 @@
 
       <div class="comandos">
         <button type="button" class="btn-cmd" id="btnAdjuntar">Adjuntar archivo</button>
+        <button type="button" class="btn-cmd" id="btnEnviarFotos">Enviar a mis fotos</button>
+        <button type="button" class="btn-cmd" id="btnGuardar">Guardar</button>
         <button type="button" class="btn-cmd" id="btnCertificar">Certificar folio</button>
         <button type="button" class="btn-cmd" id="btnVerificar">Verificar integridad</button>
         <button type="button" class="btn-cmd peligro" id="btnBorrar">Borrar pantalla</button>
@@ -439,7 +456,7 @@
 
       <div class="attachment-bar">
         <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Nada escrito aún</span>
-        <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Sellar en Cápsula del Tiempo</button>
+        <button class="btn-action btn-capsule" id="btnSendToCapsule" type="button">Enviar a Cápsula del Tiempo</button>
       </div>
     </div>
 
@@ -508,7 +525,7 @@
     <div id="hojaCuerpo"></div>
   </section>
 
-  <footer>© 2026 Repositorio de Legado de la OMNIHISTORIA. Servicio comunitario (DAO) de uso Público Global, todos los derechos reservados.</footer>
+  <footer>© 2026 Repertorio de Legado de la OMNIHISTORIA. Servicio comunitario (DAO) de uso Público Global, todos los derechos reservados.</footer>
 
   <script>
   (function () {
@@ -531,6 +548,7 @@
     var MAX_TEXTO = 100000;                // caracteres de un folio escrito
     var MAYORIA_EDAD = 18;                 // se decide solo por la fecha de nacimiento
 
+    var RANGOS = { autobiografia: 'Genehistoriador V2', genehistoria: 'Genehistoriador V2', omnihistoria: 'Omnihistoriador V2', mascotas: 'Genehistoriador V2' };
     var CATEGORIAS = { autobiografia: 'Autobiografía', genehistoria: 'Genehistoria filial', omnihistoria: 'Omnihistorias', mascotas: 'Mascotas' };
     var MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     var CODIGOS = 'AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW'.split(' ');
@@ -752,27 +770,98 @@
       aiBox.hidden = !ia; $('btnIA').hidden = !ia;
       mostrarVista('vistaCentral');
       cargarBorrador();
+      cargarBorradoresNube();
       cargarArchivo();
       cargarFotos();
       iniciarChat();
     }
 
-    /* ---------- Borrador por categoría ---------- */
-    var texto = $('relato-text'), categoria = $('categoria'), tBorrador;
-    function clave() { return 'omnih_borrador_' + (uid || 'local') + '_' + categoria.value; }
-    function cargarBorrador() {
-      try { texto.value = localStorage.getItem(clave()) || ''; } catch (e) { texto.value = ''; }
-      $('status-autosave').textContent = texto.value ? 'Borrador recuperado de este dispositivo' : 'Nada escrito aún';
+    /* ---------- Guardado automático por categoría ("reciente") ---------- */
+    var texto = $('relato-text'), categoria = $('categoria'), tBorrador, tNube, borradores = {}, nubeOk = true, catPrev = categoria.value;
+    function claveDe(cat) { return 'omnih_reciente_' + (uid || 'local') + '_' + cat; }
+    function fechaHora(iso) { try { return new Date(iso).toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+    function actualizarRango() { var r = $('rangoCat'); if (r) r.textContent = RANGOS[categoria.value] || RANGOS.autobiografia; }
+    function leerLocal(cat) {
+      try {
+        var raw = localStorage.getItem(claveDe(cat));
+        if (raw) { var o = JSON.parse(raw); if (o && typeof o.t === 'string') return o; }
+        var viejo = localStorage.getItem('omnih_borrador_' + (uid || 'local') + '_' + cat);
+        if (viejo) return { t: viejo, f: '' };
+      } catch (e) {}
+      return null;
     }
-    function guardarBorrador() {
-      clearTimeout(tBorrador);
+    // Devuelve el reciente más nuevo entre el dispositivo y el archivo
+    function recienteDe(cat) {
+      var l = leerLocal(cat), n = borradores[cat];
+      if (n && n.texto && (!l || (n.fecha || '') > (l.f || ''))) return { t: n.texto, f: n.fecha || '' };
+      return l && l.t ? l : null;
+    }
+    function cargarBorrador() {
+      actualizarRango();
+      var m = recienteDe(categoria.value);
+      texto.value = m ? m.t : '';
+      $('status-autosave').textContent = m ? 'Reciente' + (m.f ? ': ' + fechaHora(m.f) : ' recuperado') : 'Nada escrito aún';
+    }
+    function guardarNube(cat, t, f) {
+      if (!F || !uid || !nubeOk) return Promise.resolve(false);
+      borradores[cat] = { texto: t, fecha: f, categoria: cat };
+      return F.setDoc(F.doc(F.db, 'perfiles', uid, 'borradores', cat), { texto: t, fecha: f, categoria: cat })
+        .then(function () { return true; }, function (err) { if (err && err.code === 'permission-denied') nubeOk = false; return false; });
+    }
+    // Guarda ya, bajo la categoría indicada: primero en el dispositivo (sirve aunque falle el wifi) y luego en el archivo
+    function guardarAhora(cat, manual) {
+      clearTimeout(tBorrador); clearTimeout(tNube);
+      var t = texto.value, f = new Date().toISOString();
+      if (!t.trim()) { borrarBorrador(cat); if (manual) avisar('No hay nada escrito para guardar.'); return Promise.resolve(false); }
+      var local = false;
+      try { localStorage.setItem(claveDe(cat), JSON.stringify({ t: t, f: f })); local = true; } catch (e) {}
+      if (cat === categoria.value) $('status-autosave').textContent = local ? 'Guardado en este dispositivo: ' + fechaHora(f) : 'No se pudo guardar el borrador';
+      return guardarNube(cat, t, f).then(function (ok) {
+        if (cat === categoria.value && ok) $('status-autosave').textContent = 'Reciente guardado en su archivo: ' + fechaHora(f);
+        if (manual) avisar(ok ? 'Guardado en su archivo como reciente.' : (local ? 'Guardado en este dispositivo. La copia en su archivo se activa al publicar las reglas nuevas de Firestore.' : 'No se pudo guardar. Revise el espacio de su dispositivo.'), !ok && !local);
+        return ok || local;
+      });
+    }
+    function borrarBorrador(cat) {
+      try { localStorage.removeItem(claveDe(cat)); localStorage.removeItem('omnih_borrador_' + (uid || 'local') + '_' + cat); } catch (e) {}
+      delete borradores[cat];
+      if (F && uid && nubeOk) F.deleteDoc(F.doc(F.db, 'perfiles', uid, 'borradores', cat)).catch(function () {});
+    }
+    function cargarBorradoresNube() {
+      if (!F || !uid) return;
+      F.getDocs(F.collection(F.db, 'perfiles', uid, 'borradores')).then(function (q) {
+        q.docs.forEach(function (d) { borradores[d.id] = d.data(); });
+        if (!texto.value.trim()) cargarBorrador();
+      }).catch(function () { nubeOk = false; });
+    }
+    texto.addEventListener('input', function () {
+      var cat = categoria.value;
+      clearTimeout(tBorrador); clearTimeout(tNube);
       tBorrador = setTimeout(function () {
-        try { localStorage.setItem(clave(), texto.value); $('status-autosave').textContent = 'Borrador guardado en este dispositivo'; }
+        var t = texto.value, f = new Date().toISOString();
+        if (!t.trim()) { borrarBorrador(cat); $('status-autosave').textContent = 'Nada escrito aún'; return; }
+        try { localStorage.setItem(claveDe(cat), JSON.stringify({ t: t, f: f })); $('status-autosave').textContent = 'Guardado en este dispositivo: ' + fechaHora(f); }
         catch (e) { $('status-autosave').textContent = 'No se pudo guardar el borrador'; }
       }, 500);
+      tNube = setTimeout(function () { if (cat === categoria.value && texto.value.trim()) guardarAhora(cat, false); }, 4000);
+    });
+    categoria.addEventListener('change', function () {
+      var nueva = categoria.value;
+      categoria.value = catPrev; guardarAhora(catPrev, false); categoria.value = nueva;
+      catPrev = nueva; cargarBorrador();
+    });
+    // Si se acaba la batería o se cierra la pestaña, lo escrito queda en el dispositivo
+    function respaldoRapido() {
+      if (!texto.value.trim()) return;
+      try { localStorage.setItem(claveDe(categoria.value), JSON.stringify({ t: texto.value, f: new Date().toISOString() })); } catch (e) {}
     }
-    texto.addEventListener('input', guardarBorrador);
-    categoria.addEventListener('change', cargarBorrador);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { respaldoRapido(); guardarAhora(categoria.value, false); } });
+    window.addEventListener('pagehide', respaldoRapido);
+    $('btnGuardar').addEventListener('click', function () { guardarAhora(categoria.value, true); });
+    function abrirBorrador(cat) {
+      guardarAhora(catPrev, false);
+      categoria.value = cat; catPrev = cat; cargarBorrador(); pestana(true); cerrarHistorico();
+    }
 
     /* ---------- Escribir / Conversar ---------- */
     function pestana(escribir) {
@@ -784,6 +873,118 @@
     $('tabConversar').addEventListener('click', function () { pestana(false); });
 
     /* ---------- Adjuntar: lo adjunto se ve completo ---------- */
+    /* ---------- Vista de lo adjunto en pantalla (mismo método que carga: PDF.js para PDF y Mammoth para Word) ---------- */
+    var PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    var PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var MAMMOTH_URL = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
+    var PDF_MAX_PAGES = 40, scriptsCargados = {}, vistas = new WeakMap();
+    function cargarScript(src) {
+      if (scriptsCargados[src]) return scriptsCargados[src];
+      scriptsCargados[src] = new Promise(function (ok, fallo) {
+        var sc = document.createElement('script'); sc.src = src; sc.async = true;
+        sc.onload = function () { ok(); };
+        sc.onerror = function () { delete scriptsCargados[src]; fallo(new Error('No se pudo cargar ' + src)); };
+        document.head.appendChild(sc);
+      });
+      return scriptsCargados[src];
+    }
+    function vistaFalla(info, err) { info.textContent = 'No se pudo mostrar la vista previa (' + ((err && err.message) || 'error') + '). El archivo sí está adjunto y puede certificarse.'; }
+    function sigueAdjunto(f) { return pendientes.indexOf(f) >= 0; }
+
+    function vistaPdf(file, cont) {
+      var info = h('div', { class: 'doc-note', text: 'Cargando vista del PDF...' }); cont.appendChild(info);
+      cargarScript(PDFJS_URL).then(function () {
+        var lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+        return file.arrayBuffer().then(function (buf) { return lib.getDocument({ data: new Uint8Array(buf) }).promise; });
+      }).then(function (pdf) {
+        var caja = h('div', { class: 'doc-pages' }); cont.appendChild(caja);
+        var ancho = Math.max(($('adjuntos').clientWidth || 320) - 40, 240), dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var total = Math.min(pdf.numPages, PDF_MAX_PAGES), seguir = Promise.resolve();
+        for (var i = 1; i <= total; i++) (function (n) {
+          seguir = seguir.then(function () {
+            if (!sigueAdjunto(file)) return;
+            info.textContent = 'Cargando página ' + n + ' de ' + pdf.numPages + '...';
+            return pdf.getPage(n).then(function (page) {
+              var base = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: (ancho / base.width) * dpr });
+              var c = document.createElement('canvas'); c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+              return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(function () { caja.appendChild(c); });
+            });
+          });
+        })(i);
+        return seguir.then(function () {
+          info.textContent = pdf.numPages > total
+            ? 'Vista de las primeras ' + total + ' de ' + pdf.numPages + ' páginas. La huella SHA-256 corresponde al archivo completo.'
+            : 'Vista de lectura del PDF (' + pdf.numPages + ' pág.). La huella SHA-256 corresponde al archivo original.';
+        });
+      }).catch(function (err) { vistaFalla(info, err); });
+    }
+
+    // El HTML que produce Mammoth no está saneado: se filtra antes de mostrarlo.
+    var DOC_ALLOWED = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'STRONG', 'EM', 'B', 'I', 'U', 'S', 'SUB', 'SUP', 'BR', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TD', 'TH', 'A', 'IMG', 'BLOCKQUOTE', 'PRE', 'CODE', 'SPAN', 'DIV'];
+    var DOC_DROP = ['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'LINK', 'META', 'FORM', 'INPUT', 'BUTTON', 'SVG', 'MATH', 'TEMPLATE'];
+    function limpiarNodoDoc(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
+        if (ch.nodeType === 3) return;
+        if (ch.nodeType !== 1) { ch.remove(); return; }
+        var tag = ch.tagName.toUpperCase();
+        if (DOC_DROP.indexOf(tag) >= 0) { ch.remove(); return; }
+        if (DOC_ALLOWED.indexOf(tag) < 0) { limpiarNodoDoc(ch); ch.replaceWith.apply(ch, Array.prototype.slice.call(ch.childNodes)); return; }
+        Array.prototype.slice.call(ch.attributes).forEach(function (at) {
+          var n = at.name.toLowerCase();
+          var guardar = (tag === 'A' && n === 'href') || (tag === 'IMG' && (n === 'src' || n === 'alt')) || ((tag === 'TD' || tag === 'TH') && (n === 'colspan' || n === 'rowspan'));
+          if (!guardar) ch.removeAttribute(at.name);
+        });
+        if (tag === 'A') {
+          var hr = ch.getAttribute('href') || '';
+          if (/^(https?:|mailto:|#)/i.test(hr)) { ch.setAttribute('target', '_blank'); ch.setAttribute('rel', 'noopener noreferrer'); }
+          else ch.removeAttribute('href');
+        }
+        if (tag === 'IMG') {
+          var src = ch.getAttribute('src') || '';
+          if (!/^data:image\/(png|jpe?g|gif|webp|bmp);base64,/i.test(src)) { ch.remove(); return; }
+        }
+        limpiarNodoDoc(ch);
+      });
+    }
+    function vistaDocx(file, cont) {
+      var info = h('div', { class: 'doc-note', text: 'Cargando vista del documento Word...' }); cont.appendChild(info);
+      cargarScript(MAMMOTH_URL).then(function () {
+        return file.arrayBuffer().then(function (buf) { return window.mammoth.convertToHtml({ arrayBuffer: buf }); });
+      }).then(function (res) {
+        var parsed = new DOMParser().parseFromString('<div>' + res.value + '</div>', 'text/html'), raiz = parsed.body.firstChild;
+        limpiarNodoDoc(raiz);
+        var caja = h('div', { class: 'doc-html' });
+        while (raiz.firstChild) caja.appendChild(raiz.firstChild);
+        if (!caja.textContent.trim() && !caja.querySelector('img')) throw new Error('el documento no tiene contenido legible');
+        cont.appendChild(caja);
+        info.textContent = 'Vista de lectura del Word (formato simplificado). La huella SHA-256 corresponde al archivo original.';
+      }).catch(function (err) { vistaFalla(info, err); });
+    }
+
+    // Una vista por archivo, que se conserva mientras siga adjunto (no se vuelve a dibujar en cada cambio)
+    function vistaDe(f) {
+      var v = vistas.get(f); if (v) return v;
+      v = h('div', { class: 'adj-vista' }); vistas.set(f, v);
+      var tipo = f.type || '', nombre = f.name.toLowerCase();
+      if (tipo.indexOf('image/') === 0) {
+        var im = h('img', { class: 'adj-img', alt: f.name }); im.src = URL.createObjectURL(f); v.appendChild(im);
+      } else if (tipo.indexOf('video/') === 0 || /\.(mp4|webm|ogg|mov)$/.test(nombre)) {
+        var vid = h('video', { class: 'adj-video', controls: '', playsinline: '' }); vid.src = URL.createObjectURL(f); v.appendChild(vid);
+      } else if (tipo.indexOf('pdf') >= 0 || /\.pdf$/.test(nombre)) {
+        vistaPdf(f, v);
+      } else if (/\.docx$/.test(nombre) || tipo.indexOf('wordprocessingml') >= 0) {
+        vistaDocx(f, v);
+      } else if (tipo.indexOf('text/') === 0 || /\.(txt|json|csv|md)$/.test(nombre)) {
+        var pre = h('pre', { class: 'adj-texto', text: 'Leyendo…' });
+        f.text().then(function (t) { pre.textContent = t.slice(0, 30000) + (t.length > 30000 ? '\n…' : ''); });
+        v.appendChild(pre);
+      } else {
+        v.appendChild(h('div', { class: 'doc-note', text: 'Este formato no tiene vista previa en pantalla. El archivo está adjunto y puede certificarse.' }));
+        v.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Abrir archivo', onclick: function () { window.open(URL.createObjectURL(f), '_blank'); } }));
+      }
+      return v;
+    }
+
     function pintarAdjuntos() {
       var ul = $('adjuntos'); ul.textContent = '';
       pendientes.forEach(function (f, i) {
@@ -792,15 +993,7 @@
           h('span', { class: 'nombre', text: f.name + ' (' + kbTexto(f.size) + '), sin certificar' }),
           h('button', { type: 'button', 'aria-label': 'Quitar ' + f.name, text: '×', onclick: function () { pendientes.splice(i, 1); pintarAdjuntos(); } })
         ]));
-        if (f.type.indexOf('image/') === 0) {
-          var im = h('img', { class: 'adj-img', alt: f.name }); im.src = URL.createObjectURL(f); li.appendChild(im);
-        } else if (f.type === 'text/plain') {
-          var pre = h('pre', { class: 'adj-texto', text: 'Leyendo…' });
-          f.text().then(function (t) { pre.textContent = t.slice(0, 30000) + (t.length > 30000 ? '\n…' : ''); });
-          li.appendChild(pre);
-        } else {
-          li.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Abrir ' + (f.type === 'application/pdf' ? 'PDF' : 'archivo'), onclick: function () { window.open(URL.createObjectURL(f), '_blank'); } }));
-        }
+        li.appendChild(vistaDe(f));
         ul.appendChild(li);
       });
     }
@@ -898,6 +1091,27 @@
         if (falla) avisar(falla.rechazo ? falla.message : (falla.code === 'permission-denied' ? 'Firestore no permitió guardar la foto. Hay que publicar las reglas nuevas.' : 'No se pudo guardar la foto. Revise su conexión.'), true);
         else if (omitidas) avisar('Se guardaron las fotos que cabían. El límite en la beta es de ' + LIM_FOTOS + '.', true);
         else if (!F || !uid) avisar('Vista previa: las fotos se muestran aquí pero no se guardan.');
+      });
+    });
+
+    // Comando: lo que está adjunto en la pantalla principal pasa a Mis fotos
+    $('btnEnviarFotos').addEventListener('click', function () {
+      var imgs = pendientes.filter(function (f) { return f.type.indexOf('image/') === 0; });
+      if (!imgs.length) { avisar('Primero adjunte una foto con “Adjuntar archivo” y luego envíela a Mis fotos.', true); return; }
+      var libres = LIM_FOTOS - contar(fotos);
+      if (libres <= 0) { avisar('En la beta puede guardar hasta ' + LIM_FOTOS + ' fotos. Elimine alguna para agregar otra.', true); return; }
+      var lote = imgs.slice(0, libres), omitidas = imgs.length - lote.length, falla = null, hechas = 0, b = $('btnEnviarFotos');
+      b.disabled = true;
+      lote.reduce(function (prev, a) {
+        return prev.then(function () {
+          if (falla) return;
+          return subirFoto(a).then(function () { hechas++; var k = pendientes.indexOf(a); if (k >= 0) pendientes.splice(k, 1); }, function (err) { falla = err; });
+        });
+      }, Promise.resolve()).then(function () {
+        b.disabled = false; pintarAdjuntos();
+        if (falla) avisar(falla.rechazo ? falla.message : (falla.code === 'permission-denied' ? 'Firestore no permitió guardar la foto. Hay que publicar las reglas nuevas.' : 'No se pudo guardar la foto. Revise su conexión.'), true);
+        else if (omitidas) avisar(hechas + ' foto(s) enviada(s) a Mis fotos. El límite en la beta es de ' + LIM_FOTOS + '.', true);
+        else avisar(hechas + (hechas === 1 ? ' foto enviada' : ' fotos enviadas') + ' a Mis fotos.');
       });
     });
 
@@ -1193,6 +1407,10 @@
       var lista = [];
       Object.keys(piezas).forEach(function (id) { var p = piezas[id]; lista.push({ tipo: 'doc', id: id, titulo: p.titulo || p.nombreArchivo || 'Documento', fecha: p.fecha || '', mini: p.miniatura, sub: (CATEGORIAS[p.categoria] || 'Documento') + ' · ' + (p.visibilidad === 'publico' ? 'público' : 'privado') }); });
       Object.keys(fotos).forEach(function (id) { var f = fotos[id]; lista.push({ tipo: 'foto', id: id, titulo: 'Foto', fecha: f.fecha || '', mini: f.miniatura, sub: 'Foto personal o familiar' }); });
+      Object.keys(CATEGORIAS).forEach(function (cat) {
+        var m = recienteDe(cat); if (!m || !m.t.trim()) return;
+        lista.push({ tipo: 'borrador', id: cat, titulo: 'Reciente: ' + m.t.trim().replace(/\s+/g, ' ').slice(0, 50), fecha: m.f || '', mini: null, sub: CATEGORIAS[cat] + ' · sin sellar' });
+      });
       lista = lista.filter(function (x) { return !q || (x.titulo + ' ' + x.sub).toLowerCase().indexOf(q) >= 0; });
       lista.sort(function (a, b) { return a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0; });
       var cont = $('historicoLista'); cont.textContent = '';
@@ -1205,12 +1423,12 @@
         var et = x.fecha ? etiquetaTiempo(x.fecha) : 'Sin fecha';
         if (et !== grupo) { grupo = et; cont.appendChild(h('div', { class: 'grupo-titulo', text: et })); }
         var mini = h('span', { class: 'mini' });
-        if (x.mini) { var im = h('img', { alt: '' }); im.src = x.mini; mini.appendChild(im); } else mini.textContent = 'DOC';
+        if (x.mini) { var im = h('img', { alt: '' }); im.src = x.mini; mini.appendChild(im); } else mini.textContent = x.tipo === 'borrador' ? 'TXT' : 'DOC';
         var fechaTxt = x.fecha ? new Date(x.fecha).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
         var b = h('button', { type: 'button', class: 'entrada' }, [mini, h('span', { class: 'txt' }, [h('span', { class: 'tit', text: x.titulo }), h('span', { class: 'sub', text: x.sub + (fechaTxt ? ' · ' + fechaTxt : '') })])]);
         b.addEventListener('click', function () {
           cerrarHistorico();
-          if (x.tipo === 'foto') abrirVisor(x.id); else hojaDetalle(piezas[x.id]);
+          if (x.tipo === 'foto') abrirVisor(x.id); else if (x.tipo === 'borrador') abrirBorrador(x.id); else hojaDetalle(piezas[x.id]);
         });
         cont.appendChild(b);
       });
@@ -1225,22 +1443,23 @@
     /* ---------- Borrar lo que está en pantalla (texto y adjuntos sin certificar) ---------- */
     $('btnBorrar').addEventListener('click', function () {
       if (!texto.value.trim() && !pendientes.length) { avisar('No hay nada en pantalla para borrar.'); return; }
-      if (!window.confirm('¿Borrar lo que está en pantalla (texto y archivos adjuntos)? Lo ya certificado en su histórico no se toca.')) return;
-      clearTimeout(tBorrador); texto.value = ''; pendientes = []; pintarAdjuntos();
-      try { localStorage.removeItem(clave()); } catch (e) {}
+      if (!window.confirm('¿Borrar lo que está en pantalla (texto y archivos adjuntos)? Lo ya certificado en su histórico no se toca, pero el reciente de esta categoría también se borra.')) return;
+      clearTimeout(tBorrador); clearTimeout(tNube); texto.value = ''; pendientes = []; pintarAdjuntos();
+      borrarBorrador(categoria.value);
       $('status-autosave').textContent = 'Nada escrito aún';
       avisar('Pantalla despejada.');
     });
 
     /* ---------- Orientación: ir a la autobiografía ---------- */
     $('btnIrAuto').addEventListener('click', function () {
-      categoria.value = 'autobiografia'; cargarBorrador(); pestana(true); alternarIA(false); texto.focus();
+      guardarAhora(catPrev, false); categoria.value = 'autobiografia'; catPrev = 'autobiografia'; cargarBorrador(); pestana(true); alternarIA(false); texto.focus();
     });
 
-    /* ---------- Sellar en la Cápsula (se conserva el puente original) ---------- */
+    /* ---------- Enviar a la Cápsula (se conserva el puente original) ---------- */
     $('btnSendToCapsule').addEventListener('click', function () {
       var t = texto.value.trim();
       if (!t) { avisar('Escriba su testimonio antes de enviarlo a la Cápsula.', true); texto.focus(); return; }
+      guardarAhora(categoria.value, false);
       try {
         sessionStorage.setItem('omnih_capsula_activa', JSON.stringify({
           autor: $('user-display-name').textContent, categoria: categoria.value,
@@ -1297,10 +1516,10 @@
     function pintarCodigo() {
       var cont = $('user-lugar'); cont.textContent = '';
       if (!miCodigo) return;
-      var rotulo = 'Mi código ' + verCodigo(miCodigo);
-      var chip = h('button', { type: 'button', class: 'codigo-chip', title: 'Toque para copiar su código de identidad', text: rotulo });
+      var rotulo = 'ID OMNIH: ' + verCodigo(miCodigo);
+      var chip = h('button', { type: 'button', class: 'codigo-chip', title: 'Toque para copiar su ID OMNIH', text: rotulo });
       chip.addEventListener('click', function () {
-        copiarTexto(verCodigo(miCodigo)).then(function () { chip.textContent = '¡Código copiado!'; }, function () { chip.textContent = 'No se pudo copiar'; });
+        copiarTexto(verCodigo(miCodigo)).then(function () { chip.textContent = '¡ID OMNIH copiado!'; }, function () { chip.textContent = 'No se pudo copiar'; });
         setTimeout(function () { chip.textContent = rotulo; }, 2000);
       });
       cont.appendChild(chip);
@@ -1350,8 +1569,6 @@
       llenar('listaContactos', contactos.map(function (v) {
         return fila(nombreDe(v), '', [mini('Quitar', 'peligro', function () { quitarVinculo(v, '¿Quitar a ' + nombreDe(v) + ' de sus contactos?'); })]);
       }));
-      $('contactosVacio').hidden = contactos.length > 0;
-      $('notaChat').hidden = contactos.length === 0;
 
       llenar('listaEnviadas', enviadas.map(function (v) {
         return fila(nombreDe(v), 'Esperando respuesta', [mini('Cancelar', '', function () { quitarVinculo(v); })]);
@@ -1400,10 +1617,10 @@
       out.hidden = false; out.textContent = '';
       var dec = function (t) { out.appendChild(h('div', { text: t })); };
       if (!F || !uid) { dec('Para buscar abra la página con la sesión iniciada.'); return; }
-      if (c.length !== 16) { dec('El código tiene 16 caracteres: números y letras de la a a la f.'); return; }
-      if (c === miCodigo) { dec('Ese es su propio código.'); return; }
+      if (c.length !== 16) { dec('El ID OMNIH tiene 16 caracteres: números y letras de la a a la f.'); return; }
+      if (c === miCodigo) { dec('Ese es su propio ID OMNIH.'); return; }
       F.getDoc(F.doc(F.db, 'codigos', c)).then(function (s) {
-        if (!s.exists()) { dec('No se encontró a nadie con ese código.'); return; }
+        if (!s.exists()) { dec('No se encontró a nadie con ese ID OMNIH.'); return; }
         var d = s.data(), id = idVinculo(uid, d.uid);
         var ex = vinculos.filter(function (v) { return v.id === id; })[0];
         out.appendChild(h('strong', { text: d.nombre }));
@@ -1418,29 +1635,59 @@
     $('btnBuscar').addEventListener('click', buscarCodigo);
     $('buscarCodigo').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); buscarCodigo(); } });
 
-    function mostrarEnlace(t) {
-      var out = $('invResultado'), url = enlaceInv(t);
-      out.hidden = false; out.textContent = '';
-      var campo = h('input', { type: 'text', class: 'enlace-inv', readonly: '', value: url, 'aria-label': 'Enlace de invitación' });
-      campo.addEventListener('focus', function () { campo.select(); });
-      out.appendChild(h('strong', { text: 'Invitación creada. Envíe este enlace a esa persona:' }));
-      out.appendChild(campo);
-      var fil = h('div', { class: 'chat-botones' });
-      fil.appendChild(mini('Copiar enlace', 'ok', function (b) { copiarEnlace(t, b); }));
-      if (navigator.share) fil.appendChild(mini('Compartir', '', function () { navigator.share({ title: 'Invitación a OMNIH', text: 'Lo invito a formar parte de la Omnihistoria', url: url }).catch(function () {}); }));
-      out.appendChild(fil);
+    var MENSAJE_INV = 'OMNIH es un ecosistema/comunidad que emplea un protocolo para el resguardo de la memoria digital de interés histórico, desde el presente al futuro, escrita por sus protagonistas con procedimientos inmutables, garantia de preservación integral asociada a una migración tecnológica continua, para la preservación del relato familiar, personal o social compilado, con un horizonte a mil años.';
+    var PIE_INV = 'Al registrarse, la persona quedará en tus contactos del chat.';
+    function textoInvitacion(msg, url) {
+      var l = ['Invitación a OMNIH', 'Invitación personal', miNombreExacto().trim() + ' le invita a formar parte de la Omnihistoria'];
+      if (msg) l.push('“' + msg + '”');
+      l.push('', MENSAJE_INV, '', PIE_INV);
+      if (url) l.push('', url);
+      return l.join('\n');
     }
-    $('btnInvitar').addEventListener('click', function () {
+    // La persona ve toda la invitación antes de enviarla
+    function vistaPreviaInvitacion() {
       if (!F || !uid || !ficha) { avisar('Para invitar abra la página con la sesión iniciada.', true); return; }
-      var btn = $('btnInvitar'); btn.disabled = true;
-      var msg = ($('invMensaje').value || '').trim().slice(0, 300);
+      var msg = ($('invMensaje').value || '').trim().slice(0, 300), pv = $('invPrevia');
+      $('invResultado').hidden = true; pv.hidden = false; pv.textContent = '';
+      pv.appendChild(h('div', { class: 'inv-cab', text: 'Invitación a OMNIH' }));
+      pv.appendChild(h('div', { class: 'inv-sub', text: 'Invitación personal' }));
+      pv.appendChild(h('div', { class: 'inv-quien', text: miNombreExacto().trim() + ' le invita a formar parte de la Omnihistoria' }));
+      if (msg) pv.appendChild(h('div', { class: 'inv-coment', text: msg }));
+      pv.appendChild(h('p', { text: MENSAJE_INV }));
+      pv.appendChild(h('p', { text: PIE_INV }));
+      pv.appendChild(h('p', { class: 'chat-nota', text: 'El enlace personal, de un solo uso, se agrega al enviar.' }));
+      var fil = h('div', { class: 'chat-botones' });
+      fil.appendChild(mini('Enviar invitación', 'ok', function (b) { enviarInvitacion(b, msg); }));
+      fil.appendChild(mini('Editar mensaje', '', function () { pv.hidden = true; $('invMensaje').focus(); }));
+      pv.appendChild(fil);
+      pv.scrollIntoView({ block: 'nearest' });
+    }
+    function enviarInvitacion(btn, msg) {
+      btn.disabled = true;
       hashAleatorio(32).then(function (t) {
         var d = { invitadorUid: uid, invitadorNombre: miNombreExacto(), fecha: ahora(), usada: false };
         if (msg) d.mensaje = msg;
         return F.setDoc(F.doc(F.db, 'invitaciones', t), d).then(function () { return t; });
-      }).then(function (t) { $('invMensaje').value = ''; mostrarEnlace(t); }, function () { avisar('No se pudo crear la invitación. Intente de nuevo.', true); })
+      }).then(function (t) { $('invMensaje').value = ''; $('invPrevia').hidden = true; mostrarOpcionesEnvio(t, msg); },
+        function () { avisar('No se pudo crear la invitación. Intente de nuevo.', true); })
         .then(function () { btn.disabled = false; });
-    });
+    }
+    function mostrarOpcionesEnvio(t, msg) {
+      var out = $('invResultado'), url = enlaceInv(t), cuerpo = textoInvitacion(msg, url);
+      out.hidden = false; out.textContent = '';
+      out.appendChild(h('strong', { text: 'Invitación lista. Elija cómo enviarla:' }));
+      var fil = h('div', { class: 'chat-botones' });
+      fil.appendChild(mini('WhatsApp', 'ok', function () { window.open('https://wa.me/?text=' + encodeURIComponent(cuerpo), '_blank'); }));
+      fil.appendChild(mini('Correo', '', function () { location.href = 'mailto:?subject=' + encodeURIComponent('Invitación a OMNIH') + '&body=' + encodeURIComponent(cuerpo); }));
+      if (navigator.share) fil.appendChild(mini('Otras apps', '', function () { navigator.share({ title: 'Invitación a OMNIH', text: cuerpo }).catch(function () {}); }));
+      fil.appendChild(mini('Copiar texto', '', function (b) {
+        var antes = b.textContent;
+        copiarTexto(cuerpo).then(function () { b.textContent = '¡Copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
+        setTimeout(function () { b.textContent = antes; }, 2000);
+      }));
+      out.appendChild(fil);
+    }
+    $('btnInvitar').addEventListener('click', vistaPreviaInvitacion);
 
     // Persona invitada: al entrar por primera vez a central se usa la invitación y se pide el vínculo
     function limpiarInv() { try { localStorage.removeItem(CLAVE_INV); } catch (e) {} }
@@ -1469,15 +1716,15 @@
     }
 
     $('btnCopiarCodigo').addEventListener('click', function () {
-      var b = $('btnCopiarCodigo'), antes = 'Copiar mi código';
-      if (!miCodigo) { avisar('Su código aún se está preparando. Intente en un momento.', true); return; }
-      copiarTexto(verCodigo(miCodigo)).then(function () { b.textContent = '¡Código copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
+      var b = $('btnCopiarCodigo'), antes = 'Copiar ID OMNIH';
+      if (!miCodigo) { avisar('Su ID OMNIH aún se está preparando. Intente en un momento.', true); return; }
+      copiarTexto(verCodigo(miCodigo)).then(function () { b.textContent = '¡ID OMNIH copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
       setTimeout(function () { b.textContent = antes; }, 2000);
     });
     if (navigator.share) {
       $('btnCompartirCodigo').addEventListener('click', function () {
-        if (!miCodigo) { avisar('Su código aún se está preparando. Intente en un momento.', true); return; }
-        navigator.share({ title: 'Mi código en OMNIH', text: 'Mi código en OMNIH: ' + verCodigo(miCodigo) + '. Péguelo en la lupa de la pestaña Chat para agregarme.' }).catch(function () {});
+        if (!miCodigo) { avisar('Su ID OMNIH aún se está preparando. Intente en un momento.', true); return; }
+        navigator.share({ title: 'Mi ID OMNIH', text: 'Mi ID OMNIH: ' + verCodigo(miCodigo) + '. Péguelo en la lupa de la pestaña Chat para agregarme.' }).catch(function () {});
       });
     } else { $('btnCompartirCodigo').hidden = true; }
 
@@ -1495,7 +1742,7 @@
         pintarChat(); revisarAutoAceptar();
       }, function () { avisar('No se pudieron leer sus invitaciones.', true); });
       asegurarIdentidad().then(function (c) { miCodigo = c; pintarCodigo(); procesarInvitacionPendiente(); },
-        function () { avisar('No se pudo preparar su código de identidad. Recargue la página.', true); });
+        function () { avisar('No se pudo preparar su ID OMNIH. Recargue la página.', true); });
     }
 
     Promise.all([
