@@ -2186,7 +2186,8 @@
       P.imagen = function (im) {
         var w = Math.min(PDF_CW * 0.8, im.w * 0.75), hh = w * im.h / im.w;
         if (hh > 300) { hh = 300; w = hh * im.w / im.h; }
-        if (P.y - hh < PDF_M + 24) P.nueva();
+        if (P.y - hh - 4 < PDF_M + 24) P.nueva();
+        P.y -= 4;
         var n = P.imgs.indexOf(im); if (n < 0) { P.imgs.push(im); n = P.imgs.length - 1; }
         P.pag.xo['Im' + (n + 1)] = n; P.y -= hh;
         P.pag.ops.push('q ' + w.toFixed(2) + ' 0 0 ' + hh.toFixed(2) + ' ' + PDF_M + ' ' + P.y.toFixed(2) + ' cm /Im' + (n + 1) + ' Do Q'); P.y -= 6;
@@ -2408,11 +2409,21 @@
 
     var MENSAJE_INV = 'OMNIH es un ecosistema/comunidad que emplea un protocolo para el resguardo de la memoria digital de interés histórico, desde el presente al futuro, escrita por sus protagonistas con procedimientos inmutables, garantia de preservación integral asociada a una migración tecnológica continua, para la preservación del relato familiar, personal o social compilado, con un horizonte a mil años.';
     var PIE_INV = 'Al registrarse, la persona quedará en tus contactos del chat.';
+    // Los pasos son los mismos en la vista previa y en el texto que se envía
+    function pasosInv(url) {
+      return [
+        url ? ['PRIMER PASO: abra este enlace y complete su registro.', url] : ['PRIMER PASO: abra el enlace de esta invitación y complete su registro.'],
+        ['SEGUNDO PASO: cuando ya haya entrado a OMNIH, agregue OMNIH a su pantalla.',
+         'En Android: menú ⋮ → “Instalar app” o “Añadir a pantalla de inicio”.',
+         'En iPhone (Safari): botón Compartir → “Añadir a pantalla de inicio”.']
+      ];
+    }
     function textoInvitacion(msg, url) {
       var l = ['Invitación a OMNIH', 'Invitación personal', miNombreExacto().trim() + ' le invita a formar parte de la Omnihistoria'];
       if (msg) l.push('“' + msg + '”');
-      l.push('', MENSAJE_INV, '', PIE_INV);
-      if (url) l.push('', url);
+      l.push('', MENSAJE_INV);
+      pasosInv(url).forEach(function (g) { l.push(''); g.forEach(function (x) { l.push(x); }); });
+      l.push('', PIE_INV);
       return l.join('\n');
     }
     // La persona ve toda la invitación antes de enviarla
@@ -2425,6 +2436,7 @@
       pv.appendChild(h('div', { class: 'inv-quien', text: miNombreExacto().trim() + ' le invita a formar parte de la Omnihistoria' }));
       if (msg) pv.appendChild(h('div', { class: 'inv-coment', text: msg }));
       pv.appendChild(h('p', { text: MENSAJE_INV }));
+      pasosInv(null).forEach(function (g) { pv.appendChild(h('p', { text: g.join('\n'), style: 'white-space: pre-line;' })); });
       pv.appendChild(h('p', { text: PIE_INV }));
       pv.appendChild(h('p', { class: 'chat-nota', text: 'El enlace personal, de un solo uso, se agrega al enviar.' }));
       var fil = h('div', { class: 'chat-botones' });
