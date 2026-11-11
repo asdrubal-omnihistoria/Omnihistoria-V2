@@ -36,6 +36,11 @@
     .btn { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 10px 16px; font-size: 0.95rem; font-weight: 700; border-radius: 10px; cursor: pointer; background: var(--accent-blue); color: #ffffff; border: 1px solid var(--accent-blue); text-decoration: none; }
     .btn.claro { background: var(--panel-bg); color: var(--text-main); border-color: var(--border-color); }
     footer { padding: 14px 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+    .instalar { border-top: 1px solid var(--border-color); padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .instalar h2 { font-size: 1rem; line-height: 1.35; }
+    .instalar .sub { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+    .instalar .plat { font-size: 0.78rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .instalar ol { padding-left: 20px; font-size: 0.9rem; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -78,6 +83,26 @@
       <p>Al registrarse desde esta invitación, quedará conectado con quien lo invitó.</p>
       <button type="button" class="btn" id="btnRegistro">Registrarme</button>
       <p class="nota">Esta invitación es personal y de un solo uso. Complete su registro en este mismo navegador.</p>
+      <div class="instalar" id="bloqueInstalar">
+        <h2>Cuando ya haya entrado a OMNIH, agréguelo a su pantalla</h2>
+        <p class="sub">Así vuelve a la Omnihistoria con un toque, como a cualquier app. Hágalo después de registrarse e iniciar sesión, no antes.</p>
+        <div id="pasosIOS">
+          <div class="plat">En iPhone (Safari)</div>
+          <ol>
+            <li>Toque el botón Compartir, el cuadro con la flecha hacia arriba.</li>
+            <li>Elija “Añadir a pantalla de inicio”.</li>
+            <li>Toque “Añadir”.</li>
+          </ol>
+        </div>
+        <div id="pasosAndroid">
+          <div class="plat">En Android (Chrome)</div>
+          <ol>
+            <li>Abra el menú ⋮ del navegador.</li>
+            <li>Elija “Instalar app” o “Añadir a pantalla de inicio”.</li>
+            <li>Confirme con “Instalar” o “Añadir”.</li>
+          </ol>
+        </div>
+      </div>
     </div>
 
     <div class="tarjeta" id="vInvalida" hidden>
@@ -101,6 +126,13 @@
   (function () {
     var $ = function (id) { return document.getElementById(id); };
     var t = new URLSearchParams(location.search).get('t') || '';
+    var ua = navigator.userAgent || '';
+    var esIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var esAndroid = /Android/.test(ua);
+    // Solo se muestran los pasos del teléfono de la persona; si no se sabe cuál es, se muestran ambos
+    $('pasosIOS').hidden = esAndroid && !esIOS;
+    $('pasosAndroid').hidden = esIOS;
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) $('bloqueInstalar').hidden = true;
     function ver(id) { ['vCarga', 'vValida', 'vInvalida', 'vError'].forEach(function (x) { $(x).hidden = x !== id; }); }
     $('btnReintentar').addEventListener('click', function () { location.reload(); });
     if (!/^[0-9a-f]{32}$/.test(t)) { ver('vInvalida'); return; }
