@@ -2,271 +2,143 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OMNIH - Cápsula del Tiempo</title>
-  <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ffffff">
-<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="OMNIH">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>OMNIH | Cápsula del Tiempo</title>
   <style>
     :root {
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
+      --bg-light: #ffffff;
+      --panel-bg: #f8fafc;
       --accent-gold: #c5a059;
       --accent-blue: #0284c7;
       --accent-blue-light: #e0f2fe;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
       --border-color: #e2e8f0;
+      --alert-red: #b91c1c;
       --success-green: #15803d;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    [hidden] { display: none !important; }
+    body { background-color: var(--bg-light); color: var(--text-main); min-height: 100dvh; display: flex; flex-direction: column; }
+    button, select, textarea, input { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 2px; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    /* ENCABEZADO: igual al de central */
+    header { background: #ffffff; padding: 10px 20px; position: sticky; top: 0; z-index: 20; }
+    .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 850px; margin: 0 auto; width: 100%; }
+    .brand-logo-link { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .dna-box { width: 28px; height: 38px; display: flex; justify-content: center; align-items: center; }
+    .dna-icon { width: 28px; height: 38px; transform: rotate(45deg); display: block; }
+    .text-omnih { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hamburger-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); padding: 8px 10px; }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
-    }
+    main { flex: 1; max-width: 850px; width: 100%; margin: 0 auto; padding: 12px 20px 60px 20px; display: flex; flex-direction: column; gap: 18px; }
 
-    .app-header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
+    .aviso { max-width: 810px; width: calc(100% - 40px); margin: 6px auto 0; padding: 12px 14px; border-radius: 8px; font-size: 0.85rem; background: var(--accent-blue-light); border: 1px solid #bae6fd; color: #0369a1; }
+    .aviso.error { background: #fef2f2; border-color: #fecaca; color: var(--alert-red); }
+    .aviso.ok { background: #f0fdf4; border-color: #bbf7d0; color: var(--success-green); }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-    }
+    /* MURO: el mismo de central */
+    .muro { position: relative; width: 100%; aspect-ratio: 15 / 7; border-radius: 12px; overflow: hidden; border: 1.5px dashed var(--border-color); background: transparent; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; text-align: center; padding: 12px; }
+    .muro.con-imagen { border: none; padding: 0; background: var(--panel-bg); }
+    .muro img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .muro-txt { font-size: 0.8rem; color: var(--text-muted); }
+    .btn-muro { border: 1px solid var(--border-color); background: #ffffff; color: var(--text-main); font-size: 0.75rem; font-weight: 700; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+    .muro.con-imagen .btn-muro { position: absolute; right: 10px; bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
-    .brand-identity {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
+    h1 { font-size: 1.5rem; font-weight: 800; }
+    .intro { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
 
-    .dna-box {
-      width: 28px;
-      height: 38px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    .tabs { display: flex; gap: 4px; background: #eef2f7; border-radius: 10px; padding: 4px; }
+    .tab { flex: 1; border: none; background: transparent; padding: 9px 6px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+    .tab.activa { background: #ffffff; color: var(--text-main); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
-    .dna-icon {
-      width: 28px;
-      height: 38px;
-      transform: rotate(45deg);
-      display: block;
-    }
+    .paso { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .paso-titulo { font-size: 0.78rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.5px; }
+    .nota { font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; }
+    .vacio { font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 14px 6px; }
 
-    .text-omnih {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      background: linear-gradient(180deg, #fef08a 0%, #eab308 35%, #ca8a04 70%, #854d0e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    select, input[type="number"] { width: 100%; padding: 12px; font-size: 0.95rem; color: var(--text-main); background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .lista { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+    .entrada { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px; border: 1px solid var(--border-color); border-radius: 10px; background: #ffffff; cursor: pointer; font-size: 0.9rem; color: var(--text-main); }
+    .entrada.elegida { border-color: var(--accent-blue); background: var(--accent-blue-light); }
+    .entrada:disabled { opacity: 0.55; cursor: not-allowed; }
+    .entrada .mini { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 8px; background: var(--panel-bg); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); }
+    .entrada .txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .entrada .tit { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .entrada .sub { font-size: 0.74rem; color: var(--text-muted); }
 
-    .btn-nav-taller {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--accent-blue);
-      font-weight: 700;
-      font-size: 0.8rem;
-      padding: 6px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
+    .texto-folio { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.92rem; line-height: 1.55; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; max-height: 260px; overflow-y: auto; }
+    .datos { display: flex; flex-direction: column; gap: 6px; }
+    .datos > div { display: flex; flex-direction: column; font-size: 0.82rem; }
+    .datos b { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+    .hash { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.74rem; word-break: break-all; }
+    .estado-linea { font-size: 0.85rem; font-weight: 700; }
+    .estado-linea.ok { color: var(--success-green); }
+    .estado-linea.error { color: var(--alert-red); }
 
-    .btn-nav-taller:hover {
-      background: var(--accent-blue-light);
-    }
+    .fila-tiempo { display: flex; gap: 10px; }
+    .fila-tiempo input { flex: 1; }
+    .fila-tiempo select { flex: 1.4; }
 
-    .main-container {
-      flex: 1;
-      max-width: 850px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
+    .btn-cmd { border: 1px solid var(--border-color); background: #ffffff; color: var(--text-main); font-size: 0.85rem; font-weight: 700; padding: 11px 14px; border-radius: 10px; cursor: pointer; }
+    .btn-cmd:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-programar { width: 100%; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg, #c5a059 0%, #eab308 100%); color: #ffffff; font-size: 0.95rem; font-weight: 800; cursor: pointer; }
+    .btn-programar:disabled { background: #94a3b8; cursor: not-allowed; }
+    .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
 
-    .section-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
+    .etiqueta { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+    .etiqueta.prog { background: #fef3c7; color: #92400e; }
+    .etiqueta.abierta { background: #dcfce7; color: var(--success-green); }
 
-    .section-title {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    /* menú lateral: igual al de central */
+    .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 25; }
+    .drawer-overlay.active { display: block; }
+    .drawer-panel { position: fixed; top: 0; right: -100%; width: 280px; max-width: 86vw; height: 100dvh; background: #ffffff; border-left: 1px solid var(--border-color); transition: right 0.3s ease; z-index: 30; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+    .drawer-panel.active { right: 0; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 14px; }
+    .drawer-title { font-size: 1.1rem; font-weight: 800; color: var(--accent-gold); }
+    .btn-close-drawer { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-muted); padding: 4px 10px; }
+    .drawer-menu { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .drawer-menu li a { text-decoration: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; display: block; padding: 10px; border-radius: 6px; }
+    .drawer-menu li a:hover { background-color: var(--accent-blue-light); color: var(--accent-blue); }
+    .btn-logout { width: 100%; padding: 12px; background: #fef2f2; color: var(--alert-red); border: 1px solid #fecaca; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-    .badge-status {
-      font-size: 0.7rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: #fef3c7;
-      color: #92400e;
-      font-weight: 700;
-    }
-    .badge-status.sealed {
-      background: #dcfce7;
-      color: var(--success-green);
-    }
+    /* hoja inferior */
+    .hoja-fondo { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 34; }
+    .hoja { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 580px; max-height: 88dvh; overflow-y: auto; background: #ffffff; border: 1px solid var(--border-color); border-radius: 16px 16px 0 0; z-index: 35; padding: 18px 18px 26px; box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.18); display: flex; flex-direction: column; gap: 12px; }
+    .hoja-titulo { font-weight: 800; font-size: 1.05rem; overflow-wrap: anywhere; }
+    .hoja-img { width: 100%; border-radius: 10px; display: block; }
 
-    .screen-viewport {
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .viewport-meta {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 8px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .viewport-content {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: var(--text-main);
-      white-space: pre-wrap;
-    }
-
-    .parameters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }
-
-    .param-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .param-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    .param-input {
-      background: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.85rem;
-      color: var(--text-main);
-      outline: none;
-    }
-
-    .param-input:focus {
-      border-color: var(--accent-blue);
-      background: #ffffff;
-    }
-
-    .btn-seal-capsule {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #c5a059 0%, #eab308 100%);
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 0.95rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
-      transition: all 0.2s ease;
-      margin-top: 10px;
-    }
-
-    .btn-seal-capsule:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(197, 160, 89, 0.45);
-    }
-
-    .btn-seal-capsule:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    footer {
-      background: var(--card-bg);
-      border-top: 1px solid var(--border-color);
-      padding: 16px 20px;
-      text-align: center;
-      margin-top: auto;
-    }
-
-    .cert-badge {
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      max-width: 850px;
-      margin: 0 auto;
-      font-family: ui-monospace, monospace;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
+    .carga { text-align: center; color: var(--text-muted); padding: 60px 20px; }
+    .carga a { color: var(--accent-blue); font-weight: 700; }
   </style>
 </head>
 <body>
 
-  <header class="app-header">
-    <div class="header-left">
-      <a href="/" class="brand-identity" title="Ir a la Raíz">
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <aside class="drawer-panel" id="drawer-menu">
+    <div>
+      <div class="drawer-header">
+        <span class="drawer-title">OMNIH CÁPSULA</span>
+        <button type="button" class="btn-close-drawer" id="btnCloseDrawer" aria-label="Cerrar menú">&times;</button>
+      </div>
+      <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Módulos del Sistema</div>
+      <ul class="drawer-menu">
+        <li><a href="index.html">1. Portal y Blog (Raíz)</a></li>
+        <li><a href="central.html">2. Taller (Espacio de trabajo)</a></li>
+      </ul>
+    </div>
+    <div>
+      <button type="button" class="btn-logout" data-salir>Cerrar Sesión Soberana</button>
+    </div>
+  </aside>
+
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="brand-logo-link" title="Ir a la Raíz">
         <div class="dna-box">
           <svg viewBox="0 0 120 240" width="28" height="38" preserveAspectRatio="xMidYMid meet" class="dna-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
@@ -287,152 +159,579 @@
         </div>
         <span class="text-omnih">OMNIH</span>
       </a>
-    </div>
-
-    <div class="header-right">
-      <a href="/central" class="btn-nav-taller">← Volver al Taller</a>
+      <button class="hamburger-btn" id="btnOpenDrawer" type="button" aria-label="Abrir menú">☰</button>
     </div>
   </header>
 
-  <main class="main-container">
+  <div class="aviso" id="aviso" role="status" hidden></div>
 
-    <section class="section-card">
-      <div class="section-title">
-        <span>Contenido Testimonial Activo</span>
-        <span class="badge-status" id="badge-estado">Listo para Sellado</span>
-      </div>
-      <div class="screen-viewport" id="screen-viewport">
-        <div class="viewport-meta">
-          <span><strong>Preservador:</strong> <span id="meta-autor">No detectado</span></span>
-          <span><strong>Vínculo:</strong> <span id="meta-vinculo">Soberano</span></span>
-          <span><strong>Anexos:</strong> <span id="meta-anexos">0</span></span>
+  <!-- Carga / mensajes de acceso -->
+  <main id="vistaCarga">
+    <p class="carga" id="cargaTxt">Abriendo su Cápsula del Tiempo…</p>
+  </main>
+
+  <!-- Cápsula -->
+  <main id="vistaCapsula" hidden>
+
+    <div class="muro" id="muro">
+      <img id="muroImg" alt="Su imagen personal o familiar" hidden>
+      <span class="muro-txt" id="muroTxt">Adjunte una imagen personal o familiar</span>
+      <button type="button" class="btn-muro" id="btnMuro">+ Imagen</button>
+    </div>
+    <input type="file" id="inputMuro" accept="image/jpeg,image/png,image/webp" style="display: none;">
+
+    <div>
+      <h1>Cápsula del Tiempo</h1>
+      <p class="intro">Aquí se programa, hacia el futuro, un documento (folio o archivo ligero) que usted ya selló en el Taller. Una vez programado no puede modificarse ni borrarse.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab activa" data-pan="panProgramar" role="tab">Programar</button>
+      <button type="button" class="tab" data-pan="panMias" role="tab">Mis cápsulas</button>
+      <button type="button" class="tab" data-pan="panRecibidas" role="tab">Recibidas</button>
+    </div>
+
+    <!-- PROGRAMAR -->
+    <section id="panProgramar" style="display: flex; flex-direction: column; gap: 18px;">
+
+      <div class="aviso" id="avisoSinSello" hidden>Llegó un texto desde el Taller que todavía no está sellado. La cápsula solo recibe documentos ya sellados: selle el folio en el Taller (Certificar) y elíjalo aquí.</div>
+
+      <div class="paso">
+        <div class="paso-titulo">1. Documento sellado</div>
+        <div class="lista" id="listaPiezas"><p class="vacio">Buscando sus documentos sellados…</p></div>
+        <div id="selPanel" hidden style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="texto-folio" id="selTexto"></div>
+          <div id="selArchivoBox" hidden style="display: flex; flex-direction: column; gap: 8px;">
+            <img class="hoja-img" id="selImg" alt="Vista del documento" hidden>
+            <p class="nota" id="selArchivoInfo"></p>
+          </div>
+          <div class="datos" id="selDatos"></div>
+          <p class="estado-linea" id="selIntegridad"></p>
         </div>
-        <div class="viewport-content" id="meta-cuerpo">
-          Esperando transferencia de testimonio desde el Taller Operativo (/central)...
+      </div>
+
+      <div class="paso">
+        <div class="paso-titulo">2. ¿Para quién?</div>
+        <div class="tabs">
+          <button type="button" class="tab activa" id="destYo">Para mí</button>
+          <button type="button" class="tab" id="destOtro">Para un contacto</button>
+        </div>
+        <div id="boxContacto" hidden style="display: flex; flex-direction: column; gap: 8px;">
+          <select id="selContacto" aria-label="Contacto destinatario"></select>
+          <p class="nota" id="notaContacto"></p>
         </div>
       </div>
+
+      <div class="paso">
+        <div class="paso-titulo">3. ¿Cuándo se abre?</div>
+        <div class="fila-tiempo">
+          <input type="number" id="tiempoN" min="1" max="100" value="1" inputmode="numeric" aria-label="Cantidad">
+          <select id="tiempoU" aria-label="Unidad">
+            <option value="dias">día(s)</option>
+            <option value="meses">mes(es)</option>
+            <option value="anios" selected>año(s)</option>
+          </select>
+        </div>
+        <p class="nota" id="notaApertura"></p>
+      </div>
+
+      <button type="button" class="btn-programar" id="btnProgramar" disabled>Programar en la cápsula</button>
+      <p class="nota">El destinatario solo podrá leerla a partir de la fecha de apertura. Esa regla la aplica el servidor, no esta pantalla. Usted, como autor, puede leerla siempre, pero no modificarla.</p>
     </section>
 
-    <section class="section-card">
-      <div class="section-title">Parámetros de Depósito y Preservación Histórica</div>
-      <div class="parameters-grid">
-        <div class="param-group">
-          <label class="param-label" for="param-date">Fecha de Depósito (UTC)</label>
-          <input type="date" class="param-input" id="param-date" readonly>
-        </div>
-        <div class="param-group">
-          <label class="param-label" for="param-time">Hora de Sellado (UTC)</label>
-          <input type="text" class="param-input" id="param-time" readonly>
-        </div>
-        <div class="param-group">
-          <label class="param-label" for="param-hibernation">Hibernación (Meses)</label>
-          <input type="number" class="param-input" id="param-hibernation" value="12" min="1" max="1200">
-        </div>
-        <div class="param-group">
-          <label class="param-label" for="param-release">Fecha de Apertura Estimada</label>
-          <input type="date" class="param-input" id="param-release" readonly>
-        </div>
-      </div>
+    <!-- MIS CÁPSULAS -->
+    <section id="panMias" hidden style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="lista" id="listaMias" style="max-height: none;"><p class="vacio">Cargando…</p></div>
+    </section>
 
-      <button type="button" class="btn-seal-capsule" id="btnSealCapsule">SELLAR CÁPSULA INMUTABLE</button>
+    <!-- RECIBIDAS -->
+    <section id="panRecibidas" hidden style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="lista" id="listaRecibidas" style="max-height: none;"><p class="vacio">Cargando…</p></div>
     </section>
 
   </main>
 
-  <footer>
-    <div class="cert-badge">
-      <div style="color: var(--success-green); font-weight: 800; margin-bottom: 4px;">✓ CERTIFICACIÓN DE PRESENCIA HUMANA DIGITAL</div>
-      <div>Hash de Identidad Histórica: <strong id="user-hash-label">Calculando...</strong></div>
-    </div>
-  </footer>
-
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1. Hidratación del Hash Real de Sesión
-      const activeHash = sessionStorage.getItem('omnih_active_user');
-      const hashLabel = document.getElementById('user-hash-label');
-      hashLabel.textContent = activeHash || '0xANONIMO_REGISTRADO';
+  (function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    function h(tag, attrs, kids) {
+      var e = document.createElement(tag);
+      Object.keys(attrs || {}).forEach(function (n) {
+        var v = attrs[n];
+        if (n === 'class') e.className = v;
+        else if (n === 'text') e.textContent = v;
+        else if (n.slice(0, 2) === 'on') e.addEventListener(n.slice(2), v);
+        else e.setAttribute(n, v);
+      });
+      (kids || []).forEach(function (c) { e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+      return e;
+    }
 
-      // 2. Hidratación del Contrato de Datos desde central.html
-      const capsulaRaw = sessionStorage.getItem('omnih_capsula_activa');
-      const metaAutor = document.getElementById('meta-autor');
-      const metaVinculo = document.getElementById('meta-vinculo');
-      const metaAnexos = document.getElementById('meta-anexos');
-      const metaCuerpo = document.getElementById('meta-cuerpo');
-      const btnSeal = document.getElementById('btnSealCapsule');
-      const badgeEstado = document.getElementById('badge-estado');
+    var F = null, uid = null, ficha = null, miNombre = '';
+    var piezas = [], contactos = [], sel = null, selOk = false, destino = 'yo';
+    var MURO_W = 1200, MURO_H = 560;
+    var LIM_ARCHIVO = 800 * 1024, selArchivo = null;   // beta: el archivo viaja dentro del documento de Firestore
+    var TIPOS = ['image/jpeg', 'image/png', 'image/webp'];
+    var tAviso = null;
 
-      let payload = null;
-      if (capsulaRaw) {
-        try {
-          payload = JSON.parse(capsulaRaw);
-          metaAutor.textContent = payload.autor || 'Preservador Soberano';
-          metaVinculo.textContent = payload.vinculo || 'Soberano';
-          metaAnexos.textContent = `${payload.imagenes_count || 0} Tesela(s)`;
-          metaCuerpo.textContent = payload.testimonio;
-        } catch (e) {
-          console.error('Error deserializando testimonio de la Cápsula');
-        }
-      }
+    /* ---------- Avisos ---------- */
+    function avisar(msg, tipo) {
+      var a = $('aviso');
+      a.textContent = msg;
+      a.className = 'aviso' + (tipo === true || tipo === 'error' ? ' error' : (tipo === 'ok' ? ' ok' : ''));
+      a.hidden = false;
+      clearTimeout(tAviso);
+      tAviso = setTimeout(function () { a.hidden = true; }, 7000);
+    }
+    function mostrarCarga(html) {
+      $('vistaCapsula').hidden = true; $('vistaCarga').hidden = false;
+      var p = $('cargaTxt'); p.textContent = '';
+      html.forEach(function (n) { p.appendChild(typeof n === 'string' ? document.createTextNode(n) : n); });
+    }
 
-      // 3. Calibración Reactiva de Fechas UTC
-      const now = new Date();
-      const dateInput = document.getElementById('param-date');
-      const timeInput = document.getElementById('param-time');
-      const hibernationInput = document.getElementById('param-hibernation');
-      const releaseInput = document.getElementById('param-release');
+    /* ---------- Menú lateral ---------- */
+    var drawer = $('drawer-menu'), overlay = $('drawer-overlay');
+    function abrirMenu() { drawer.classList.add('active'); overlay.classList.add('active'); }
+    function cerrarMenu() { drawer.classList.remove('active'); overlay.classList.remove('active'); }
+    $('btnOpenDrawer').addEventListener('click', abrirMenu);
+    $('btnCloseDrawer').addEventListener('click', cerrarMenu);
+    overlay.addEventListener('click', cerrarMenu);
 
-      dateInput.value = now.toISOString().split('T')[0];
-      timeInput.value = now.toTimeString().split(' ')[0] + ' UTC';
+    /* ---------- Hoja inferior ---------- */
+    function hoja(titulo, nodos) {
+      var fondo = h('div', { class: 'hoja-fondo' });
+      var caja = h('div', { class: 'hoja', role: 'dialog', 'aria-label': titulo });
+      caja.appendChild(h('div', { class: 'hoja-titulo', text: titulo }));
+      nodos.forEach(function (n) { caja.appendChild(n); });
+      caja.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Cerrar', onclick: cerrar }));
+      fondo.appendChild(caja); document.body.appendChild(fondo);
+      function tecla(e) { if (e.key === 'Escape') cerrar(); }
+      function cerrar() { document.removeEventListener('keydown', tecla); fondo.remove(); }
+      fondo.addEventListener('click', function (e) { if (e.target === fondo) cerrar(); });
+      document.addEventListener('keydown', tecla);
+    }
 
-      function updateReleaseDate() {
-        const months = parseInt(hibernationInput.value, 10) || 12;
-        const releaseDate = new Date(now.getTime());
-        releaseDate.setMonth(releaseDate.getMonth() + months);
-        releaseInput.value = releaseDate.toISOString().split('T')[0];
-      }
-      updateReleaseDate();
-      hibernationInput.addEventListener('input', updateReleaseDate);
+    /* ---------- Utilidades ---------- */
+    function sha256Buf(buf) {
+      return crypto.subtle.digest('SHA-256', buf).then(function (d) {
+        return '0x' + Array.prototype.map.call(new Uint8Array(d), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+      });
+    }
+    function sha256Texto(t) { return sha256Buf(new TextEncoder().encode(t)); }
+    function fechaLarga(d) { return d.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' }); }
+    function aFecha(v) { return v && typeof v.toDate === 'function' ? v.toDate() : (v ? new Date(v) : null); }
+    function descargar(contenido, tipo, nombre) {
+      var a = h('a', { href: URL.createObjectURL(new Blob([contenido], { type: tipo })), download: nombre });
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function copiarTexto(t) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+      return new Promise(function (ok, fallo) {
+        var ta = h('textarea', { readonly: '', 'aria-hidden': 'true', style: 'position:fixed;top:0;left:0;opacity:0;height:1px;width:1px;' });
+        ta.value = t; document.body.appendChild(ta); ta.focus(); ta.select();
+        try { ta.setSelectionRange(0, t.length); } catch (e) {}
+        var r = false; try { r = document.execCommand('copy'); } catch (e) {}
+        ta.remove(); if (r) ok(); else fallo();
+      });
+    }
+    function actaLegible(a) { try { return JSON.stringify(JSON.parse(a), null, 2); } catch (e) { return a || '{}'; } }
+    function datosDe(p) {
+      var d = h('div', { class: 'datos' });
+      return { nodo: d, dato: function (t, v, esHash) { d.appendChild(h('div', {}, [h('b', { text: t }), h('span', { class: esHash ? 'hash' : '', text: v })])); } };
+    }
+    function otsTexto(s) { return s === 'CONFIRMADO_EN_CALENDARIO_BITCOIN' ? 'En proceso' : 'Sin recibo'; }
 
-      // 4. Sellado Inmutable del Registro
-      btnSeal.addEventListener('click', () => {
-        if (!payload) {
-          alert('No hay un testimonio cargado desde el Taller para sellar.');
-          return;
-        }
-
-        btnSeal.disabled = true;
-        btnSeal.textContent = 'CÁPSULA SELLADA HISTÓRICAMENTE';
-        badgeEstado.textContent = 'Inmutable';
-        badgeEstado.classList.add('sealed');
-        hibernationInput.disabled = true;
-
-        const registroSellado = {
-          ...payload,
-          hibernacion_meses: hibernationInput.value,
-          fecha_apertura: releaseInput.value,
-          hash_final: activeHash,
-          estado: 'Inmutable'
+    /* ---------- Muro (la misma imagen de central: perfiles/{uid}/ficha/base, campo muro) ---------- */
+    function mostrarMuro(dataUrl) {
+      if (!dataUrl) return;
+      $('muroImg').src = dataUrl; $('muroImg').hidden = false;
+      $('muroTxt').hidden = true; $('btnMuro').textContent = 'Cambiar imagen';
+      $('muro').classList.add('con-imagen');
+    }
+    function recortarMuro(archivo) {
+      return new Promise(function (ok, fallo) {
+        var url = URL.createObjectURL(archivo), img = new Image();
+        img.onload = function () {
+          URL.revokeObjectURL(url);
+          var esc = Math.max(MURO_W / img.naturalWidth, MURO_H / img.naturalHeight);
+          var sw = MURO_W / esc, sh = MURO_H / esc;
+          var sx = (img.naturalWidth - sw) / 2, sy = (img.naturalHeight - sh) / 2;
+          var c = document.createElement('canvas'); c.width = MURO_W; c.height = MURO_H;
+          c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, MURO_W, MURO_H);
+          ok(c.toDataURL('image/jpeg', 0.8));
         };
+        img.onerror = function () { URL.revokeObjectURL(url); fallo(new Error('No se pudo leer la imagen. Pruebe con otra.')); };
+        img.src = url;
+      });
+    }
+    $('btnMuro').addEventListener('click', function () { $('inputMuro').click(); });
+    $('inputMuro').addEventListener('change', function (e) {
+      var f = e.target.files[0]; e.target.value = '';
+      if (!f) return;
+      if (TIPOS.indexOf(f.type) < 0) { avisar('Use una imagen en formato JPG, PNG o WebP.', true); return; }
+      if (f.size > 10 * 1024 * 1024) { avisar('La imagen pesa más de 10 MB. Elija una más liviana.', true); return; }
+      if (!F || !uid || !ficha) { avisar('Vista previa: la imagen no se guarda sin sesión.', true); return; }
+      recortarMuro(f).then(function (d) {
+        mostrarMuro(d);
+        return F.setDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base'), { muro: d, muroFecha: new Date().toISOString() }, { merge: true })
+          .then(function () { avisar('Imagen guardada. Es la misma que ve en el Taller.', 'ok'); });
+      }).catch(function (err) { avisar((err && err.message) || 'No se pudo guardar la imagen.', true); });
+    });
 
-        localStorage.setItem(`omnih_capsula_sellada_${Date.now()}`, JSON.stringify(registroSellado));
-        alert('Tu testimonio ha sido sellado con éxito en la Cápsula del Tiempo.');
+    /* ---------- Pestañas ---------- */
+    var PANELES = ['panProgramar', 'panMias', 'panRecibidas'];
+    function irAPanel(id) {
+      PANELES.forEach(function (p) { $(p).hidden = p !== id; });
+      Array.prototype.forEach.call(document.querySelectorAll('.tab[data-pan]'), function (t) { t.classList.toggle('activa', t.getAttribute('data-pan') === id); });
+      if (id === 'panMias') cargarMias();
+      if (id === 'panRecibidas') cargarRecibidas();
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.tab[data-pan]'), function (t) {
+      t.addEventListener('click', function () { irAPanel(t.getAttribute('data-pan')); });
+    });
+
+    /* ---------- Paso 1: documentos sellados del archivo del usuario ---------- */
+    function cargarPiezas() {
+      return F.getDocs(F.query(F.collection(F.db, 'perfiles', uid, 'archivo'), F.orderBy('fecha'))).then(function (q) {
+        piezas = q.docs.map(function (d) { var p = d.data(); p.id = d.id; return p; }).reverse();
+        pintarPiezas();
+        var pedida = new URLSearchParams(location.search).get('pieza');
+        if (pedida) { var p = piezas.filter(function (x) { return x.id === pedida; })[0]; if (p && esElegible(p)) elegirPieza(p); }
+      }).catch(function () {
+        $('listaPiezas').textContent = '';
+        $('listaPiezas').appendChild(h('p', { class: 'vacio', text: 'No se pudieron leer sus documentos sellados. Revise su conexión o que estén publicadas las reglas de Firestore.' }));
+      });
+    }
+    // Folios de texto: el contenido está guardado. Archivos: se pide el original y se comprueba contra el sello.
+    function esArchivo(p) { return !(typeof p.contenido === 'string' && p.contenido.length > 0); }
+    function esElegible(p) { return !!p.hash && (!esArchivo(p) || p.tieneOriginal === true); }
+    function pintarPiezas() {
+      var l = $('listaPiezas'); l.textContent = '';
+      if (!piezas.length) { l.appendChild(h('p', { class: 'vacio', text: 'Aún no tiene documentos sellados. Selle un folio o un archivo en el Taller (Certificar).' })); return; }
+      piezas.forEach(function (p) {
+        var ok = esElegible(p), arch = esArchivo(p);
+        var fecha = p.fecha ? fechaLarga(new Date(p.fecha)) : '';
+        var sub = !arch ? 'Folio de texto' : (ok ? 'Archivo del repositorio' : ((p.tam || 0) > LIM_ARCHIVO ? 'Pesa más de 800 KB: no cabe en la beta' : 'Selle de nuevo: su original no quedó en el repositorio'));
+        var b = h('button', { type: 'button', class: 'entrada' + (sel && sel.id === p.id ? ' elegida' : '') }, [
+          h('span', { class: 'mini', text: ok ? (arch ? 'ARC' : 'TXT') : 'DOC' }),
+          h('span', { class: 'txt' }, [
+            h('span', { class: 'tit', text: p.titulo || p.nombreArchivo || 'Documento' }),
+            h('span', { class: 'sub', text: sub + (fecha ? ' · ' + fecha : '') })
+          ])
+        ]);
+        if (!ok) b.disabled = true;
+        else b.addEventListener('click', function () { elegirPieza(p); });
+        l.appendChild(b);
+      });
+    }
+    function elegirPieza(p) {
+      sel = p; selOk = false; selArchivo = null; pintarPiezas();
+      var arch = esArchivo(p), li = $('selIntegridad');
+      $('selPanel').hidden = false;
+      $('selTexto').hidden = arch; $('selArchivoBox').hidden = !arch;
+      $('selImg').hidden = true; $('selImg').removeAttribute('src');
+      $('selTexto').textContent = arch ? '' : p.contenido;
+      var d = datosDe(p);
+      d.dato('Documento', p.titulo || p.nombreArchivo || 'Documento');
+      if (arch) d.dato('Archivo', (p.nombreArchivo || '') + (p.tam ? ' · ' + Math.round(p.tam / 1024) + ' KB' : ''));
+      d.dato('Fecha de certificación', (p.fecha || '').replace('T', ' ').slice(0, 16) + ' UTC');
+      d.dato('Sello', 'OMNIH-CA v2, firma Ed25519');
+      d.dato('Bitcoin', otsTexto(p.otsEstado));
+      d.dato('Hash SHA-256', p.hash || '', true);
+      $('selDatos').textContent = ''; $('selDatos').appendChild(d.nodo);
+      if (arch) {
+        $('selArchivoInfo').textContent = 'Archivo: ' + (p.nombreArchivo || '') + '. Se toma directamente de su repositorio.';
+        li.className = 'estado-linea'; li.textContent = 'Leyendo el original y comprobando integridad…';
+        refrescarBoton();
+        F.getDoc(F.doc(F.db, 'perfiles', uid, 'originales', p.id)).then(function (o) {
+          if (sel !== p) return;
+          if (!o.exists()) { li.className = 'estado-linea error'; li.textContent = 'No se encontró el original en su repositorio. Selle el documento de nuevo en el Taller.'; return; }
+          var od = o.data(), bytes = od.archivo.toUint8Array();
+          return sha256Buf(bytes).then(function (hx) {
+            if (sel !== p) return;
+            selOk = (hx === p.hash);
+            selArchivo = selOk ? { bytes: bytes, nombre: od.nombre || p.nombreArchivo || '', tipo: od.tipo || '' } : null;
+            if (selOk && /^image\//.test(selArchivo.tipo)) { $('selImg').src = URL.createObjectURL(new Blob([bytes], { type: selArchivo.tipo })); $('selImg').hidden = false; }
+            li.className = 'estado-linea ' + (selOk ? 'ok' : 'error');
+            li.textContent = selOk ? '✓ Íntegro: el archivo coincide con su sello.' : '✗ No coincide: el archivo fue alterado después de sellarse. No se puede programar.';
+            refrescarBoton();
+          });
+        }).catch(function () { li.className = 'estado-linea error'; li.textContent = 'No se pudo leer el original. Revise su conexión o que estén publicadas las reglas nuevas.'; });
+        return;
+      }
+      li.className = 'estado-linea'; li.textContent = 'Comprobando integridad…';
+      refrescarBoton();
+      sha256Texto(p.contenido).then(function (hx) {
+        if (sel !== p) return;
+        selOk = (hx === p.hash);
+        li.className = 'estado-linea ' + (selOk ? 'ok' : 'error');
+        li.textContent = selOk ? '✓ Íntegro: el folio coincide con su sello.' : '✗ No coincide: este folio fue alterado después de sellarse. No se puede programar.';
+        refrescarBoton();
+      }).catch(function () { li.className = 'estado-linea error'; li.textContent = 'No se pudo comprobar la integridad.'; });
+    }
+
+    /* ---------- Paso 2: destinatario (el propio autor o un contacto aceptado del Chat) ---------- */
+    function cargarContactos() {
+      return F.getDocs(F.query(F.collection(F.db, 'vinculos'), F.where('miembros', 'array-contains', uid))).then(function (q) {
+        contactos = [];
+        q.docs.forEach(function (d) {
+          var v = d.data();
+          if (v.estado !== 'aceptado' || !v.miembros) return;
+          var otro = v.miembros[0] === uid ? v.miembros[1] : v.miembros[0];
+          contactos.push({ uid: otro, nombre: (v.nombres && v.nombres[otro]) || 'Contacto' });
+        });
+        pintarContactos();
+      }).catch(function () { contactos = []; pintarContactos(); });
+    }
+    function pintarContactos() {
+      var s = $('selContacto'); s.textContent = '';
+      if (!contactos.length) {
+        $('notaContacto').textContent = 'Aún no tiene contactos aceptados. Agréguelos desde el Chat del Taller.';
+        s.disabled = true; return;
+      }
+      s.disabled = false;
+      contactos.forEach(function (c) { s.appendChild(h('option', { value: c.uid, text: c.nombre })); });
+      $('notaContacto').textContent = 'Solo contactos que ya aceptaron su vínculo en el Chat.';
+    }
+    function ponerDestino(d) {
+      destino = d;
+      $('destYo').classList.toggle('activa', d === 'yo');
+      $('destOtro').classList.toggle('activa', d === 'otro');
+      $('boxContacto').hidden = d !== 'otro';
+      refrescarBoton();
+    }
+    $('destYo').addEventListener('click', function () { ponerDestino('yo'); });
+    $('destOtro').addEventListener('click', function () { ponerDestino('otro'); });
+    $('selContacto').addEventListener('change', refrescarBoton);
+
+    /* ---------- Paso 3: fecha de apertura ---------- */
+    function leerApertura() {
+      var n = parseInt($('tiempoN').value, 10), u = $('tiempoU').value;
+      if (!n || n < 1) return null;
+      var max = u === 'dias' ? 36500 : (u === 'meses' ? 1200 : 100);
+      if (n > max) return null;
+      var d = new Date();
+      if (u === 'dias') d.setDate(d.getDate() + n);
+      else if (u === 'meses') d.setMonth(d.getMonth() + n);
+      else d.setFullYear(d.getFullYear() + n);
+      return d;
+    }
+    function pintarApertura() {
+      var d = leerApertura();
+      $('notaApertura').textContent = d ? 'Se abrirá el ' + fechaLarga(d) + '. Desde 1 día hasta 100 años.' : 'Indique una cantidad válida (desde 1 día hasta 100 años).';
+      refrescarBoton();
+    }
+    $('tiempoN').addEventListener('input', pintarApertura);
+    $('tiempoU').addEventListener('change', pintarApertura);
+
+    function destinoElegido() {
+      if (destino === 'yo') return { uid: uid, nombre: miNombre };
+      var v = $('selContacto').value;
+      var c = contactos.filter(function (x) { return x.uid === v; })[0];
+      return c ? { uid: c.uid, nombre: c.nombre } : null;
+    }
+    function refrescarBoton() {
+      $('btnProgramar').disabled = !(sel && selOk && leerApertura() && destinoElegido());
+    }
+
+    /* ---------- Programar: la regla de apertura la hace respetar Firestore ---------- */
+    $('btnProgramar').addEventListener('click', function () {
+      var ap = leerApertura(), dest = destinoElegido();
+      if (!sel || !selOk || !ap || !dest) return;
+      var arch = esArchivo(sel);
+      if (arch && !selArchivo) return;
+      var quien = dest.uid === uid ? 'para usted' : 'para ' + dest.nombre;
+      if (!window.confirm('Se programará ' + quien + ' y se abrirá el ' + fechaLarga(ap) + '.\n\nUna vez programada NO se puede modificar ni borrar. ¿Continuar?')) return;
+      var btn = $('btnProgramar'); btn.disabled = true; btn.textContent = 'Programando…';
+      var cap = F.doc(F.collection(F.db, 'capsulas'));
+      var apertura = F.Timestamp.fromDate(ap);
+      var datos = {
+        autorUid: uid, autorNombre: miNombre, destinoUid: dest.uid, destinoNombre: dest.nombre,
+        titulo: sel.titulo || sel.nombreArchivo || 'Documento', categoria: sel.categoria || '',
+        contenido: arch ? '' : sel.contenido,
+        archivo: F.Bytes.fromUint8Array(arch ? selArchivo.bytes : new Uint8Array(0)),
+        archivoNombre: arch ? (sel.nombreArchivo || selArchivo.nombre) : '', archivoTipo: arch ? selArchivo.tipo : '',
+        hash: sel.hash, firma: sel.firma || '', acta: sel.acta || '',
+        otsEstado: sel.otsEstado || '', fechaCert: sel.fecha || '', piezaId: sel.id,
+        apertura: apertura, sellado: F.serverTimestamp()
+      };
+      var lote = F.writeBatch(F.db);
+      lote.set(cap, datos);
+      if (dest.uid !== uid) {
+        lote.set(F.doc(F.db, 'perfiles', dest.uid, 'buzon', cap.id), {
+          capsulaId: cap.id, autorUid: uid, autorNombre: miNombre, apertura: apertura, sellado: F.serverTimestamp()
+        });
+      }
+      lote.commit().then(function () {
+        avisar('Cápsula programada. Se abrirá el ' + fechaLarga(ap) + '.', 'ok');
+        sel = null; selOk = false; selArchivo = null; $('selPanel').hidden = true; pintarPiezas();
+        btn.textContent = 'Programar en la cápsula'; refrescarBoton();
+        irAPanel('panMias');
+      }).catch(function (err) {
+        btn.textContent = 'Programar en la cápsula'; refrescarBoton();
+        avisar(err && err.code === 'permission-denied'
+          ? 'Firestore no permitió programar. Hay que publicar las reglas nuevas de la cápsula.'
+          : 'No se pudo programar. Revise su conexión e intente de nuevo.', true);
       });
     });
+
+    /* ---------- Mis cápsulas ---------- */
+    function cargarMias() {
+      var l = $('listaMias'); l.textContent = ''; l.appendChild(h('p', { class: 'vacio', text: 'Cargando…' }));
+      F.getDocs(F.query(F.collection(F.db, 'capsulas'), F.where('autorUid', '==', uid))).then(function (q) {
+        var lista = q.docs.map(function (d) { var c = d.data(); c.id = d.id; return c; });
+        lista.sort(function (a, b) { return aFecha(b.apertura) - aFecha(a.apertura); });
+        l.textContent = '';
+        if (!lista.length) { l.appendChild(h('p', { class: 'vacio', text: 'Aún no ha programado ninguna cápsula.' })); return; }
+        lista.forEach(function (c) {
+          var ap = aFecha(c.apertura), abierta = ap <= new Date();
+          var para = c.destinoUid === uid ? 'Para usted' : 'Para ' + c.destinoNombre;
+          l.appendChild(h('button', { type: 'button', class: 'entrada', onclick: function () { hojaCapsula(c, true); } }, [
+            h('span', { class: 'mini', text: c.archivoNombre ? 'ARC' : 'TXT' }),
+            h('span', { class: 'txt' }, [
+              h('span', { class: 'tit', text: c.titulo }),
+              h('span', { class: 'sub', text: para + ' · ' + (abierta ? 'se abrió el ' : 'se abre el ') + fechaLarga(ap) })
+            ]),
+            h('span', { class: 'etiqueta ' + (abierta ? 'abierta' : 'prog'), text: abierta ? 'Abierta' : 'Programada' })
+          ]));
+        });
+      }).catch(function () {
+        l.textContent = ''; l.appendChild(h('p', { class: 'vacio', text: 'No se pudieron leer sus cápsulas. Revise su conexión o que estén publicadas las reglas de Firestore.' }));
+      });
+    }
+
+    /* ---------- Recibidas: el buzón avisa; el contenido solo se lee desde la fecha ---------- */
+    function cargarRecibidas() {
+      var l = $('listaRecibidas'); l.textContent = ''; l.appendChild(h('p', { class: 'vacio', text: 'Cargando…' }));
+      F.getDocs(F.collection(F.db, 'perfiles', uid, 'buzon')).then(function (q) {
+        var lista = q.docs.map(function (d) { var c = d.data(); c.id = d.id; return c; });
+        lista.sort(function (a, b) { return aFecha(a.apertura) - aFecha(b.apertura); });
+        l.textContent = '';
+        if (!lista.length) { l.appendChild(h('p', { class: 'vacio', text: 'No tiene cápsulas recibidas.' })); return; }
+        lista.forEach(function (c) {
+          var ap = aFecha(c.apertura), abierta = ap <= new Date();
+          l.appendChild(h('button', { type: 'button', class: 'entrada', onclick: function () { abrirRecibida(c); } }, [
+            h('span', { class: 'mini', text: abierta ? 'ABRIR' : '🔒' }),
+            h('span', { class: 'txt' }, [
+              h('span', { class: 'tit', text: 'De ' + c.autorNombre }),
+              h('span', { class: 'sub', text: (abierta ? 'Disponible desde el ' : 'Se abre el ') + fechaLarga(ap) })
+            ]),
+            h('span', { class: 'etiqueta ' + (abierta ? 'abierta' : 'prog'), text: abierta ? 'Disponible' : 'Cerrada' })
+          ]));
+        });
+      }).catch(function () {
+        l.textContent = ''; l.appendChild(h('p', { class: 'vacio', text: 'No se pudo leer su buzón. Revise su conexión o que estén publicadas las reglas de Firestore.' }));
+      });
+    }
+    function abrirRecibida(b) {
+      var ap = aFecha(b.apertura);
+      if (ap > new Date()) { avisar('Esta cápsula se abre el ' + fechaLarga(ap) + '. Hasta entonces permanece cerrada.'); return; }
+      F.getDoc(F.doc(F.db, 'capsulas', b.capsulaId)).then(function (s) {
+        if (!s.exists()) { avisar('No se encontró la cápsula.', true); return; }
+        var c = s.data(); c.id = s.id; hojaCapsula(c, false);
+      }).catch(function (err) {
+        avisar(err && err.code === 'permission-denied'
+          ? 'El servidor aún no la libera. Si el reloj de su teléfono está adelantado, corríjalo e intente de nuevo.'
+          : 'No se pudo abrir la cápsula. Revise su conexión.', true);
+      });
+    }
+
+    /* ---------- Detalle de una cápsula: contenido, sello e integridad ---------- */
+    function hojaCapsula(c, comoAutor) {
+      var ap = aFecha(c.apertura), sell = aFecha(c.sellado);
+      var bytes = (c.archivoNombre && c.archivo && c.archivo.toUint8Array) ? c.archivo.toUint8Array() : null;
+      var cont = [], url = null;
+      if (bytes) {
+        url = URL.createObjectURL(new Blob([bytes], { type: c.archivoTipo || 'application/octet-stream' }));
+        if (/^image\//.test(c.archivoTipo || '')) { var im = h('img', { class: 'hoja-img', alt: c.titulo }); im.src = url; cont.push(im); }
+        else cont.push(h('p', { class: 'nota', text: 'Archivo: ' + c.archivoNombre }));
+      } else {
+        cont.push(h('div', { class: 'texto-folio', text: c.contenido }));
+      }
+      var d = datosDe(c);
+      d.dato('De', c.autorNombre);
+      d.dato('Para', c.destinoUid === c.autorUid ? 'El propio autor' : c.destinoNombre);
+      if (sell) d.dato('Programada el', fechaLarga(sell));
+      d.dato(ap <= new Date() ? 'Se abrió el' : 'Se abre el', fechaLarga(ap));
+      d.dato('Sello', 'OMNIH-CA v2, firma Ed25519');
+      d.dato('Bitcoin', otsTexto(c.otsEstado));
+      d.dato('Hash SHA-256', c.hash || '', true);
+      cont.push(d.nodo);
+      var res = h('p', { class: 'estado-linea', text: 'Comprobando integridad…' });
+      cont.push(res);
+      (bytes ? sha256Buf(bytes) : sha256Texto(c.contenido)).then(function (hx) {
+        var ok = hx === c.hash;
+        res.className = 'estado-linea ' + (ok ? 'ok' : 'error');
+        res.textContent = ok ? '✓ Íntegro: el documento coincide con su sello.' : '✗ No coincide: el contenido no corresponde al sello.';
+      }).catch(function () { res.className = 'estado-linea error'; res.textContent = 'No se pudo comprobar la integridad.'; });
+      var acc = h('div', { class: 'acciones' });
+      if (bytes) {
+        var tipo = c.archivoTipo || '';
+        if (/^image\//.test(tipo) || tipo === 'application/pdf') {
+          acc.appendChild(h('a', { class: 'btn-cmd', href: url, target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: /^image\//.test(tipo) ? 'Ver imagen' : 'Abrir PDF' }));
+        }
+        acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar archivo', onclick: function () { descargar(bytes, tipo || 'application/octet-stream', c.archivoNombre); } }));
+      } else {
+        acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar texto (.txt)', onclick: function () { descargar(c.contenido, 'text/plain', 'folio-' + (c.hash || 'omnih').slice(2, 12) + '.txt'); } }));
+      }
+      var bCop = h('button', { type: 'button', class: 'btn-cmd', text: 'Copiar hash' });
+      bCop.addEventListener('click', function () {
+        var vuelta = function (m) { bCop.textContent = m; setTimeout(function () { bCop.textContent = 'Copiar hash'; }, 2000); };
+        copiarTexto(c.hash || '').then(function () { vuelta('¡Hash copiado!'); }, function () { vuelta('No se pudo copiar'); });
+      });
+      acc.appendChild(bCop);
+      acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar acta (.json)', onclick: function () { descargar(actaLegible(c.acta), 'application/json', 'acta-' + (c.hash || 'omnih').slice(2, 12) + '.json'); } }));
+      cont.push(acc);
+      hoja(c.titulo, cont);
+    }
+
+    /* ---------- Arranque ---------- */
+    function iniciar() {
+      F.getDoc(F.doc(F.db, 'perfiles', uid, 'ficha', 'base')).then(function (s) {
+        if (!s.exists() || s.data().estado !== 'completa') {
+          mostrarCarga(['Primero complete su ficha en el ', h('a', { href: 'central.html', text: 'Taller' }), '.']);
+          return;
+        }
+        ficha = s.data();
+        miNombre = ((ficha.nombres || '') + ' ' + (ficha.apellidos || '')).trim() || 'Preservador';
+        if (ficha.muro) mostrarMuro(ficha.muro);
+        $('vistaCarga').hidden = true; $('vistaCapsula').hidden = false;
+        // Texto sin sellar enviado desde el Taller con el puente antiguo: no se acepta, se orienta
+        try { if (sessionStorage.getItem('omnih_capsula_activa')) { $('avisoSinSello').hidden = false; sessionStorage.removeItem('omnih_capsula_activa'); } } catch (e) {}
+        pintarApertura();
+        cargarPiezas(); cargarContactos();
+      }).catch(function () {
+        mostrarCarga(['No se pudo abrir su cápsula. Revise su conexión e intente de nuevo. ', h('a', { href: 'capsula.html', text: 'Reintentar' })]);
+      });
+    }
+
+    if (!/^https?:$/.test(location.protocol)) {
+      mostrarCarga(['Vista previa: abra la página desde su sitio con la sesión iniciada para usar la cápsula.']);
+      return;
+    }
+    Promise.all([
+      import('./js/firebase-init.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js')
+    ]).then(function (m) {
+      var app = m[1].getApp(), auth = m[2].getAuth(app), fs = m[3];
+      F = {
+        db: fs.getFirestore(app), doc: fs.doc, collection: fs.collection, getDoc: fs.getDoc, getDocs: fs.getDocs,
+        setDoc: fs.setDoc, query: fs.query, orderBy: fs.orderBy, where: fs.where, writeBatch: fs.writeBatch,
+        serverTimestamp: fs.serverTimestamp, Timestamp: fs.Timestamp, Bytes: fs.Bytes
+      };
+      m[2].onAuthStateChanged(auth, function (u) {
+        if (!u || !u.emailVerified) { location.href = 'login.html'; return; }
+        uid = u.uid;
+        iniciar();
+      });
+    }).catch(function () {
+      mostrarCarga(['No se pudo conectar con Firebase desde esta página. Revise que exista js/firebase-init.js y su conexión.']);
+    });
+  })();
   </script>
-  <style>
-.gtranslate_wrapper{position:fixed;top:8px;right:8px;z-index:9999;}
-</style>
-<div class="gtranslate_wrapper"></div>
-<script>
-window.gtranslateSettings = {
-  "default_language": "es",
-  "native_language_names": true,
-  "detect_browser_language": true,
-  "languages": ["es","en","fr","pt","de","it","zh-CN","ar","ru","ja","hi","bn","ur","ko","tr","nl","pl","uk","qu","gn"],
-  "wrapper_selector": ".gtranslate_wrapper"
-}
-</script>
-<script src="https://cdn.gtranslate.net/widgets/latest/dropdown.js" defer></script>
+  <script type="module" src="js/sesion.js"></script>
 </body>
-      </html>
+</html>
