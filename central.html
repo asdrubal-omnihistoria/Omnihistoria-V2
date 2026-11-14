@@ -1592,6 +1592,17 @@
 
     // Fase beta: el sello y el acta quedan en Firestore; el documento original permanece en el dispositivo.
     // Solo el folio escrito en el espacio de trabajo se guarda también como texto.
+    // El original de un archivo sellado queda en el repositorio (perfiles/{uid}/originales/{id}), en doc aparte
+    // para no recargar el histórico. Beta: hasta 800 KB; si pesa más se sella igual pero sin original.
+    var LIM_ORIGINAL = 800 * 1024;
+    function guardarOriginal(file, esTexto, id) {
+      if (esTexto || file.size > LIM_ORIGINAL) return Promise.resolve(false);
+      return file.arrayBuffer().then(function (b) {
+        return F.setDoc(F.doc(F.db, 'perfiles', uid, 'originales', id), {
+          archivo: F.Bytes.fromUint8Array(new Uint8Array(b)), nombre: file.name, tipo: file.type || '', tam: file.size, fecha: new Date().toISOString()
+        });
+      }).then(function () { return true; }, function () { return false; });
+    }
     function sellarYGuardar(it, visibilidad) {
       var file = it.file;
       return certificarArchivo(file).then(function (j) {
@@ -1604,7 +1615,7 @@
             miniatura: mini, contenido: it.esTexto ? it.texto : null
           };
           var ref = F.doc(F.collection(F.db, 'perfiles', uid, 'archivo'));
-          return F.setDoc(ref, pieza).then(function () {
+          return guardarOriginal(file, it.esTexto, ref.id).then(function (tiene) { pieza.tieneOriginal = tiene; return F.setDoc(ref, pieza); }).then(function () {
             pieza.id = ref.id;
             if (visibilidad !== 'publico') return pieza;
             return F.setDoc(F.doc(F.db, 'publico', ref.id), {
@@ -1655,15 +1666,15 @@
 
       btn.addEventListener('click', function () {
         var vis = rPub.checked ? 'publico' : 'privado';
-        btn.disabled = true; var hechos = 0, falla = null;
+        btn.disabled = true; var hechos = 0, falla = null, ultima = null;
         var seguir = items.reduce(function (prev, it, i) {
           return prev.then(function () {
             if (falla) return;
             estado.className = 'estado-linea'; estado.textContent = 'Certificando ' + (i + 1) + ' de ' + items.length + '…';
             return sellarYGuardar(it, vis).then(function (p) {
               hechos++;
-              lis[i].className = 'ok'; lis[i].textContent = it.titulo + ': certificado (' + p.hash.slice(0, 14) + '…)';
-              piezas[p.id] = p;
+              lis[i].className = 'ok'; lis[i].textContent = it.titulo + ': certificado (' + p.hash.slice(0, 14) + '…)' + ((!it.esTexto && !p.tieneOriginal) ? ' · sin original en el repositorio (pesa más de 800 KB o no se pudo guardar): no podrá enviarse a la Cápsula' : '');
+              piezas[p.id] = p; ultima = p;
               if (!it.esTexto) { var k = pendientes.indexOf(it.file); if (k >= 0) pendientes.splice(k, 1); }
             }).catch(function (err) {
               falla = (err && err.code === 'permission-denied') ? 'Firestore no permitió guardar. Hay que publicar las reglas nuevas.' : ((err && err.message) || 'No se pudo certificar.');
@@ -1678,6 +1689,10 @@
             estado.className = 'estado-linea ok';
             estado.textContent = hechos + ' documento(s) certificado(s). Los verá en su histórico.';
             btn.hidden = true; btnCerrar.hidden = false;
+            // Recién sellado: se puede enviar de una vez a la Cápsula (un solo documento sellado y con original en el repositorio)
+            if (hechos === 1 && ultima && (ultima.contenido || ultima.tieneOriginal)) {
+              cont.appendChild(h('button', { type: 'button', class: 'btn-cmd primario', text: 'Enviar a la Cápsula', onclick: function () { irACapsula(ultima.id); } }));
+            }
             if (aiBox.hidden === false) apagarIA();
           }
         });
@@ -1765,8 +1780,25 @@
       });
       acc.appendChild(bCopiar);
       acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar certificado (legible)', onclick: function () { descargar(certificadoHtml(p), 'text/html', 'certificado-' + (p.hash || 'omnih').slice(2, 12) + '.html'); } }));
+      if (p.id) acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Enviar a la Cápsula', onclick: function () { irACapsula(p.id); } }));
       if (p.contenido) acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar texto (.txt)', onclick: function () { descargar(p.contenido, 'text/plain', (p.nombreArchivo || 'folio.txt')); } }));
       cont.appendChild(acc); cont.appendChild(inp); cont.appendChild(res);
+      if (p.tieneOriginal && !p.contenido && F && uid && p.id) {
+        F.getDoc(F.doc(F.db, 'perfiles', uid, 'originales', p.id)).then(function (s) {
+          if (!s.exists()) return;
+          var o = s.data(), bytes = o.archivo.toUint8Array(), tipo = o.tipo || 'application/octet-stream';
+          var url = URL.createObjectURL(new Blob([bytes], { type: tipo }));
+          if (/^image\//.test(tipo)) {
+            var vi = h('img', { class: 'adj-img', alt: p.titulo || 'Imagen' }); vi.src = url; vi.style.maxWidth = '100%';
+            cont.insertBefore(vi, cont.firstChild);
+            if (im && im.parentNode) im.remove();
+            acc.insertBefore(h('a', { class: 'btn-cmd', href: url, target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: 'Ver imagen' }), acc.firstChild);
+          } else if (tipo === 'application/pdf') {
+            acc.insertBefore(h('a', { class: 'btn-cmd', href: url, target: '_blank', rel: 'noopener', style: 'text-decoration:none', text: 'Abrir PDF' }), acc.firstChild);
+          }
+          acc.appendChild(h('button', { type: 'button', class: 'btn-cmd', text: 'Descargar archivo', onclick: function () { descargar(bytes, tipo, o.nombre || 'archivo'); } }));
+        }).catch(function () {});
+      }
       abrirHoja('Documento certificado', cont);
     }
 
@@ -1868,32 +1900,22 @@
       guardarAhora(catPrev, false); categoria.value = 'autobiografia'; catPrev = 'autobiografia'; cargarBorrador(); pestana(true); alternarIA(false); texto.focus();
     });
 
-    /* ---------- Enviar a la Cápsula (se conserva el puente original) ---------- */
-    function irACapsula(t) {
+    /* ---------- Enviar a la Cápsula: solo documentos ya sellados ---------- */
+    function irACapsula(idPieza) {
       guardarAhora(categoria.value, false);
-      try {
-        sessionStorage.setItem('omnih_capsula_activa', JSON.stringify({
-          autor: $('user-display-name').textContent, categoria: categoria.value,
-          testimonio: t, fecha_sellado: new Date().toISOString()
-        }));
-      } catch (e) {}
-      location.href = 'capsula.html';
+      location.href = 'capsula.html' + (idPieza ? '?pieza=' + encodeURIComponent(idPieza) : '');
     }
     $('btnSendToCapsule').addEventListener('click', function () {
-      // Si la persona está en el Chat con una invitación a la vista, lo que se envía es esa invitación
-      if (!$('panelConversar').hidden) {
-        if (typeof ultimaInv !== 'undefined' && ultimaInv) { irACapsula(ultimaInv); return; }
-        if (!$('invPrevia').hidden && typeof crearInvitacion === 'function') {
-          var msg = ($('invMensaje').value || '').trim().slice(0, 300), bt = $('btnSendToCapsule');
-          bt.disabled = true;
-          crearInvitacion().then(function (tk) { irACapsula(textoInvitacion(msg, enlaceInv(tk))); },
-            function () { bt.disabled = false; avisar('No se pudo preparar la invitación. Intente de nuevo.', true); });
-          return;
-        }
-      }
+      if (!$('panelConversar').hidden) { avisar('La Cápsula solo recibe documentos sellados. Las invitaciones no se envían a la Cápsula.', true); return; }
       var t = texto.value.trim();
-      if (!t) { avisar('Escriba su testimonio, o abra una invitación con “Ver invitación”, antes de enviarla a la Cápsula.', true); return; }
-      irACapsula(t);
+      if (!t) { irACapsula(null); return; }
+      var sellada = null;
+      Object.keys(piezas).forEach(function (id) {
+        var p = piezas[id];
+        if (p.contenido === t && (!sellada || (p.fecha || '') > (sellada.fecha || ''))) sellada = p;
+      });
+      if (!sellada) { avisar('Este folio aún no está sellado. Primero use Certificar: la Cápsula solo recibe documentos sellados.', true); return; }
+      irACapsula(sellada.id);
     });
 
     /* ---------- Conexión con Firebase (no se intenta fuera de http/https) ---------- */
@@ -2596,7 +2618,6 @@
         copiarTexto(cuerpo).then(function () { b.textContent = '¡Copiado!'; }, function () { b.textContent = 'No se pudo copiar'; });
         setTimeout(function () { b.textContent = antes; }, 2000);
       }));
-      fil.appendChild(mini('Enviar a la Cápsula', '', function () { irACapsula(cuerpo); }));
       out.appendChild(fil);
     }
     $('btnInvitar').addEventListener('click', vistaPreviaInvitacion);
@@ -2673,7 +2694,7 @@
       F = {
         app: app, db: fs.getFirestore(app), doc: fs.doc, setDoc: fs.setDoc, getDoc: fs.getDoc, deleteDoc: fs.deleteDoc,
         collection: fs.collection, addDoc: fs.addDoc, getDocs: fs.getDocs, query: fs.query, orderBy: fs.orderBy, where: fs.where,
-        updateDoc: fs.updateDoc, onSnapshot: fs.onSnapshot, writeBatch: fs.writeBatch, limit: fs.limit, Timestamp: fs.Timestamp
+        updateDoc: fs.updateDoc, onSnapshot: fs.onSnapshot, writeBatch: fs.writeBatch, limit: fs.limit, Timestamp: fs.Timestamp, Bytes: fs.Bytes
       };
       m[2].onAuthStateChanged(auth, function (u) {
         if (!u || !u.emailVerified) { location.href = 'login.html'; return; }
