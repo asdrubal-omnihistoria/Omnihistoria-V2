@@ -501,7 +501,7 @@
         <div id="chatLista">
           <div class="chat-barra">
             <button type="button" class="btn-mini ok" id="btnNuevoChat">Nuevo chat</button>
-            <button type="button" class="btn-mini" id="btnVerAgregar">Agregar contactos</button>
+            <button type="button" class="btn-mini" id="btnVerAgregar">Agregar nuevos contactos</button>
           </div>
           <div class="chat-bloque" id="bloqueRecibidas" hidden>
             <div class="chat-titulo">Solicitudes recibidas</div>
@@ -516,7 +516,7 @@
           <p class="chat-nota">Elija uno o varios contactos. No hay límite de participantes.</p>
           <div class="chat-botones"><button type="button" class="btn-mini" id="btnTodos">Seleccionar todos</button></div>
           <ul class="chat-lista" id="listaElegir" style="gap:0;"></ul>
-          <p class="chat-nota" id="elegirVacio" hidden>Aún no tiene contactos. Use “Agregar contactos” para sumar a familiares y amigos.</p>
+          <p class="chat-nota" id="elegirVacio" hidden>Aún no tiene contactos. Use “Agregar nuevos contactos” para sumar a familiares y amigos.</p>
           <div class="form-sala">
             <input type="text" id="salaTitulo" maxlength="80" placeholder="Título (opcional)" aria-label="Título del chat">
             <div class="tabs" role="tablist">
@@ -549,7 +549,7 @@
         </div>
         <!-- Vista 4: agregar contactos e invitar -->
         <div id="chatAgregar" hidden>
-          <div class="sub-cab"><button type="button" class="btn-atras" data-atras aria-label="Volver"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><div class="sub-titulo">Agregar contactos</div></div>
+          <div class="sub-cab"><button type="button" class="btn-atras" data-atras aria-label="Volver"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><div class="sub-titulo">Agregar nuevos contactos</div></div>
           <div class="chat-bloque">
             <div class="chat-titulo">ID OMNIH</div>
             <p class="chat-nota">Compartir el ID OMNIH con familiares y amigos reales ya incorporados en el Repertorio de la Omnihistoria, esto permite agregar contactos directamente en el chat.</p>
@@ -589,14 +589,17 @@
 
       <div class="comandos">
         <button type="button" class="btn-cmd" id="btnAdjuntar">Adjuntar archivo</button>
+        <button type="button" class="btn-cmd" id="btnGaleria">Galería (fotos y video)</button>
         <button type="button" class="btn-cmd" id="btnEnviarFotos">Enviar a mis fotos</button>
         <button type="button" class="btn-cmd" id="btnGuardar">Guardar</button>
+        <button type="button" class="btn-cmd" id="btnDescargar">Descargar relato</button>
         <button type="button" class="btn-cmd" id="btnCertificar">Certificar folio</button>
         <button type="button" class="btn-cmd" id="btnVerificar">Verificar integridad</button>
         <button type="button" class="btn-cmd peligro" id="btnBorrar">Borrar pantalla</button>
         <button type="button" class="btn-cmd ia" id="btnIA">Orientación IA</button>
       </div>
       <input type="file" id="inputAdjunto" multiple style="display: none;">
+      <input type="file" id="inputGaleria" accept="image/*,video/*" multiple style="display: none;">
 
       <div class="attachment-bar">
         <span style="font-size: 0.75rem; color: var(--text-muted);" id="status-autosave">Nada escrito aún</span>
@@ -655,6 +658,7 @@
   <div class="visor" id="visor" hidden>
     <div class="visor-barra">
       <button type="button" id="visorCerrar">Cerrar</button>
+      <button type="button" id="visorUsar">Usar en la pantalla</button>
       <button type="button" id="visorEliminar">Eliminar foto</button>
     </div>
     <div class="visor-img"><img id="visorImg" alt="Foto completa"></div>
@@ -1250,13 +1254,36 @@
       }).catch(function (err) { vistaFalla(info, err); });
     }
 
+    /* ---------- Imágenes: se reconocen por tipo o por extensión (desde Drive el tipo llega vacío) ---------- */
+    function esImagen(f) { return (f.type || '').indexOf('image/') === 0 || /\.(jpe?g|png|webp|gif|bmp)$/i.test(f.name || ''); }
+    // Foto que pasa del límite: se reduce a JPEG en el teléfono hasta que quepa (la huella corresponde a la copia reducida)
+    function reducirImagen(archivo) {
+      return leerImagen(archivo).then(function (img) {
+        var w = img.naturalWidth, alto = img.naturalHeight, pasos = [[3000, 0.88], [2400, 0.85], [1800, 0.82], [1400, 0.78], [1000, 0.72]], i = 0;
+        function intento() {
+          var par = pasos[i++], esc = Math.min(1, par[0] / Math.max(w, alto)), c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(w * esc)); c.height = Math.max(1, Math.round(alto * esc));
+          var cx = c.getContext('2d'); cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0, c.width, c.height);
+          return new Promise(function (ok, fallo) {
+            c.toBlob(function (b) {
+              if (!b) { fallo(new Error('sin imagen')); return; }
+              if (b.size > LIMITE) { if (i < pasos.length) ok(intento()); else fallo(new Error('muy pesada')); return; }
+              ok(new File([b], (archivo.name || 'foto').replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() }));
+            }, 'image/jpeg', par[1]);
+          });
+        }
+        return intento();
+      });
+    }
+
     // Una vista por archivo, que se conserva mientras siga adjunto (no se vuelve a dibujar en cada cambio)
     function vistaDe(f) {
       var v = vistas.get(f); if (v) return v;
       v = h('div', { class: 'adj-vista' }); vistas.set(f, v);
       var tipo = f.type || '', nombre = f.name.toLowerCase();
-      if (tipo.indexOf('image/') === 0) {
+      if (esImagen(f)) {
         var im = h('img', { class: 'adj-img', alt: f.name }); im.src = URL.createObjectURL(f); v.appendChild(im);
+        im.onerror = function () { im.remove(); v.appendChild(h('div', { class: 'doc-note', text: 'Este formato de imagen no se puede mostrar en pantalla. Use una foto JPG o PNG.' })); };
       } else if (tipo.indexOf('video/') === 0 || /\.(mp4|webm|ogg|mov)$/.test(nombre)) {
         var vid = h('video', { class: 'adj-video', controls: '', playsinline: '' }); vid.src = URL.createObjectURL(f); v.appendChild(vid);
       } else if (tipo.indexOf('pdf') >= 0 || /\.pdf$/.test(nombre)) {
@@ -1287,15 +1314,90 @@
       });
     }
     $('btnAdjuntar').addEventListener('click', function () { $('inputAdjunto').click(); });
-    $('inputAdjunto').addEventListener('change', function (e) {
-      var excedidos = 0;
-      Array.prototype.forEach.call(e.target.files, function (a) {
-        if (a.size > LIMITE) { excedidos++; return; }
-        pendientes.push(a);
+    function recibirArchivos(lista) {
+      var omitidos = 0, reducidos = 0, cadena = Promise.resolve();
+      lista.forEach(function (a) {
+        cadena = cadena.then(function () {
+          if (a.size <= LIMITE) { pendientes.push(a); return; }
+          if (!esImagen(a)) { omitidos++; return; }
+          return reducirImagen(a).then(function (r) { pendientes.push(r); reducidos++; }, function () { omitidos++; });
+        });
       });
-      e.target.value = '';
-      pintarAdjuntos();
-      if (excedidos) avisar('En la beta cada documento puede pesar hasta 4 MB. Se omitieron ' + excedidos + ' archivo(s).', true);
+      return cadena.then(function () {
+        pintarAdjuntos();
+        var m = [];
+        if (reducidos) m.push(reducidos + ' foto(s) se redujeron para caber en 4 MB.');
+        if (omitidos) m.push('En la beta cada documento puede pesar hasta 4 MB. Se omitieron ' + omitidos + ' archivo(s).');
+        if (m.length) avisar(m.join(' '), omitidos > 0);
+      });
+    }
+    ['inputAdjunto', 'inputGaleria'].forEach(function (id) {
+      $(id).addEventListener('change', function (e) {
+        var lista = Array.prototype.slice.call(e.target.files); e.target.value = '';
+        recibirArchivos(lista);
+      });
+    });
+    $('btnGaleria').addEventListener('click', function () { $('inputGaleria').click(); });
+
+    /* ---------- Descargar el relato (texto y fotos) en el teléfono: PDF, página web o texto ---------- */
+    function imagenJpeg(archivo, lado, calidad) {
+      return leerImagen(archivo).then(function (img) {
+        var w = img.naturalWidth, alto = img.naturalHeight, esc = Math.min(1, lado / Math.max(w, alto)), c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w * esc)); c.height = Math.max(1, Math.round(alto * esc));
+        var cx = c.getContext('2d'); cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0, c.width, c.height);
+        return c.toDataURL('image/jpeg', calidad);
+      });
+    }
+    function datosRelato() {
+      return { cat: categoria.value, titulo: 'Relato · ' + (CATEGORIAS[categoria.value] || ''), texto: texto.value,
+        imgs: pendientes.filter(esImagen), otros: pendientes.filter(function (f) { return !esImagen(f); }) };
+    }
+    function pdfRelato(d) {
+      return Promise.all(d.imgs.map(function (f) { return imagenJpeg(f, 1600, 0.82).then(cargarDim).catch(function () { return null; }); })).then(function (dims) {
+        var P = nuevoPDF();
+        P.nueva();
+        P.parrafo(d.titulo, { size: 20, f: 'F2', despues: 4 });
+        P.parrafo('Guardado el ' + new Date().toLocaleString('es') + ' desde OMNIH (versión beta)', { size: 10, f: 'F3', col: '0.35 0.35 0.35', despues: 14 });
+        d.texto.split('\n').forEach(function (l) { if (l.trim()) P.parrafo(l, { size: 11.5 }); else P.y -= 8; });
+        dims.forEach(function (im, i) {
+          if (!im) return;
+          P.y -= 8; P.imagen(im);
+          P.parrafo('Figura ' + (i + 1) + '. ' + d.imgs[i].name, { size: 9, f: 'F3', col: '0.4 0.4 0.4' });
+        });
+        d.otros.forEach(function (f) { P.parrafo('[Documento adjunto] ' + f.name, { size: 10, f: 'F3', col: '0.4 0.4 0.4' }); });
+        return ensamblarPDF(P.paginas, P.imgs, d.titulo, 0);
+      });
+    }
+    function htmlRelato(d) {
+      return Promise.all(d.imgs.map(function (f) { return imagenJpeg(f, 1600, 0.82).catch(function () { return null; }); })).then(function (urls) {
+        var cuerpo = d.texto.split('\n').map(function (l) { return l.trim() ? '<p>' + escH(l) + '</p>' : ''; }).join('');
+        var figs = urls.map(function (u, i) { return u ? '<figure><img src="' + escH(u) + '" alt="' + escH(d.imgs[i].name) + '"><figcaption>Figura ' + (i + 1) + '. ' + escH(d.imgs[i].name) + '</figcaption></figure>' : ''; }).join('');
+        var otros = d.otros.map(function (f) { return '<p><small>[Documento adjunto] ' + escH(f.name) + '</small></p>'; }).join('');
+        return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escH(d.titulo) + '</title><style>body{font-family:system-ui,sans-serif;max-width:720px;margin:0 auto;padding:18px;line-height:1.6;color:#0f172a}img{max-width:100%;border-radius:8px}figure{margin:16px 0}figcaption{font-size:.8rem;color:#64748b}small{color:#64748b}</style></head><body><h1>' + escH(d.titulo) + '</h1><p><small>Guardado el ' + escH(new Date().toLocaleString('es')) + ' desde OMNIH (versión beta)</small></p>' + cuerpo + figs + otros + '</body></html>';
+      });
+    }
+    function descargarRelato(tipo) {
+      var d = datosRelato(), base = 'omnih-relato-' + d.cat + '-' + new Date().toISOString().slice(0, 10);
+      if (!d.texto.trim() && !d.imgs.length && !d.otros.length) { avisar('Aún no hay nada que descargar.', true); return; }
+      guardarAhora(categoria.value, false);
+      if (tipo === 'txt') {
+        var l = [d.titulo, ''].concat(d.texto.split('\n'));
+        if (d.imgs.length || d.otros.length) { l.push('', 'Adjuntos (solo el PDF o la página web llevan las fotos):'); d.imgs.concat(d.otros).forEach(function (f) { l.push('- ' + f.name); }); }
+        descargarBlob(new Blob([l.join('\n')], { type: 'text/plain;charset=utf-8' }), base + '.txt'); avisar('Documento listo: revise las descargas de su teléfono.'); return;
+      }
+      avisar('Preparando el documento…');
+      var tarea = tipo === 'pdf'
+        ? pdfRelato(d).then(function (u) { descargarBlob(new Blob([u], { type: 'application/pdf' }), base + '.pdf'); })
+        : htmlRelato(d).then(function (doc) { descargarBlob(new Blob([doc], { type: 'text/html;charset=utf-8' }), base + '.html'); });
+      tarea.then(function () { avisar('Documento listo: revise las descargas de su teléfono.'); }, function () { avisar('No se pudo crear el documento.', true); });
+    }
+    $('btnDescargar').addEventListener('click', function () {
+      var cerrar = hoja('Descargar su relato', [
+        opcion('PDF con texto y fotos', 'Recomendado para guardar o compartir', false, function () { cerrar(); descargarRelato('pdf'); }),
+        opcion('Página web (.html)', 'Se abre en cualquier navegador, con las fotos incluidas', false, function () { cerrar(); descargarRelato('html'); }),
+        opcion('Texto (.txt)', 'Solo el texto, sin fotos', false, function () { cerrar(); descargarRelato('txt'); }),
+        h('p', { class: 'chat-nota', text: 'El archivo queda en las descargas del teléfono; desde ahí puede subirlo a Drive o enviarlo.' })
+      ]);
     });
 
     /* ---------- Mis fotos (carrusel) ---------- */
@@ -1417,6 +1519,28 @@
     }
     function cerrarVisor() { $('visor').hidden = true; fotoAbierta = null; $('visorImg').removeAttribute('src'); }
     $('visorCerrar').addEventListener('click', cerrarVisor);
+    function datosFotoCompleta(id) {
+      if (fotosCompletas[id]) return Promise.resolve(fotosCompletas[id]);
+      var mini = (fotos[id] && fotos[id].miniatura) || '';
+      if (!F || !uid) return Promise.resolve(mini);
+      return F.getDoc(F.doc(F.db, 'perfiles', uid, 'fotosFull', id)).then(function (s) {
+        if (s.exists()) { fotosCompletas[id] = s.data().datos; return fotosCompletas[id]; }
+        return mini;
+      }).catch(function () { return mini; });
+    }
+    function dataUrlABlob(u) {
+      var p = u.split(','), mime = (p[0].match(/data:([^;]+)/) || [0, 'image/jpeg'])[1], bin = atob(p[1]), a = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+      return new Blob([a], { type: mime });
+    }
+    $('visorUsar').addEventListener('click', function () {
+      var id = fotoAbierta; if (!id) return;
+      datosFotoCompleta(id).then(function (u) {
+        if (!u) throw new Error('sin foto');
+        pendientes.push(new File([dataUrlABlob(u)], 'foto-' + id.slice(0, 8) + '.jpg', { type: 'image/jpeg', lastModified: Date.now() }));
+        cerrarVisor(); pestana(true); pintarAdjuntos(); avisar('Foto añadida a su pantalla.');
+      }).catch(function () { avisar('No se pudo pasar la foto a la pantalla.', true); });
+    });
     $('visorEliminar').addEventListener('click', function () {
       var id = fotoAbierta; if (!id) return;
       if (!window.confirm('¿Eliminar esta foto de su archivo? No se puede deshacer.')) return;
@@ -2302,7 +2426,7 @@
       });
     }
     function escH(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-    function descargar(blob, nombre) {
+    function descargarBlob(blob, nombre) {
       var a = h('a', { href: URL.createObjectURL(blob), download: nombre }); document.body.appendChild(a); a.click();
       setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
     }
@@ -2311,21 +2435,21 @@
       if (!msgs.length) { avisar('Aún no hay nada que guardar.', true); return; }
       if (tipo === 'pdf' || tipo === 'libro') {
         avisar('Preparando el documento…');
-        construirPDF(x, msgs, tipo === 'libro').then(function (u) { descargar(new Blob([u], { type: 'application/pdf' }), base + (tipo === 'libro' ? '-libro' : '') + '.pdf'); avisar('Documento listo: revise sus descargas.'); },
+        construirPDF(x, msgs, tipo === 'libro').then(function (u) { descargarBlob(new Blob([u], { type: 'application/pdf' }), base + (tipo === 'libro' ? '-libro' : '') + '.pdf'); avisar('Documento listo: revise sus descargas.'); },
           function () { avisar('No se pudo crear el documento.', true); });
         return;
       }
       if (tipo === 'txt') {
         var l = [tituloSala(x), 'Participantes: ' + participantes(x).join(', '), ''];
         msgs.forEach(function (m) { l.push('[' + new Date(m.fecha).toLocaleString('es') + '] ' + m.nombre + ': ' + (m.texto || '') + (m.adjunto ? ' [adjunto: ' + (m.adjunto.nombre || '') + ']' : '')); });
-        descargar(new Blob([l.join('\n')], { type: 'text/plain;charset=utf-8' }), base + '.txt'); return;
+        descargarBlob(new Blob([l.join('\n')], { type: 'text/plain;charset=utf-8' }), base + '.txt'); return;
       }
       var cuerpo = msgs.map(function (m) {
         var a = m.adjunto ? (m.adjunto.tipo === 'imagen' ? '<img src="' + escH(m.adjunto.datos) + '" style="max-width:100%;border-radius:8px">' : '<p><a href="' + escH(m.adjunto.datos) + '" download="' + escH(m.adjunto.nombre) + '">Documento: ' + escH(m.adjunto.nombre) + '</a></p>') : '';
         return '<div class="m"><b>' + escH(m.nombre) + '</b> <small>' + escH(new Date(m.fecha).toLocaleString('es')) + '</small>' + a + (m.texto ? '<p>' + escH(m.texto).replace(/\n/g, '<br>') + '</p>' : '') + '</div>';
       }).join('');
       var doc = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escH(tituloSala(x)) + '</title><style>body{font-family:system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;color:#0f172a}.m{border-bottom:1px solid #e2e8f0;padding:10px 0}small{color:#64748b}</style></head><body><h1>' + escH(tituloSala(x)) + '</h1><p><small>Participantes: ' + escH(participantes(x).join(', ')) + '</small></p>' + cuerpo + '</body></html>';
-      descargar(new Blob([doc], { type: 'text/html;charset=utf-8' }), base + '.html');
+      descargarBlob(new Blob([doc], { type: 'text/html;charset=utf-8' }), base + '.html');
     }
 
     /* ---------- Borrado a los 5 minutos de concluida (lo ejecuta la app de cualquier miembro) ---------- */
@@ -2512,7 +2636,7 @@
     if (navigator.share) {
       $('btnCompartirCodigo').addEventListener('click', function () {
         if (!miCodigo) { avisar('Su ID OMNIH aún se está preparando. Intente en un momento.', true); return; }
-        navigator.share({ title: 'Mi ID OMNIH', text: 'Mi ID OMNIH: ' + verCodigo(miCodigo) + '. Péguelo en Chat > Agregar contactos para agregarme.' }).catch(function () {});
+        navigator.share({ title: 'Mi ID OMNIH', text: 'Mi ID OMNIH: ' + verCodigo(miCodigo) + '. Péguelo en Chat > Agregar nuevos contactos para agregarme.' }).catch(function () {});
       });
     } else { $('btnCompartirCodigo').hidden = true; }
 
