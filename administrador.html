@@ -246,8 +246,7 @@ let aviso = "";
 function mostrarPuerta() {
   $("panel").hidden = true;
   $("puerta").hidden = false;
-  $("msgPuerta").textContent = aviso;
-  aviso = "";
+  if (aviso) { $("msgPuerta").textContent = aviso; aviso = ""; }
   $("btnEntrar").disabled = false;
 }
 function mostrarPanel() {
@@ -268,17 +267,21 @@ function reiniciar() {
   window.addEventListener(e, () => { if (!$("panel").hidden) reiniciar(); }, { passive: true })
 );
 
+let motivo = "";
 async function esAdmin(uid) {
+  motivo = "";
   try {
     const s = await getDoc(doc(db, "admins", uid));
-    return s.exists() && s.data().activo === true;
-  } catch (e) { return false; }
+    if (!s.exists()) { motivo = " (no hay documento con este UID en admins)"; return false; }
+    if (s.data().activo !== true) { motivo = " (el campo activo no es true)"; return false; }
+    return true;
+  } catch (e) { motivo = " (error al leer admins: " + ((e && e.code) || "desconocido") + ")"; return false; }
 }
 
 onAuthStateChanged(auth, async (usuario) => {
   if (!usuario) { mostrarPuerta(); return; }
   if (await esAdmin(usuario.uid)) { mostrarPanel(); return; }
-  salir("Esta cuenta no es administradora.");
+  salir("Esta cuenta no es administradora" + motivo + ".");
 });
 
 $("formPuerta").addEventListener("submit", async (ev) => {
